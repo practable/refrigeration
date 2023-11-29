@@ -31,7 +31,7 @@ https://www.w3schools.com/python/python_json.asp
 """
 
 import json
-import acUnitGlobals as glbs
+import acGlobals as glbs
 
 
 

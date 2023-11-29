@@ -18,8 +18,8 @@ thread_running = True
 
 
 
-import acUnitGlobals as glbs
-import acUnitStateMachine
+import acGlobals as glbs
+import acStateMachine
 import time
 
 import sensorObjects as so
@@ -53,7 +53,7 @@ TS_array = [TS1, TS2, TS3, TS4, TS5]
 
 
 #async def gather_data(iteration=0):
-def gather_data(iteration=0):
+def data_acquisition(iteration=0):
     global thread_running
     # Sample the hardware IOs: Valves, Power Relays, Pressure Sensors
     start_time = time.time()
@@ -152,7 +152,7 @@ expansion_valve_list = ["V1", "V2", "V3", "V4"]
 ##TODO write function for each state
 ##TODO state machine should just run state based on listed name
 
-sm = acUnitStateMachine.init_state()
+sm = acStateMachine.init_state()
 
 def state_machine():
     global thread_running
@@ -193,7 +193,7 @@ def main():
     glbs.init_logging()
     try:
         t1 = Thread(target=state_machine)
-        t2 = Thread(target=gather_data)
+        t2 = Thread(target=data_acquisition)
         t3 = Thread(target=command_client)
         t4 = Thread(target=reporting_client)
 

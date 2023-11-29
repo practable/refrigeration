@@ -11,7 +11,7 @@ import time
 
 #print(round(time.time()))
 
-import acUnitGlobals as glbs
+import acGlobals as glbs
 
 hw = glbs.acHardware
 

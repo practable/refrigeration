@@ -13,7 +13,7 @@ https://realpython.com/python-sockets/
 import socket
 import time
 import json
-import acUnitGlobals as glbs
+import acGlobals as glbs
 pack = glbs.jsonPack
 
 #HOST = "127.0.0.1"

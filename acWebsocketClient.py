@@ -1,4 +1,13 @@
-#
+#!/usr/bin/env python3
+
+'''
+acWebsocketClient
+
+- websocket client that connects to remotelabs sessionhost server to handle all incoming
+ and outgoing JSON command & data acquisition messages
+
+
+'''
 
 #https://realpython.com/python-sockets/
 
@@ -19,6 +28,25 @@ PORT = glbs.COMMAND_PORT  # The port used by the server
 
 json_delay = 1   ## time between json messages to server
 connection_error = 0
+
+
+class acWebsocketClient:
+    def __init__(self):
+        print("Starting AC Unit Refrigeration Rig - Websocket Client")
+        self.connection_error = 0
+        self.json_delay = 1
+        
+
+
+
+
+
+
+
+
+
+
+
 
 def commandClient():
     global connection_error

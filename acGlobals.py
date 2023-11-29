@@ -6,7 +6,7 @@ import traceback   ## for debugging
 import pdb         ## most mortum analysis
 import jsonPacker
 import jsonParser
-import acUnitHardware
+import acHardware
 
 # USER OPTIONS
 COMMAND_SERVER_IP = "10.42.0.1"
@@ -37,7 +37,7 @@ sensor_param_list = ["val", "min", "max","avg","dxdt", "lms" ]
 status_list = ["ok" , "state", "code", "message"]
 
 # Creating Instances of Global Methods here to ensure that only 1 object of each. Can be renamed in local files
-acHardware = acUnitHardware.acUnitHardware()
+acHardware = acHardware.acUnitHardware()
 jsonParse = jsonParser.jsonParser()
 jsonPack = jsonPacker.jsonPacker()
 
