@@ -89,10 +89,8 @@ wsc = acWebsocketClient()
 if len(sys.argv) != 4:
     print(f"Usage: {sys.argv[0]} <host> <port> <num_connections>")
     sys.exit(1)
-
 host, port, num_conns = sys.argv[1:4]
-wsc.start_connections(host, int(port), int(num_conns))
-
+wsc.start_connections(int(num_conns))
 try:
     while True:
         events = sel.select(timeout=1)

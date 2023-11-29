@@ -11,16 +11,23 @@ import acHardware
 # USER OPTIONS
 COMMAND_SERVER_IP = "10.42.0.1"
 REPORT_SERVER_IP = "10.42.0.1"
-
 #SERVER_IP = "127.0.0.1"
-
 COMMAND_PORT = 65432
 REPORT_PORT = 65433
+SIMULATE_HARDWARE = False
 
-simulate_hardware = False
-
+class acGlobals:
+    def __init__(self):
+        self.simulate_hardware = SIMULATE_HARDWARE
+        self.server_ip = COMMAND_SERVER_IP
+        self.server_port = COMMAND_PORT
+        self.acState = "init"
+        self.acHardware = acHardware.acUnitHardware()
+        self.jsonParse = jsonParser.jsonParser()
+        self.jsonPack = jsonPacker.jsonPacker()
 
 #Wrap all this inside a class?
+
 
 acUnitState = "init"
 
@@ -37,9 +44,9 @@ sensor_param_list = ["val", "min", "max","avg","dxdt", "lms" ]
 status_list = ["ok" , "state", "code", "message"]
 
 # Creating Instances of Global Methods here to ensure that only 1 object of each. Can be renamed in local files
-acHardware = acHardware.acUnitHardware()
-jsonParse = jsonParser.jsonParser()
-jsonPack = jsonPacker.jsonPacker()
+#acHardware = acHardware.acUnitHardware()
+#jsonParse = jsonParser.jsonParser()
+#jsonPack = jsonPacker.jsonPacker()
 
 
 
@@ -48,7 +55,7 @@ command_received = False
 command_queue = []  ##  queue is processed by state machine untill empty
 
 
-test_valve_status = [0,0,0,0,0,0,0,0]
+
 
 
 import logging
@@ -92,6 +99,15 @@ def update_error_status(error_code=0, error_message= " "):
         "message":" "
 '''
 
+def generic_exception_handler(ex, location="null "):
+    template = "An exception of type {0} occured. Arguments: \n{1!r}"
+    message = template.format(type(ex).__name__, ex.args)
+    print(message)
+    print(" ")
+    print(traceback.format_exc())
+    logging.exception(f"{location} Generic Exception Handler Triggered: {ex}")
+    #pdb.post_mortem()
+    print("Program Error")
 
 
 acUnit_dictionary = {
@@ -221,13 +237,3 @@ acUnit_dictionary = {
         "message":" "
     }
 }
-
-def generic_exception_handler(ex, location="null "):
-    template = "An exception of type {0} occured. Arguments: \n{1!r}"
-    message = template.format(type(ex).__name__, ex.args)
-    print(message)
-    print(" ")
-    print(traceback.format_exc())
-    logging.exception(f"{location} Generic Exception Handler Triggered: {ex}")
-    #pdb.post_mortem()
-    print("Program Error")
