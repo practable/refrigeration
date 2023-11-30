@@ -13,6 +13,7 @@ In directory: adam-user-manuals:
 - ADAM-6200_User_Manual_Ed.5_FINAL.pdf
 '''
 
+#import pyModbusTCP
 
 from pyModbusTCP.client import ModbusClient
 import time

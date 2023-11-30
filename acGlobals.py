@@ -9,27 +9,21 @@ import jsonParser
 import acHardware
 
 # USER OPTIONS
-COMMAND_SERVER_IP = "10.42.0.1"
-REPORT_SERVER_IP = "10.42.0.1"
-#SERVER_IP = "127.0.0.1"
+#COMMAND_SERVER_IP = "10.42.0.1"
+#REPORT_SERVER_IP = "10.42.0.1"
+COMMAND_SERVER_IP = "127.0.0.1"
 COMMAND_PORT = 65432
-REPORT_PORT = 65433
+#REPORT_PORT = 65433
 SIMULATE_HARDWARE = False
 
-class acGlobals:
-    def __init__(self):
-        self.simulate_hardware = SIMULATE_HARDWARE
-        self.server_ip = COMMAND_SERVER_IP
-        self.server_port = COMMAND_PORT
-        self.acState = "init"
-        self.acHardware = acHardware.acUnitHardware()
-        self.jsonParse = jsonParser.jsonParser()
-        self.jsonPack = jsonPacker.jsonPacker()
 
-#Wrap all this inside a class?
+# acGlobals contains global variables for all acUnit variables
 
+simulate_hardware = SIMULATE_HARDWARE
+server_ip = COMMAND_SERVER_IP
+server_port = COMMAND_PORT
+acState = "init"
 
-acUnitState = "init"
 
 valve_list = ["V1","V2","V3","V4","V5","V6","V7","V8"]
 relay_data_list = ["W1","W2","comp"]
@@ -39,9 +33,35 @@ outputs_list = valve_list + fan_names + compressor_names
 ps_list = ["PS1","PS2","PS3"]
 ts_list = ["TS1","TS2","TS3","TS4","TS5"]
 sense_misc_list = ["flow", "power", "APS", "ATS"]
-#history_param_list = ["dTdt", "average", "least_mean_sqr", "min", "max"]
+        #history_param_list = ["dTdt", "average", "least_mean_sqr", "min", "max"]
 sensor_param_list = ["val", "min", "max","avg","dxdt", "lms" ]
 status_list = ["ok" , "state", "code", "message"]
+
+
+cmd_received = False
+cmd_queue = []  ##  queue is processed by state machine untill empty
+
+
+
+
+hardware = acHardware.acUnitHardware()
+jsonParse = jsonParser.jsonParser()
+jsonPack = jsonPacker.jsonPacker()
+
+
+
+#Wrap all this inside a class?
+'''
+This seemed sensible but actually just broke things with circular imports.
+Maybe g_globals instead needs to be the module that pulls together all the external modules?
+
+'''
+
+
+
+
+
+
 
 # Creating Instances of Global Methods here to ensure that only 1 object of each. Can be renamed in local files
 #acHardware = acHardware.acUnitHardware()
@@ -51,8 +71,7 @@ status_list = ["ok" , "state", "code", "message"]
 
 
 
-command_received = False
-command_queue = []  ##  queue is processed by state machine untill empty
+
 
 
 

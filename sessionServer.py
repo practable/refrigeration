@@ -17,9 +17,9 @@ import sys
 import socket
 import selectors
 import types
-import acGlobals
+import g_Globals
 
-glbs = acGlobals.acGlobals()
+glbs = g_Globals.globals
 
 sel = selectors.DefaultSelector()
 

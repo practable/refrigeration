@@ -18,6 +18,8 @@ import selectors
 import types
 import acGlobals as glbs
 
+
+
 parse = glbs.jsonParse
 pack = glbs.jsonPack
 
@@ -45,7 +47,7 @@ class acWebsocketClient:
         self.port = PORT
 
 
-    def start_connections(self, num_conns = 2):
+    def start_connections(self, num_conns = 1):
         server_addr = (self.host, self.port)
         for i in range(0, num_conns):
             connid = i + 1
