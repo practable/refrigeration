@@ -24,12 +24,8 @@ parse = glbs.jsonParse
 pack = glbs.jsonPack
 
 
-
-#HOST = "127.0.0.1"  # The server's hostname or IP address
-HOST = glbs.COMMAND_SERVER_IP
-#TESTHOST = "10.42.0.1"
-#HOST = TESTHOST
-PORT = glbs.COMMAND_PORT  # The port used by the server
+host = glbs.server_ip
+port = glbs.server_port
 
 json_delay = 1   ## time between json messages to server
 connection_error = 0
@@ -43,8 +39,8 @@ class acWebsocketClient:
         print("Starting AC Unit Refrigeration Rig - Websocket Client")
         self.connection_error = 0
         self.json_delay = 1
-        self.host = HOST
-        self.port = PORT
+        self.host = host
+        self.port = port
 
 
     def start_connections(self, num_conns = 1):
@@ -124,7 +120,7 @@ def commandClient():
         while (1):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 try:
-                    s.connect((HOST, PORT))
+                    s.connect((host, port))
                     print(f"Connected to {s}")
                     glbs.logging.info(f"websocketClient: Connected to Server: {s}")
                     connection_error = 0
