@@ -83,11 +83,12 @@ class acWebsocketClient:
 
 
 wsc = acWebsocketClient()
+num_conns = 1
 
-if len(sys.argv) != 4:
-    print(f"Usage: {sys.argv[0]} <host> <port> <num_connections>")
-    sys.exit(1)
-host, port, num_conns = sys.argv[1:4]
+#if len(sys.argv) != 4:
+#    print(f"Usage: {sys.argv[0]} <host> <port> <num_connections>")
+#    sys.exit(1)
+#host, port, num_conns = sys.argv[1:4]
 wsc.start_connections(int(num_conns))
 try:
     while True:
@@ -160,5 +161,5 @@ def commandClient():
         #time.sleep(5)
 
 
-if __name__ == '__main__':
-    commandClient()
+#if __name__ == '__main__':
+# commandClient()

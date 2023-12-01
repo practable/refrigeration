@@ -26,31 +26,41 @@ sel = selectors.DefaultSelector()
 host = glbs.server_ip
 port = glbs.server_port
 
-def accept_wrapper(sock):
-    conn, addr = sock.accept()  # Should be ready to read
-    print(f"Accepted connection from {addr}")
-    conn.setblocking(False)
-    data = types.SimpleNamespace(addr=addr, inb=b"", outb=b"")
-    events = selectors.EVENT_READ | selectors.EVENT_WRITE
-    sel.register(conn, events, data=data)
+class acWebsocketClient:
+    def __init__(self):
+        self.conn = []
+        self.sock = 0
+        self.data = 0
 
-def service_connection(key, mask):
-    sock = key.fileobj
-    data = key.data
-    if mask & selectors.EVENT_READ:
-        recv_data = sock.recv(1024)  # Should be ready to read
-        if recv_data:
-            data.outb += recv_data
-        else:
-            print(f"Closing connection to {data.addr}")
-            sel.unregister(sock)
-            sock.close()
-    if mask & selectors.EVENT_WRITE:
-        if data.outb:
-            print(f"Echoing {data.outb!r} to {data.addr}")
-            sent = sock.send(data.outb)  # Should be ready to write
-            data.outb = data.outb[sent:]
 
+    def accept_wrapper(sock):
+        conn, addr = sock.accept()  # Should be ready to read
+        print(f"Accepted connection from {addr}")
+        conn.setblocking(False)
+        data = types.SimpleNamespace(addr=addr, inb=b"", outb=b"")
+        events = selectors.EVENT_READ | selectors.EVENT_WRITE
+        sel.register(conn, events, data=data)
+
+    def service_connection(self, key, mask):
+        self.sock = key.fileobj
+        self.data = key.data
+        if mask & selectors.EVENT_READ:
+            recv_data = self.sock.recv(1024)  # Should be ready to read
+            if recv_data:
+                self.data.outb += recv_data
+                #else:
+        if mask & selectors.EVENT_WRITE:
+            if self.data.outb:
+                print(f"Echoing {self.data.outb!r} to {self.data.addr}")
+                sent = self.sock.send(self.data.outb)  # Should be ready to write
+                self.data.outb = self.data.outb[sent:]
+
+    def close_connection(self):
+        print(f"Closing connection to {self.data.addr}")
+        sel.unregister(self.sock)
+        self.sock.close()
+
+wsc = acWebsocketClient
 
 #host, port = sys.argv[1], int(sys.argv[2])
 while(1):
@@ -62,13 +72,15 @@ while(1):
     sel.register(lsock, selectors.EVENT_READ, data=None)
     try:
         while True:
+            print("connection alive")
             events = sel.select(timeout=None)
             for key, mask in events:
                 if key.data is None:
-                    accept_wrapper(key.fileobj)
+                    wsc.accept_wrapper(key.fileobj)
                 else:
-                    service_connection(key, mask)
+                    wsc.service_connection(key, mask)
     except KeyboardInterrupt:
         print("Caught keyboard interrupt, exiting")
+        wsc.close_connection()
     finally:
         sel.close()
