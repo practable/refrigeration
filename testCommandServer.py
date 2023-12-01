@@ -57,7 +57,10 @@ while(exceptions < 2):
                             json_command = json_input.encode("UTF-8")
                             conn.sendall(json_command)
                             data = conn.recv(2048)
-                            reply = int(data.decode())
+                            try:
+                                reply = int(data.decode())
+                            except ValueError:
+                                print("non integer ack reply (likely due to testing half built client) ignore error codes from next few lines")
                             print(f"Returned Value: {reply}")
                             if (reply == 0):
                                 print("Command Successfully Sent")

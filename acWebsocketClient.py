@@ -36,7 +36,7 @@ messages = [b"Message 1 Client 1", b"message 2 client 1"]
 
 class acWebsocketClient:
     def __init__(self):
-        print("Starting AC Unit Refrigeration Rig - Websocket Client")
+        print("\n\nStarting AC Unit Refrigeration Rig - Websocket Client")
         self.connection_error = 0
         self.json_delay = 1
         self.host = host

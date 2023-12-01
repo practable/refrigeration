@@ -54,7 +54,7 @@ jsonPack = jsonPacker.jsonPacker()
 #Wrap all this inside a class?
 '''
 This seemed sensible but actually just broke things with circular imports.
-Maybe g_globals instead needs to be the module that pulls together all the external modules?
+Maybe g_globals instead needs to be the module that pulls together all the external modules? - astill broke everything
 
 '''
 
