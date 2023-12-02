@@ -26,8 +26,11 @@ TEST_COMMAND = '{"cmd":"set", "V1":"open"}'
 
 exceptions = 0
 
+stop = False
+
 #function takes user input and checks validity
 def input_cmd():
+    stop = False  ## This will change when made into class
     json_valid = True
     try:
         json_input = input(f"\nPlease Enter JSON command in format: {TEST_COMMAND}\n\n")
