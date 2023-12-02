@@ -190,7 +190,7 @@ task: run-state-machine: set hardware IO and system state in response to command
 def main():
     i = 0
     global thread_running
-    glbs.init_logging()
+    #glbs.init_logging()
     try:
         t1 = Thread(target=state_machine)
         t2 = Thread(target=data_acquisition)

@@ -54,7 +54,8 @@ else:
 class acWebsocketClient:
     def __init__(self):
         print("\n\nStarting AC Unit Refrigeration Rig - Websocket Client")
-        self.connection_error = 0
+        self.conn_error = 0
+        self.os_error = 0
         self.json_delay = 1
         self.host = host
         self.port = port
@@ -70,9 +71,19 @@ class acWebsocketClient:
         for i in range(0, num_conns):
             connid = i + 1
             print(f"Starting connection {connid} to {server_addr}")
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.setblocking(False)
-            sock.connect_ex(server_addr)
+            while(1):
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.setblocking(False)
+                    try:
+                        sock.connect_ex(server_addr)
+                    except ConnectionError:
+                        self.os_error = glbs.known_exception_handler("ConnectionError", "acWSclient", self.os_error)
+                    self.conn_error = 0
+                    self.os_error = 0
+                    break
+                except OSError:
+                    self.os_error = glbs.known_exception_handler("OSError", "acWSclient", self.os_error)
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
             data = types.SimpleNamespace(
                 connid=connid,
@@ -81,8 +92,8 @@ class acWebsocketClient:
                 messages=messages.copy(),
                 outb=b"",
             )
-            print("data")
-            print(data)
+            #print("data")
+            #print(data)
             sel.register(sock, events, data=data)
 
     def service_connection(self, key, mask):

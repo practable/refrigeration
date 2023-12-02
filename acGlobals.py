@@ -11,10 +11,11 @@ import acHardware
 # USER OPTIONS
 #COMMAND_SERVER_IP = "10.42.0.1"
 COMMAND_SERVER_IP = "192.168.1.228"
+REPORT_SERVER_IP = "192.168.1.228"
 #REPORT_SERVER_IP = "10.42.0.1"
 #COMMAND_SERVER_IP = "127.0.0.1"
 COMMAND_PORT = 65432
-#REPORT_PORT = 65433
+REPORT_PORT = 65433
 SIMULATE_HARDWARE = False
 
 
@@ -128,6 +129,18 @@ def generic_exception_handler(ex, location="null "):
     logging.exception(f"{location} Generic Exception Handler Triggered: {ex}")
     #pdb.post_mortem()
     print("Program Error")
+
+
+def known_exception_handler(exception_type, location, num_exception):
+    print(f"Caught {exception_type} Exception, number since last connect: {num_exception}")
+    if num_exception < 1:  ## prevent this being written to log over and over
+        print("logging exception as first instance")
+        logging.exception(f"{location} Caught {exception_type} Exception, restarting")
+    num_exception += 1
+    return num_exception
+
+
+init_logging()  ## This here so always inits even if running modules only
 
 
 acUnit_dictionary = {
