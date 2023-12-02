@@ -69,6 +69,7 @@ while(exceptions < 2):
                             try:
                                 reply = int(data.decode())
                             except ValueError:
+                                reply = 0
                                 print("non integer ack reply (likely due to testing half built client) ignore error codes from next few lines")
                             print(f"Returned Value: {reply}")
                             if (reply == 0):
