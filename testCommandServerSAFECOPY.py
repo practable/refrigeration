@@ -26,28 +26,10 @@ TEST_COMMAND = '{"cmd":"set", "V1":"open"}'
 
 exceptions = 0
 
-#function takes user input and checks validity
-def input_cmd():
-    json_valid = True
-    try:
-        json_input = input(f"\nPlease Enter JSON command in format: {TEST_COMMAND}\n\n")
-        try:
-            json_obj = json.loads(json_input)
-        except ValueError:
-            print("JSON format Not Recognised")
-            json_valid = False
-    except:
-        print("User Input Escaped - Closing Server")
-        stop = True
-    # print(iteration)
-    print(f"JSON Valid? {json_valid}")
-    if stop == False and json_valid == True:
-        # print("Sending a command you cant stop me")
-        json_command = json_input.encode("UTF-8")
-    else:
-        json_command = b''
-    return json_command, json_valid
 
+def input_cmd():
+    print("get USR input")
+    
 
 while(exceptions < 2):
     stop = False
@@ -62,9 +44,23 @@ while(exceptions < 2):
                     iteration = 0
                     while(conn):
                         print(f"Connected by {addr}")
-                        json_command = input_cmd()
-                        if (json_command[1] == True):
-                            conn.sendall(json_command[0])
+                        json_valid = True
+                        try:
+                            json_input = input(f"\nPlease Enter JSON command in format: {TEST_COMMAND}\n\n")
+                            try:
+                                json_obj = json.loads(json_input)
+                            except ValueError:
+                                print("JSON format Not Recognised")
+                                json_valid = False
+                        except:
+                            print("User Input Escaped - Closing Server")
+                            stop = True
+                        #print(iteration)
+                        print(f"JSON Valid? {json_valid}")
+                        if stop == False and json_valid == True:
+                            #print("Sending a command you cant stop me")
+                            json_command = json_input.encode("UTF-8")
+                            conn.sendall(json_command)
                             data = conn.recv(2048)
                             try:
                                 reply = int(data.decode())

@@ -32,7 +32,7 @@ connection_error = 0
 
 
 sel = selectors.DefaultSelector()
-messages = [b"Message 1 Client 1", b"message 2 client 1"]
+messages = [b"message one",b"message 2"]
 
 class acWebsocketClient:
     def __init__(self):
@@ -41,6 +41,8 @@ class acWebsocketClient:
         self.json_delay = 1
         self.host = host
         self.port = port
+        self.report_que = []
+        self.cmd_que = []
 
 
     def start_connections(self, num_conns = 1):
