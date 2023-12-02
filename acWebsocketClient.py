@@ -34,6 +34,23 @@ connection_error = 0
 sel = selectors.DefaultSelector()
 messages = [b"message one",b"message 2"]
 
+
+
+'''
+s.sendall(json_message.encode("UTF-8"))
+init_time = time.time()
+data = s.recv(1024)
+message = int(data.decode())
+# print(f" Response: {message}")
+if message == 0:
+    continue
+    print("reportingClient: Success sending JSON data Message")
+else:
+    print("reportingClient: JSON Message failed to send")
+    glbs.logging.error(f"reportingClient: JSON Message failed to send")
+'''
+
+
 class acWebsocketClient:
     def __init__(self):
         print("\n\nStarting AC Unit Refrigeration Rig - Websocket Client")
@@ -43,6 +60,9 @@ class acWebsocketClient:
         self.port = port
         self.report_que = []
         self.cmd_que = []
+        self.last_rpt_time = time.time()
+
+
 
 
     def start_connections(self, num_conns = 1):
@@ -61,6 +81,8 @@ class acWebsocketClient:
                 messages=messages.copy(),
                 outb=b"",
             )
+            print("data")
+            print(data)
             sel.register(sock, events, data=data)
 
     def service_connection(self, key, mask):
@@ -83,6 +105,24 @@ class acWebsocketClient:
                 sent = sock.send(data.outb)  # Should be ready to write
                 data.outb = data.outb[sent:]
 
+    def prepare_json_report(self):
+        json_message = pack.dump_json()
+        json_message = json_message.encode("UTF-8")
+        return json_message
+
+    def load_report(self):
+        if (time.time() - self.last_rpt_time >= 1):
+            #print(time.time())
+            self.report_que.append(self.prepare_json_report())
+            #print(self.report_que)
+
+
+
+    def run_client(self):
+        print("client_running")
+
+
+
 
 wsc = acWebsocketClient()
 num_conns = 1
@@ -91,22 +131,29 @@ num_conns = 1
 #    print(f"Usage: {sys.argv[0]} <host> <port> <num_connections>")
 #    sys.exit(1)
 #host, port, num_conns = sys.argv[1:4]
-wsc.start_connections(int(num_conns))
 try:
-    while True:
-        events = sel.select(timeout=1)
-        if events:
-            for key, mask in events:
-                wsc.service_connection(key, mask)
-        # Check for a socket being monitored to continue.
-        if not sel.get_map():
-            break
-except KeyboardInterrupt:
-    print("Caught keyboard interrupt, exiting")
-finally:
-    sel.close()
-
-
+    while (1):
+        wsc.start_connections(int(num_conns))
+        try:
+            while True:
+                wsc.load_report()
+                events = sel.select(timeout=1)
+                if events:
+                    for key, mask in events:
+                        wsc.service_connection(key, mask)
+            # Check for a socket being monitored to continue.
+                if not sel.get_map():
+                    break
+        except KeyboardInterrupt:
+            print("Caught keyboard interrupt, exiting")
+        except OSError:
+            glbs.update_error_status(23, "acWebClient: OSError Caught" )
+            time.sleep(10)
+        finally:
+            sel.close()
+except Exception as ex:
+    glbs.generic_exception_handler(ex, "acWebClient")
+    time.sleep(10)
 
 
 
