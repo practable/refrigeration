@@ -76,13 +76,17 @@ class acWebsocketClient:
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.setblocking(False)
                     try:
+                        print("Trying to Connect")
                         sock.connect_ex(server_addr)
+                        print(sock)
                     except ConnectionError:
+                        print("startConnections connection exception")
                         self.os_error = glbs.known_exception_handler("ConnectionError", "acWSclient", self.os_error)
                     self.conn_error = 0
                     self.os_error = 0
                     break
                 except OSError:
+                    print("startConnections OS error")
                     self.os_error = glbs.known_exception_handler("OSError", "acWSclient", self.os_error)
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
             data = types.SimpleNamespace(
@@ -145,10 +149,13 @@ num_conns = 1
 try:
     while (1):
         wsc.start_connections(int(num_conns))
+        print("connection started?")
         try:
             while True:
                 wsc.load_report()
                 events = sel.select(timeout=1)
+                print("events")
+                print(events)
                 if events:
                     for key, mask in events:
                         wsc.service_connection(key, mask)
@@ -158,11 +165,13 @@ try:
         except KeyboardInterrupt:
             print("Caught keyboard interrupt, exiting")
         except OSError:
+            print("OSerror")
             glbs.update_error_status(23, "acWebClient: OSError Caught" )
             time.sleep(10)
         finally:
             sel.close()
 except Exception as ex:
+    print("generic exception")
     glbs.generic_exception_handler(ex, "acWebClient")
     time.sleep(10)
 
