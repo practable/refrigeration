@@ -129,7 +129,7 @@ class acWebsocketClient:
         if (time.time() - self.last_rpt_time >= 1):
             #print(time.time())
             self.report_que.append(self.prepare_json_report())
-            #print(self.report_que)
+            print(f"Report Que Length {len(self.report_que)}")
 
 
 
