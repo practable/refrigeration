@@ -81,3 +81,12 @@ run experiment with expansion valve Vx
 ![image](https://github.com/ImogenWren/adam-controller/assets/97303986/7265be20-a3c5-4dae-9d01-df3e64b89851)
 
 
+### Development Notes
+
+#### How to best handle exceptions / errors?
+
+- Each function within a method should provide its own exception handling, and raise if exception is error
+- Priority functions with known error conditions
+- Priority on functions with known exceptions that are not errors
+- If function is unlikely to cause exception then this is probably overkill.
+

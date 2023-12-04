@@ -13,7 +13,7 @@ sessionServer
 
 # multiconn-server.py
 
-import sys
+#import sys
 import socket
 import selectors
 import types
