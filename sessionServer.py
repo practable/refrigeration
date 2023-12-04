@@ -33,7 +33,7 @@ class acWebsocketClient:
         self.data = 0
 
 
-    def accept_wrapper(sock):
+    def accept_wrapper(self, sock):
         conn, addr = sock.accept()  # Should be ready to read
         print(f"Accepted connection from {addr}")
         conn.setblocking(False)
@@ -74,9 +74,14 @@ while(1):
         while True:
             print("connection alive")
             events = sel.select(timeout=None)
+            print(F"events: {events}")
             for key, mask in events:
+                print(f"Key {key}, mask:{mask}")
                 if key.data is None:
-                    wsc.accept_wrapper(key.fileobj)
+                    try:
+                        wsc.accept_wrapper(key.fileobj)
+                    except TypeError:
+                        print("Type Error Occured")
                 else:
                     wsc.service_connection(key, mask)
     except KeyboardInterrupt:

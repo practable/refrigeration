@@ -10,13 +10,17 @@ import acHardware
 
 # USER OPTIONS
 #COMMAND_SERVER_IP = "10.42.0.1"
-COMMAND_SERVER_IP = "192.168.1.249"
-REPORT_SERVER_IP = "192.168.1.249"
 #REPORT_SERVER_IP = "10.42.0.1"
-#COMMAND_SERVER_IP = "127.0.0.1"
+
+#COMMAND_SERVER_IP = "192.168.1.249"
+#REPORT_SERVER_IP = "192.168.1.249"
+
+COMMAND_SERVER_IP = "127.0.0.1"
+REPORT_SERVER_IP = "127.0.0.1"
+
 COMMAND_PORT = 65432
 REPORT_PORT = 65433
-SIMULATE_HARDWARE = False
+SIMULATE_HARDWARE = True
 
 
 # acGlobals contains global variables for all acUnit variables
@@ -26,6 +30,7 @@ server_ip = COMMAND_SERVER_IP
 server_port = COMMAND_PORT
 acState = "init"
 
+example_cmd = '{"cmd":"set", "V1":"open"}'
 
 valve_list = ["V1","V2","V3","V4","V5","V6","V7","V8"]
 relay_data_list = ["W1","W2","comp"]

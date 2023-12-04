@@ -22,7 +22,7 @@ pack = glbs.jsonPack
 HOST = glbs.COMMAND_SERVER_IP
 PORT = glbs.COMMAND_PORT
 
-TEST_COMMAND = '{"cmd":"set", "V1":"open"}'
+TEST_COMMAND = glbs.example_cmd
 
 exceptions = 0
 
