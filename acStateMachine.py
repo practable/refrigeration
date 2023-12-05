@@ -13,7 +13,7 @@ import time
 
 import acGlobals as glbs
 
-hw = glbs.acHardware
+hw = glbs.hardware
 
 
 simulate_hardware = glbs.simulate_hardware
@@ -93,6 +93,21 @@ class error_state(stateMachine):
         # No route from error state - hardware must be manually checked
 
 
+class stop_all(stateMachine):
+    __call = 0
+    def __call__(self):
+        self.show_state(self.__call)
+        self.call +=1
+        self.__call +=1
+        hw.set_compressor(False)
+        time.sleep(1)
+        hw.set_fans(False)
+        time.sleep(1)
+        hw.adamDIO_A.set_all_coils([0, 0, 0, 0, 0, 0, 0, 0])  # direct method setting specific controller coil states
+        hw.adamDIO_B.set_all_coils([0, 0, 0, 0, 0, 0, 0, 0])  #
+        hw.adamDIO_A.get_all_coils()
+        hw.adamDIO_B.get_all_coils()
+
 
 
 
@@ -103,8 +118,8 @@ class wait_state(stateMachine):
         self.call +=1
         self.__call +=1
         #transition
-        if glbs.command_received:
-            glbs.command_received = False
+        if glbs.cmd_received:
+            glbs.cmd_received = False
             self.next_state(check_cmd_que)
         else:
             self.next_state(wait_state)
@@ -118,10 +133,10 @@ class check_cmd_que(stateMachine):
         self.call +=1
         self.__call +=1
         try:
-            print(f"Command Queue: {glbs.command_queue}")
+            print(f"Command Queue: {glbs.cmd_queue}")
             #command = glbs.command_queue[0]              ##I think this line was expecting a list of tuples and instead just has list
-            command = glbs.command_queue
-            glbs.command_queue = []  # wipe global command queue
+            command = glbs.cmd_queue
+            glbs.cmd_queue = []  # wipe global command queue
         except:
             print("StateMachine: Command Queue Empty but shouldnt be")
             glbs.update_error_status(5, "StateMachine: command queue empty but shouldnt be")  ## Update error also writes to log
@@ -147,6 +162,12 @@ class check_cmd_que(stateMachine):
                     print(f"StateMachine: Simulate: compressor is {command[1]}")
                 else:
                     hw.set_compressor(command[1])
+            elif command[0] in "all":
+                glbs.logging.info(f"StateMachine: {command[0]} is set to STOP")
+                if simulate_hardware:
+                    print(f"StateMachine: Simulate: All is set to STOP")
+                else:
+                    self.next_state(stop_all)
             else:
                 print("StateMachine: unknown command in command Queue")
                 glbs.update_error_status(5, "StateMachine: Unknown Command In Queue")
