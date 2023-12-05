@@ -7,6 +7,7 @@ https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
 
 
 pcli = {
+    "df":"\033[0m",
     "default":"\033[0m",
     "reset":"\033[0m",
     "fg":{
@@ -51,8 +52,9 @@ pcli = {
 
 }
 
-print(pcli["fg"]["black"] + "Sample Text Here")
-print(pcli["fg"]["red"] + "Sample Text Here")
-print(pcli["default"] + "Sample Text Here")
+if __name__ == "__main__":
+    print(pcli["default"] + "Sample Text Here")
+    print(pcli["fg"]["red"] + "Sample Text Here")
+    print(pcli["default"] + "Sample Text Here")
 
-print(pcli["bg"]["x"] + "Sample Text Here")
+    print(pcli["bg"]["x"] + "Sample Text Here")

@@ -1,13 +1,13 @@
-2023-12-05 15:26:51 INFO     Logging Module Started
-2023-12-05 15:26:51 INFO     State Machine: init_state
-2023-12-05 15:26:53 INFO     State Machine: wait_state
-2023-12-05 15:26:53 ERROR    commandClient: Caught Connection Error, restarting
+2023-12-05 22:40:19 INFO     Logging Module Started
+2023-12-05 22:40:19 INFO     State Machine: init_state
+2023-12-05 22:40:21 INFO     State Machine: wait_state
+2023-12-05 22:40:21 ERROR    reportingClient: Caught Connection Error, restarting
 Traceback (most recent call last):
-  File "C:\Users\dheard\Documents\0000-python\refrigeration\commandClient.py", line 29, in commandClient
+  File "D:\000-python\refrigeration\reportingClient.py", line 35, in reportingClient
     s.connect((HOST, PORT))
 ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
-2023-12-05 15:26:53 ERROR    reportingClient: Caught Connection Error, restarting
+2023-12-05 22:40:21 ERROR    commandClient: Caught Connection Error, restarting
 Traceback (most recent call last):
-  File "C:\Users\dheard\Documents\0000-python\refrigeration\reportingClient.py", line 35, in reportingClient
+  File "D:\000-python\refrigeration\commandClient.py", line 29, in commandClient
     s.connect((HOST, PORT))
 ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
