@@ -30,7 +30,7 @@ import reportingClient as rc
 
 
 # Renaming global variables to reduce number of things.with.references.to.other.things
-hw = glbs.acHardware
+hw = glbs.hardware
 parse = glbs.jsonParse
 pack = glbs.jsonPack
 # State machine must be defined here to avoid circular references
@@ -126,8 +126,8 @@ def local_json_interface(iteration=0):
         #command = 0
         print(command)
         #glbs.update_command(command)  ## depreciated
-        glbs.command_received = True
-        glbs.command_queue.append(command)
+        glbs.cmd_received = True
+        glbs.cmd_queue.append(command)
         #print(iteration)
         iteration += 1
         #time.sleep(1)
@@ -163,7 +163,7 @@ def state_machine():
 
 def check_globals():
     while (thread_running):
-        print(f"command_received: {glbs.command_received}")
+        print(f"command_received: {glbs.cmd_received}")
         time.sleep(10)
     #wait asyncio.sleep(1)
 
