@@ -15,10 +15,6 @@ can it be done? (Yes!)
 #https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.ProactorEventLoop
 #https://docs.python.org/3/library/asyncio-subprocess.html
 
-
-#todo NEW SOURCE
-#https://docs.python.org/3/howto/sockets.html
-
 import asyncio
 import time
 from datetime import datetime
@@ -43,6 +39,69 @@ import socket
 host = glbs.server_ip
 port = glbs.server_port
 parse = glbs.jsonParse
+
+import websockets
+
+#from here DIDNT WORK
+#https://www.pythonfixing.com/2021/11/fixed-non-blocking-websocket-receive.html
+async def readWS(queue):
+    while True:
+        async with websockets.connect("ws://127.0.0.1:8181", close_timeout=0.1) as ws:
+            try:
+                data = await ws.recv()
+                await queue.put(('websocket', data))
+            except websockets.error:
+                return None
+
+class ClientProtocol:
+    def __init__(self, queue):
+        self.queue = queue
+
+    def datagram_received(self, data, addr):
+        self.queue.put_nowait(('udp', data))
+
+    def connection_lost(self, exc):
+        self.queue.put_nowait(('udp', b''))
+
+async def sendWS(queue):
+    while(1):
+    #transport, protocol = await loop.create_datagram_endpoint(
+    #    lambda: ClientProtocol(queue),
+    #    remote_addr=(PCC_IP, PCC_PORT))
+    # wait until canceled
+        print("hellpop")
+        try:
+            await asyncio.get_event_loop().create_future()
+        except asyncio.CancelledError:
+            print("Cancelled")
+            raise
+
+async def read_both():
+    queue = asyncio.Queue()
+    # spawn two workers in parallel, and have them send
+    # data to our queue
+    ws_task = asyncio.create_task(readWS(queue))
+    udp_task = asyncio.create_task(sendWS(queue))
+
+    while True:
+        source, data = await queue.get()
+        if source == 'ws':
+            print('from websocket', data)
+        elif source == 'udp':
+            if data == b'':
+                break  # lost the UDP connection
+            print('from UDP', data)
+
+    # terminate the workers
+    ws_task.cancel()
+    udp_task.cancel()
+
+
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(read_both())
+
+
+
 
 
 
@@ -125,8 +184,8 @@ class asyncClient:
 
 
 
-prog = asyncClient()
-prog.main()
+#prog = asyncClient()
+#prog.main()
 
 
 

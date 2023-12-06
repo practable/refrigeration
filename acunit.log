@@ -1,3 +1,14 @@
-2023-12-06 15:30:29 INFO     Logging Module Started
-2023-12-06 15:30:29 INFO     websocketClient: Connected to Server: <socket.socket fd=300, family=2, type=1, proto=0, laddr=('127.0.0.1', 39197), raddr=('127.0.0.1', 8181)>
-2023-12-06 15:30:29 DEBUG    Using proactor: IocpProactor
+2023-12-06 16:57:08 INFO     Logging Module Started
+2023-12-06 16:57:18 ERROR    testCommandServer Generic Exception Handler Triggered: [WinError 10053] An established connection was aborted by the software in your host machine
+Traceback (most recent call last):
+  File "C:\Users\dheard\Documents\0000-python\refrigeration\testCommandServer.py", line 71, in <module>
+    data = conn.recv(2048)
+           ^^^^^^^^^^^^^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+Socket-Extensions: permessage-deflate; client_max_window_bits
+2023-12-06 16:57:08 DEBUG    > User-Agent: Python/3.12 websockets/12.0
+2023-12-06 16:57:18 DEBUG    ! failing connection with code 1006
+2023-12-06 16:57:18 DEBUG    x half-closing TCP connection
+2023-12-06 16:57:18 DEBUG    ! timed out waiting for TCP close
+2023-12-06 16:57:18 DEBUG    x closing TCP connection
+2023-12-06 16:57:18 DEBUG    = connection is CLOSED

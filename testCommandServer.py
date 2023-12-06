@@ -57,7 +57,7 @@ while(exceptions < 2):
     try:
         print(f"Starting acUnit Command Test Server:\nListening on {HOST}:{PORT}")
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((HOST, PORT))
+            s.bind((HOST, PORT))  # try  s.bind(('', 80)) specifies that the socket is reachable by any address the machine happens to have.
             while (stop == False):
                 s.listen()
                 conn, addr = s.accept()
