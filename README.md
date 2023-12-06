@@ -30,7 +30,21 @@ I believe this was all that was nessissary to install to run the software on RPi
 ## Command Examples
 `{"cmd":"set","{item}":"{state}"}`
 
+
+## Quick Start Instructions:
+1. `{"cmd":"set","V5":"open","V6":"open"}`
+2. `{"cmd":"set","V2":"open"}`
+3. `{"cmd":"set","fans":"on"}`
+4. `{"cmd":"set","comp":"on"}`
+- Wait for experiment to reach homostasis (30 min)
+5. `{"cmd":"set","comp":"off"}`
+6. `{"cmd":"set","fans":"off"}`
+7. `{"cmd":"set","V2":"close"}`
+8. `{"cmd":"set","V5":"close","V6":"close"}`
+
+#### Open all valves
 `{"cmd":"set","V1":"open","V2":"open","V3":"open","V4":"open","V5":"open","V6":"open"}`
+#### close all valves
 `{"cmd":"set","V1":"off","V2":"off","V3":"off","V4":"off","V5":"off","V6":"off"}`
 
 
