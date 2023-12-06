@@ -30,6 +30,10 @@ I believe this was all that was nessissary to install to run the software on RPi
 ## Command Examples
 `{"cmd":"set","{item}":"{state}"}`
 
+`{"cmd":"set","V1":"open","V2":"open","V3":"open","V4":"open","V5":"open","V6":"open"}`
+`{"cmd":"set","V1":"off","V2":"off","V3":"off","V4":"off","V5":"off","V6":"off"}`
+
+
 ```
 {"cmd":"set","V1":"open"}
 {"cmd":"set","V2":"open"}
