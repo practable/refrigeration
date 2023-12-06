@@ -9,25 +9,28 @@ import jsonParser
 import acHardware
 
 # USER OPTIONS
-#COMMAND_SERVER_IP = "10.42.0.1"
-#REPORT_SERVER_IP = "10.42.0.1"
+COMMAND_SERVER_IP = "10.42.0.1"
+REPORT_SERVER_IP = "10.42.0.1"
 
 #COMMAND_SERVER_IP = "192.168.1.249"
 #REPORT_SERVER_IP = "192.168.1.249"
 
-COMMAND_SERVER_IP = "127.0.0.1"
-REPORT_SERVER_IP = "127.0.0.1"
+#COMMAND_SERVER_IP = "127.0.0.1"
+#REPORT_SERVER_IP = "127.0.0.1"
+
+
 
 COMMAND_PORT = 8181
 REPORT_PORT = 8182
 SIMULATE_HARDWARE = True
 
+server_ip = "127.0.0.1"
+server_port = 8181
 
 # acGlobals contains global variables for all acUnit variables
 
 simulate_hardware = SIMULATE_HARDWARE
-server_ip = COMMAND_SERVER_IP
-server_port = COMMAND_PORT
+
 acState = "init"
 
 example_cmd = '{"cmd":"set", "V1":"open"}'
@@ -147,6 +150,28 @@ def known_exception_handler(exception_type, location, num_exception):
 
 
 init_logging()  ## This here so always inits even if running modules only
+
+import prettyCLI as pcli
+
+df = pcli.pcli["default"]
+yl = pcli.pcli["fg"]["yellow"]
+cy = pcli.pcli["fg"]["cyan"]
+mg = pcli.pcli["fg"]["magenta"]
+
+def timestamp(time_float):
+    return df + str(round(time_float, 2))
+
+def timediff(time_float, last_time):
+    diff = round((time_float - last_time),2)
+    dp = round(100*(diff - round(diff, 0)),4)
+    if dp == 0.0:
+        s_diff = str(diff) + "0"
+    else:
+        s_diff = str(diff)
+    if diff < 10:
+        return f"{df}0{s_diff}"
+    else:
+        return df + s_diff
 
 
 acUnit_dictionary = {

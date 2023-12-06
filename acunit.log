@@ -1,13 +1,3 @@
-2023-12-06 10:28:33 INFO     Logging Module Started
-2023-12-06 10:28:33 INFO     State Machine: init_state
-2023-12-06 10:28:35 INFO     State Machine: wait_state
-2023-12-06 10:28:35 ERROR    commandClient: Caught Connection Error, restarting
-Traceback (most recent call last):
-  File "C:\Users\dheard\Documents\0000-python\refrigeration\commandClient.py", line 29, in commandClient
-    s.connect((HOST, PORT))
-ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
-2023-12-06 10:28:35 ERROR    reportingClient: Caught Connection Error, restarting
-Traceback (most recent call last):
-  File "C:\Users\dheard\Documents\0000-python\refrigeration\reportingClient.py", line 35, in reportingClient
-    s.connect((HOST, PORT))
-ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+2023-12-06 15:30:29 INFO     Logging Module Started
+2023-12-06 15:30:29 INFO     websocketClient: Connected to Server: <socket.socket fd=300, family=2, type=1, proto=0, laddr=('127.0.0.1', 39197), raddr=('127.0.0.1', 8181)>
+2023-12-06 15:30:29 DEBUG    Using proactor: IocpProactor
