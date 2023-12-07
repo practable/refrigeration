@@ -110,12 +110,12 @@ class acCommandClient:
             message = 0
             # print(f" Response: {message}")
             if message == 0:
+                await asyncio.sleep(5)
                 continue
-                print("reportingClient: Success sending JSON data Message")
             else:
                 print("reportingClient: JSON Message failed to send")
                 glbs.logging.error(f"reportingClient: JSON Message failed to send")
-            await asyncio.sleep(5)
+
 
 
 
@@ -139,10 +139,9 @@ class acCommandClient:
             self.s.close()
 
 
-
-
-cc = acCommandClient()
-cc.main()
+if __name__ == "__main__":
+    cc = acCommandClient()
+    cc.main()
 
 
 

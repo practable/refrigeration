@@ -45,7 +45,7 @@ port = glbs.server_port + 1
 parse = glbs.jsonParse
 pack = glbs.jsonPack
 
-
+REPORTING_DELAY = 2
 
 class acReportClient:
     def __init__(self):
@@ -69,7 +69,7 @@ class acReportClient:
             print(f"Caught Connection Error, number since last connect: {self.conn_errors}")
             if self.conn_errors < 1:  ## prevent this being written to log over and over
                 print("logging exception as first instance")
-                glbs.logging.exception(f"commandClient: Caught Connection Error no.{self.conn_errors}, restarting")
+                glbs.logging.exception(f"reportingClient: Caught Connection Error no.{self.conn_errors}, restarting")
             self.conn_errors += 1
             time.sleep(1)
             return 1
@@ -107,40 +107,42 @@ class acReportClient:
             init_time = time.time()
             data = self.s.recv(1024)
             message = int(data.decode())
-            print(f" Response: {message}")
+            #print(f" Response: {message}")
             if message == 0:
-                print("reportingClient: Success sending JSON data Message")
+                #print("reportingClient: Success sending JSON data Message")
+                await asyncio.sleep(REPORTING_DELAY)
             else:
                 print("reportingClient: JSON Message failed to send")
                 glbs.logging.error(f"reportingClient: JSON Message failed to send")
-            await asyncio.sleep(5)
+
 
 
 
     def main(self):
-        try:
-            disconnected = True
-            while(disconnected):
-                disconnected = self.open_socket()
-            loop = asyncio.new_event_loop()
-            #loop.create_task(self.listener())
-            loop.create_task(self.reporter())
-            #loop.create_task(self.taskThree())
-            loop.run_forever()
-        except KeyboardInterrupt:
-            print("commandClient: Caught keyboard interrupt, exiting")
-        except Exception as ex:
-            glbs.generic_exception_handler(ex, "commandClient")
-            raise
-        finally:
-            print("Program Quit")
-            self.s.close()
+        while(True):
+            try:
+                disconnected = True
+                while(disconnected):
+                    disconnected = self.open_socket()
+                loop = asyncio.new_event_loop()
+                #loop.create_task(self.listener())
+                loop.create_task(self.reporter())
+                #loop.create_task(self.taskThree())
+                loop.run_forever()
+            except KeyboardInterrupt:
+                print("reportingClient: Caught keyboard interrupt, exiting")
+            except Exception as ex:
+                glbs.generic_exception_handler(ex, "reportingClient")
+                raise
+            finally:
+                print("Program Quit")
+                self.s.close()
 
 
 
-
-rc = acReportClient()
-rc.main()
+if __name__ == "__main__":
+    rc = acReportClient()
+    rc.main()
 
 
 

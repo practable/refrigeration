@@ -125,7 +125,8 @@ class jsonParser:
                 #TODO RETURN KEYS THEN CHECK AGAINST OUTPUT LISTS - DONE
                 key_list = list(command_dic.keys())
                 if any(x.lower() in key_list for x in self.outputs_list) or any(x.upper() in key_list for x in self.outputs_list):
-                    print("jsonParse: key exists")
+                    #print("jsonParse: key exists")
+                    pass
                 else:
                     print("jsonParse: KEY DOES NOT EXIST")
                     glbs.update_error_status(3, f"jsonParse: keys:{key_list} do not exist. Unable to parse json Message")
@@ -145,7 +146,7 @@ class jsonParser:
                     if state in [x.lower() for x in self.true_words] or state == True:
                         glbs.cmd_queue.append(output)
                         glbs.cmd_queue.append(True)
-                        glbs.command_received = True
+                        glbs.cmd_received = True
                     elif state in [x.lower() for x in self.false_words] or state == False:
                         glbs.cmd_queue.append(output)
                         glbs.cmd_queue.append(False)

@@ -22,9 +22,11 @@ import time
 
 import sensorObjects as so
 
-from depreciated import commandClient as cc
-import reportingClient as rc
+import acCommandClient
+cc = acCommandClient.acCommandClient()
 
+import acReportingClient
+rc = acReportingClient.acReportClient()
 
 
 # Renaming global variables to reduce number of things.with.references.to.other.things
@@ -134,12 +136,12 @@ def local_json_interface(iteration=0):
 def command_client():
     global thread_running
     while(thread_running):
-        cc.commandClient()
+        cc.main()
 
 def reporting_client():
     global thread_running
     while(thread_running):
-        rc.reportingClient()
+        rc.main()
 
 
 
