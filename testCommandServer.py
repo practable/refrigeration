@@ -102,7 +102,9 @@ while(exceptions < 2):
         glbs.generic_exception_handler(ex, "testCommandServer")
         print("Exception Handled, restarting")
         exceptions += 1
-print("Program Quit")
+    finally:
+        print("Program Quit")
+        s.close()
 
 
 

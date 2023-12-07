@@ -1,13 +1,13 @@
-2023-12-07 15:10:57 INFO     Logging Module Started
-2023-12-07 15:10:57 ERROR    testCommandServer Generic Exception Handler Triggered: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+2023-12-07 15:24:18 INFO     Logging Module Started
+2023-12-07 15:24:18 ERROR    testCommandServer Generic Exception Handler Triggered: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
 Traceback (most recent call last):
-  File "C:\Users\dheard\Documents\0000-python\refrigeration\testCommandServer.py", line 61, in <module>
-    s.bind((HOST, PORT))  # try  s.bind(('', 80)) specifies that the socket is reachable by any address the machine happens to have.
-    ^^^^^^^^^^^^^^^^^^^^
-OSError: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
-2023-12-07 15:10:57 ERROR    testCommandServer Generic Exception Handler Triggered: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+  2023-12-07 15:25:13 ERROR    Task exception was never retrieved
+future: <Task finished name='Task-1' coro=<acReportClient.reporter() done, defined at C:\Users\dheard\Documents\0000-python\refrigeration\acReportingClient.py:103> exception=ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)>
 Traceback (most recent call last):
-  File "C:\Users\dheard\Documents\0000-python\refrigeration\testCommandServer.py", line 61, in <module>
+  File "C:\Users\dheard\Documents\0000-python\refrigeration\acReportingClient.py", line 106, in reporter
+    self.s.sendall(json_message.encode("UTF-8"))
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+000-python\refrigeration\testCommandServer.py", line 61, in <module>
     s.bind((HOST, PORT))  # try  s.bind(('', 80)) specifies that the socket is reachable by any address the machine happens to have.
     ^^^^^^^^^^^^^^^^^^^^
 OSError: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted

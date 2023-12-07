@@ -70,7 +70,10 @@ def reportingServer():
             glbs.generic_exception_handler(ex)
             print("Exception Handled, restarting")
             #exceptions += 1
-    print("Program Quit")
+        finally:
+            print("Program Quit")
+            s.close()
+
 
 
 #pretty_print_data(glbs.acUnit_dictionary)

@@ -105,13 +105,11 @@ class acReportClient:
             json_message = pack.dump_json()
             self.s.sendall(json_message.encode("UTF-8"))
             init_time = time.time()
-            #data = self.s.recv(1024)
-            #message = int(data.decode())
-            message = 0
-            # print(f" Response: {message}")
+            data = self.s.recv(1024)
+            message = int(data.decode())
+            print(f" Response: {message}")
             if message == 0:
                 print("reportingClient: Success sending JSON data Message")
-                continue
             else:
                 print("reportingClient: JSON Message failed to send")
                 glbs.logging.error(f"reportingClient: JSON Message failed to send")
@@ -120,7 +118,6 @@ class acReportClient:
 
 
     def main(self):
-
         try:
             disconnected = True
             while(disconnected):
@@ -135,6 +132,9 @@ class acReportClient:
         except Exception as ex:
             glbs.generic_exception_handler(ex, "commandClient")
             raise
+        finally:
+            print("Program Quit")
+            self.s.close()
 
 
 

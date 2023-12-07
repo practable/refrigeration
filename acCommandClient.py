@@ -120,7 +120,6 @@ class acCommandClient:
 
 
     def main(self):
-
         try:
             disconnected = True
             while(disconnected):
@@ -135,6 +134,9 @@ class acCommandClient:
         except Exception as ex:
             glbs.generic_exception_handler(ex, "commandClient")
             raise
+        finally:
+            print("Program Quit")
+            self.s.close()
 
 
 
