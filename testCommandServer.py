@@ -30,6 +30,7 @@ stop = False
 
 #function takes user input and checks validity
 def input_cmd():
+    global json_input
     stop = False  ## This will change when made into class
     json_valid = True
     try:

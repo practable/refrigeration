@@ -15,6 +15,10 @@ can it be done? (Yes!)
 #https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.ProactorEventLoop
 #https://docs.python.org/3/library/asyncio-subprocess.html
 
+
+
+#https://docs.python.org/3/howto/sockets.html
+
 import asyncio
 import time
 from datetime import datetime
@@ -37,75 +41,13 @@ timediff = glbs.timediff
 import socket
 
 host = glbs.server_ip
-port = glbs.server_port
+port = glbs.server_port + 1
 parse = glbs.jsonParse
-
-import websockets
-
-#from here DIDNT WORK
-#https://www.pythonfixing.com/2021/11/fixed-non-blocking-websocket-receive.html
-async def readWS(queue):
-    while True:
-        async with websockets.connect("ws://127.0.0.1:8181", close_timeout=0.1) as ws:
-            try:
-                data = await ws.recv()
-                await queue.put(('websocket', data))
-            except websockets.error:
-                return None
-
-class ClientProtocol:
-    def __init__(self, queue):
-        self.queue = queue
-
-    def datagram_received(self, data, addr):
-        self.queue.put_nowait(('udp', data))
-
-    def connection_lost(self, exc):
-        self.queue.put_nowait(('udp', b''))
-
-async def sendWS(queue):
-    while(1):
-    #transport, protocol = await loop.create_datagram_endpoint(
-    #    lambda: ClientProtocol(queue),
-    #    remote_addr=(PCC_IP, PCC_PORT))
-    # wait until canceled
-        print("hellpop")
-        try:
-            await asyncio.get_event_loop().create_future()
-        except asyncio.CancelledError:
-            print("Cancelled")
-            raise
-
-async def read_both():
-    queue = asyncio.Queue()
-    # spawn two workers in parallel, and have them send
-    # data to our queue
-    ws_task = asyncio.create_task(readWS(queue))
-    udp_task = asyncio.create_task(sendWS(queue))
-
-    while True:
-        source, data = await queue.get()
-        if source == 'ws':
-            print('from websocket', data)
-        elif source == 'udp':
-            if data == b'':
-                break  # lost the UDP connection
-            print('from UDP', data)
-
-    # terminate the workers
-    ws_task.cancel()
-    udp_task.cancel()
-
-
-if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(read_both())
+pack = glbs.jsonPack
 
 
 
-
-
-
-class asyncClient:
+class acReportClient:
     def __init__(self):
         self.start_time = time.time()
         print(f"asyncClient Started at: {datetime.now()}")
@@ -117,7 +59,7 @@ class asyncClient:
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.s.connect((host, port))
-            self.s.setblocking(False)     ## this line DOEs stop it blocking but it also Stops it working
+            #self.s.setblocking(False)     ## this line DOEs stop it blocking but it also Stops it working
             print(f"Connected to {self.s}")
             glbs.logging.info(f"websocketClient: Connected to Server: {self.s}")
             self.conn_errors = 0
@@ -137,7 +79,8 @@ class asyncClient:
     async def listener(self):
         while(True):
             print(f"Listening on {self.s}")
-            data =  await self.receiver()
+            #data =  await self.receiver()  # DOESNT WORK
+            data = self.s.recv(1024)        # does work
             print(f"Received {data!r}")
             error = parse.parse_json(data)
             if not error:
@@ -159,19 +102,31 @@ class asyncClient:
 
     async def reporter(self):
         while(True):
-            print("Its Little Alex Horne")
+            json_message = pack.dump_json()
+            self.s.sendall(json_message.encode("UTF-8"))
+            init_time = time.time()
+            #data = self.s.recv(1024)
+            #message = int(data.decode())
+            message = 0
+            # print(f" Response: {message}")
+            if message == 0:
+                print("reportingClient: Success sending JSON data Message")
+                continue
+            else:
+                print("reportingClient: JSON Message failed to send")
+                glbs.logging.error(f"reportingClient: JSON Message failed to send")
             await asyncio.sleep(5)
 
 
 
     def main(self):
+
         try:
             disconnected = True
             while(disconnected):
                 disconnected = self.open_socket()
-            print("Exited Start Connection Loop")
             loop = asyncio.new_event_loop()
-            loop.create_task(self.listener())
+            #loop.create_task(self.listener())
             loop.create_task(self.reporter())
             #loop.create_task(self.taskThree())
             loop.run_forever()
@@ -184,8 +139,8 @@ class asyncClient:
 
 
 
-#prog = asyncClient()
-#prog.main()
+rc = acReportClient()
+rc.main()
 
 
 

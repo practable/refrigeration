@@ -11,8 +11,6 @@ https://stackoverflow.com/questions/71969640/how-to-print-countdown-timer-and-ac
 
 
 '''
-import asyncio
-import logging
 from threading import Thread
 thread_running = True
 
@@ -24,7 +22,7 @@ import time
 
 import sensorObjects as so
 
-import commandClient as cc
+from depreciated import commandClient as cc
 import reportingClient as rc
 
 

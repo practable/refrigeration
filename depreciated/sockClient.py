@@ -1,23 +1,20 @@
 '''
-
 Testing Asyncio
+
+#todo NEW SOURCE
+#https://docs.python.org/3/howto/sockets.html
 '''
 
 
 '''
-Make an Async program with 4 tasks. 
-3 - run independently on timed loops.
-1 - is a handler called by one of the timed loops
 
-can it be done? (Yes!)
 '''
 #https://realpython.com/async-io-python/#where-does-async-io-fit-in
 #https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.ProactorEventLoop
 #https://docs.python.org/3/library/asyncio-subprocess.html
 
 
-#todo NEW SOURCE
-#https://docs.python.org/3/howto/sockets.html
+
 
 import asyncio
 import time
@@ -44,13 +41,14 @@ host = glbs.server_ip
 port = glbs.server_port
 parse = glbs.jsonParse
 
-
+import websockets
 
 class asyncClient:
     def __init__(self):
         self.start_time = time.time()
         print(f"asyncClient Started at: {datetime.now()}")
         self.cmd_queue = []
+        self.report_que = []
         self.conn_errors = 0
         self.conn_start_time = 0
 
@@ -58,7 +56,7 @@ class asyncClient:
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.s.connect((host, port))
-            self.s.setblocking(False)     ## this line DOEs stop it blocking but it also Stops it working
+            #self.s.setblocking(False)     ## this line DOEs stop it blocking but it also Stops it working
             print(f"Connected to {self.s}")
             glbs.logging.info(f"websocketClient: Connected to Server: {self.s}")
             self.conn_errors = 0
@@ -100,8 +98,14 @@ class asyncClient:
 
     async def reporter(self):
         while(True):
-            print("Its Little Alex Horne")
+            #self.report_que.append("Little Alex Horne")
             await asyncio.sleep(5)
+
+    async def reader(self):
+        while (self.report_que):
+            print(self.report_que[0:1])
+            del self.report_que[0:1]
+            await asyncio.sleep(2)
 
 
 
@@ -110,11 +114,10 @@ class asyncClient:
             disconnected = True
             while(disconnected):
                 disconnected = self.open_socket()
-            print("Exited Start Connection Loop")
             loop = asyncio.new_event_loop()
             loop.create_task(self.listener())
             loop.create_task(self.reporter())
-            #loop.create_task(self.taskThree())
+            loop.create_task(self.reader())
             loop.run_forever()
         except KeyboardInterrupt:
             print("commandClient: Caught keyboard interrupt, exiting")
