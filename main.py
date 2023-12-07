@@ -189,7 +189,7 @@ task: run-state-machine: set hardware IO and system state in response to command
 
 def main():
     i = 0
-    global thread_running
+    global thread_running, t1, t2, t3, t4
     #glbs.init_logging()
     try:
         t1 = Thread(target=state_machine)
@@ -227,6 +227,7 @@ def main():
     except SystemExit or KeyboardInterrupt:
         print("User Terminated Program")
         thread_running = False
+        glbs.keep_alive = False
         t1.join()
         t2.join()
         t3.join()
@@ -234,15 +235,16 @@ def main():
     except Exception as ex:  ## generic exception handler
         glbs.generic_exception_handler(ex, "main")
         thread_running = False
-        #template = "An exception of type {0} occured. Arguments: \n{1!r}"
-        #message = template.format(type(ex).__name__, ex.args)
-        #print(message)
-        #thread_running = False
-        #print(" ")
-        #print(traceback.format_exc())
-        #pdb.post_mortem()
-        #print("Program Error")
+        glbs.keep_alive = False
         raise
+    finally:
+        thread_running = False
+        glbs.keep_alive = False
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
+
 
 
 

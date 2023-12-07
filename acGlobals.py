@@ -52,7 +52,7 @@ status_list = ["ok" , "state", "code", "message"]
 cmd_received = False
 cmd_queue = []  ##  queue is processed by state machine untill empty
 
-
+keep_alive = True
 
 
 hardware = acHardware.acUnitHardware()

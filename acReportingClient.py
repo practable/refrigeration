@@ -77,7 +77,7 @@ class acReportClient:
 
 
     async def listener(self):
-        while(True):
+        while(glbs.keep_alive):
             print(f"Listening on {self.s}")
             #data =  await self.receiver()  # DOESNT WORK
             data = self.s.recv(1024)        # does work
@@ -101,7 +101,7 @@ class acReportClient:
         return data
 
     async def reporter(self):
-        while(True):
+        while(glbs.keep_alive):
             json_message = pack.dump_json()
             self.s.sendall(json_message.encode("UTF-8"))
             init_time = time.time()
@@ -119,7 +119,7 @@ class acReportClient:
 
 
     def main(self):
-        while(True):
+        while(glbs.keep_alive):
             try:
                 disconnected = True
                 while(disconnected):
@@ -131,11 +131,13 @@ class acReportClient:
                 loop.run_forever()
             except KeyboardInterrupt:
                 print("reportingClient: Caught keyboard interrupt, exiting")
+                glbs.keep_alive = False
             except Exception as ex:
                 glbs.generic_exception_handler(ex, "reportingClient")
                 raise
             finally:
                 print("Program Quit")
+                glbs.keep_alive = False
                 self.s.close()
 
 
