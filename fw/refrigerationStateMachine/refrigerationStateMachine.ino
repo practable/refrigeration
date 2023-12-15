@@ -32,7 +32,7 @@ typedef enum {
 } StateType;
 
 // State Names Array (Makes printing the current state prettier)
-char* stateNames[] = {
+char stateNames[][32] = {
   "STATE_INIT",
   "STATE_WAIT",
   "STATE_STOP",
@@ -57,11 +57,16 @@ void sm_state_fans_off(void);
  * Type definition used to define the state
  */
 
+
+
+
 typedef struct
 {
-  StateType State;    /**< Defines the command */
-  void (*func)(void); /**< Defines the function to run */
+  StateType State;     //< Defines the command
+  void (*func)(void);  //< Defines the function to run
 } StateMachineType;
+
+
 
 /**
  * A table that defines the valid states of the state machine and
@@ -87,6 +92,16 @@ int NUM_STATES = 8;
 StateType smState = STATE_INIT;
 StateType lastState;
 
+
+// Global Variables
+
+int valveNum = 0;    // when command is Rxed theses values are updated so when state_valves is called, the valve and its new state are saved globally.
+int valveState = 0;  // after state has finished setting valves it should set these variables back to 0
+
+
+
+
+
 /**
 * Define the functions for each state
 */
@@ -97,13 +112,26 @@ void sm_state_init() {
   smState = STATE_WAIT;
 }
 
+char exampleCommands[][64] = {
+  "{\"mode\":\"stop\"}",
+  "{\"cmd\":\"fans\",\"param\":0}",
+  "{\"valve\":1, \"state\":1}",
+  "{\"fans\":1}",
+  "{\"comp\":0}"
+};
+
 
 void sm_state_wait() {
   // Check to see if first time state has been called in sequence
   if (lastState != smState) {
     // If first iteration print state machine status
     Serial.println("State Machine: Waiting");
-    Serial.println("Enter Command in format: \n{\"cmd\":\"value\"}\n\n");
+    Serial.println("Enter Command in format:");
+    int numExamples = sizeof(exampleCommands)/sizeof(exampleCommands[0]);   // just get the size of the example commands array
+    for (int i = 0; i < numExamples; i++) {
+      Serial.println(exampleCommands[i]);          // print example commands
+    }
+
     lastState = smState;
     // Do anything else that needs to happen first time state is called
   }
@@ -130,19 +158,25 @@ void sm_state_running() {
 }
 
 void sm_state_valve() {
-  Serial.print("State Machine: Set Valve");
+  Serial.println("State Machine: Set Valve");
+  Serial.print("Valve Num: ");
+  Serial.print(valveNum);
+  Serial.print(",  Valve Status: ");
+  Serial.println(valveState);
+  valveNum = 0;
+  valveState = 0;
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_fans_on() {
-  Serial.print("State Machine: Fans On");
+  Serial.println("State Machine: Fans On");
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_fans_off() {
-  Serial.print("State Machine: Fans Off");
+  Serial.println("State Machine: Fans Off");
   lastState = smState;
   smState = STATE_WAIT;
 }
@@ -160,6 +194,8 @@ void sm_state_relay() {
 */
 
 void sm_Run(void) {
+  smState = readSerialJSON(smState);
+
   if (smState < NUM_STATES) {
     if (lastState != smState) {
       if (debug) {
@@ -168,7 +204,6 @@ void sm_Run(void) {
         Serial.println("}");
       }
     }
-    smState = readSerialJSON(smState);
     (*StateMachine[smState].func)();
   } else {
     Serial.println("Exception in State Machine");
@@ -185,27 +220,45 @@ StateType readSerialJSON(StateType smState) {
   if (Serial.available() > 0) {
     char start[] = "start";
     char stop[] = "stop";
+
+    char cmd_wd[] = "cmd";
+    char vlv_wd[] = "valve";
+    char md_wd[] = "mode";
     char valve[] = "valve";
     char fans[] = "fans";
     char comp[] = "comp";
 
-    char report_interval[] = "interval";
-    char loaded[] = "loaded";
-    char unloaded[] = "unloaded";
-    char brake[] = "brake";
-    char drive[] = "drive";
+
+
 
     Serial.readBytesUntil(10, command, COMMAND_SIZE);
 
-    Serial.println("command");
-    Serial.print(command);
+    Serial.print("command received: ");
+    Serial.println(command);
 
     deserializeJson(doc, command);
 
-    //   Serial.println("doc: ");
-    //    Serial.print(doc);
+    // First work out what the command word is
+
+    // First check if the first index is "valve"
+    valveNum = doc["valve"];
+
+    if (valveNum > 0) {
+      Serial.print("valveNum: ");
+      Serial.print(valveNum);
+      Serial.print("   Valve Status: ");
+      valveState = doc["state"];
+      Serial.println(valveState);
+      smState = STATE_SELECT_VALVE;
+    }
+
+    // Then check if first index contains a mode change
 
     const char* cmd = doc["cmd"];
+    if (cmd > 0) {
+    }
+    Serial.println(cmd);
+
 
     if (strcmp(cmd, stop) == 0) {
       smState = STATE_STOP;
@@ -228,7 +281,7 @@ StateType readSerialJSON(StateType smState) {
 
     if (strcmp(cmd, fans) == 0) {
       int fanState = doc["param"];
-      if (fanState >= 0) {
+      if (fanState > 0) {
         smState = STATE_FANS_ON;
         Serial.println("{\"result\":\"ok\"}");
       } else {
