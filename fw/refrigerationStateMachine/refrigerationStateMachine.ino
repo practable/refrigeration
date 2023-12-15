@@ -9,25 +9,39 @@ State machine boilerplate from https://www.edn.com/electronics-blogs/embedded-ba
 */
 
 #include "ArduinoJson-v6.9.1.h"
-
 #define COMMAND_SIZE 64
 
 StaticJsonDocument<COMMAND_SIZE> doc;
 char command[COMMAND_SIZE];
 
+bool debug = true;
 
 /**
  * Defines the valid states for the state machine
  * 
  */
 typedef enum {
-  STATE_START_CALIBRATION,
-  STATE_ZERO_ENCODER,
-  STATE_AWAITING_STOP,
-  STATE_DRIVING,
-  STATE_START,
-  STATE_STOPPED,
+  STATE_INIT,
+  STATE_WAIT,
+  STATE_STOP,
+  STATE_RUNNING,
+  STATE_SELECT_VALVE,
+  STATE_SELECT_RELAY,
+  STATE_FANS_ON,
+  STATE_FANS_OFF
 } StateType;
+
+// State Names Array (Makes printing the current state prettier)
+char* stateNames[] = {
+  "STATE_INIT",
+  "STATE_WAIT",
+  "STATE_STOP",
+  "STATE_RUNNING",
+  "STATE_SELECT_VALVE",
+  "STATE_SELECT_RELAY",
+  "STATE_FANS_ON",
+  "STATE_FANS_OFF"
+};
 
 //state Machine function prototypes
 void sm_state_init(void);
@@ -36,7 +50,8 @@ void sm_state_stop(void);
 void sm_state_running(void);
 void sm_state_valve(void);
 void sm_state_relay(void);
-
+void sm_state_fans_on(void);
+void sm_state_fans_off(void);
 
 /**
  * Type definition used to define the state
@@ -58,33 +73,44 @@ StateMachineType StateMachine[] = {
   { STATE_STOP, sm_state_stop },
   { STATE_RUNNING, sm_state_running },
   { STATE_SELECT_VALVE, sm_state_valve },
-  { STATE_SELECT_RELAY, sm_state_relay }
+  { STATE_SELECT_RELAY, sm_state_relay },
+  { STATE_FANS_ON, sm_state_fans_on },
+  { STATE_FANS_OFF, sm_state_fans_off }
 };
 
-int NUM_STATES = 6;
+int NUM_STATES = 8;
 
 /**
  * Stores the current state of the state machine
  */
 
-StateType SmState = STATE_INIT;
-
+StateType smState = STATE_INIT;
+StateType lastState;
 
 /**
 * Define the functions for each state
 */
 
 void sm_state_init() {
-  Serial.begin(115200);
   Serial.println("State Machine: Init");
   // Init all o/ps to default state
-  SmState = STATE_WAIT;
+  smState = STATE_WAIT;
 }
 
 
 void sm_state_wait() {
-  Serial.println("State Machine: Waiting");
-  SmState = STATE_WAIT;
+  // Check to see if first time state has been called in sequence
+  if (lastState != smState) {
+    // If first iteration print state machine status
+    Serial.println("State Machine: Waiting");
+    Serial.println("Enter Command in format: \n{\"cmd\":\"value\"}\n\n");
+    lastState = smState;
+    // Do anything else that needs to happen first time state is called
+  }
+  // Do everything that repeats in this state
+
+  // Define the next state if required
+  // smState = STATE_WAIT;
 }
 
 void sm_state_stop() {
@@ -93,22 +119,38 @@ void sm_state_stop() {
   // Stop Fans
   // Close V1-4
   // Close V5 & V6
-  SmState = STATE_WAIT;
+  lastState = smState;
+  smState = STATE_WAIT;
 }
 
 void sm_state_running() {
   Serial.println("State Machine: Running");
-  SmState = STATE_WAIT;
+  lastState = smState;
+  smState = STATE_WAIT;
 }
 
 void sm_state_valve() {
-  Serial.println("State Machine: Set Valve");
-  SmState = STATE_WAIT;
+  Serial.print("State Machine: Set Valve");
+  lastState = smState;
+  smState = STATE_WAIT;
+}
+
+void sm_state_fans_on() {
+  Serial.print("State Machine: Fans On");
+  lastState = smState;
+  smState = STATE_WAIT;
+}
+
+void sm_state_fans_off() {
+  Serial.print("State Machine: Fans Off");
+  lastState = smState;
+  smState = STATE_WAIT;
 }
 
 void sm_state_relay() {
   Serial.println("State Machine: Set Relay");
-  SmState = STATE_WAIT;
+  lastState = smState;
+  smState = STATE_WAIT;
 }
 
 
@@ -117,21 +159,20 @@ void sm_state_relay() {
 * Define the State Machine Function
 */
 
-void sm_Run(void){
-    if (SmState < NUM_STATES)
-  {
-    if (debug){
-      Serial.print("{\"State\":");
-      Serial.print(SmState);
-      Serial.println("}");
+void sm_Run(void) {
+  if (smState < NUM_STATES) {
+    if (lastState != smState) {
+      if (debug) {
+        Serial.print("{\"State\":");
+        Serial.print(stateNames[smState]);
+        Serial.println("}");
+      }
     }
-    SmState = readSerialJSON(SmState);
-    (*StateMachine[SmState].func)();
-    
-  }
-  else{
+    smState = readSerialJSON(smState);
+    (*StateMachine[smState].func)();
+  } else {
     Serial.println("Exception in State Machine");
-  }  
+  }
 }
 
 
@@ -140,13 +181,8 @@ void sm_Run(void){
 * Define the JSON Parsing Function
 */
 
-StateType readSerialJSON(StateType SmState){
-  
-
-  
-  if (Serial.available() > 0) 
-  {
-
+StateType readSerialJSON(StateType smState) {
+  if (Serial.available() > 0) {
     char start[] = "start";
     char stop[] = "stop";
     char valve[] = "valve";
@@ -158,141 +194,60 @@ StateType readSerialJSON(StateType SmState){
     char unloaded[] = "unloaded";
     char brake[] = "brake";
     char drive[] = "drive";
-    
+
     Serial.readBytesUntil(10, command, COMMAND_SIZE);
-                
+
+    Serial.println("command");
+    Serial.print(command);
+
     deserializeJson(doc, command);
 
+    //   Serial.println("doc: ");
+    //    Serial.print(doc);
+
     const char* cmd = doc["cmd"];
-    
-    if (strcmp(cmd,stop)==0)
-    {
-        SmState = STATE_STOPPED; 
-        Serial.println("{\"result\":\"ok\"}");
-      }
-      else
-      {
-        Serial.println("{\"error\":\"Unable to stop\"}");
-      }
-    
 
-    if (strcmp(cmd,drive)==0)
-    {
-      int newDriveThresh = doc["param"];
-      if ((newDriveThresh >= 0) && (newDriveThresh <= 100))
-      {
-        driveThresh = newDriveThresh;
+    if (strcmp(cmd, stop) == 0) {
+      smState = STATE_STOP;
+      Serial.println("{\"result\":\"ok\"}");
+    } else {
+      // Serial.println("{\"error\":\"Unable to stop\"}");
+    }
+
+
+    if (strcmp(cmd, valve) == 0) {
+      int valveNum = doc["param"];
+      if ((valveNum >= 0) && (valveNum <= 6)) {
+        smState = STATE_SELECT_VALVE;
         Serial.println("{\"result\":\"ok\"}");
-      }
-      else
-      {
-        Serial.println("{\"error\":\"drive must be between 0 - 100 (inclusive)\"}");
+      } else {
+        Serial.println("{\"error\":\"Unknown Valve Selected)\"}");
       }
     }
 
-    
-    if (strcmp(cmd,brake)==0)
-    {
-      int newBrakeThresh = doc["param"];
-      if ((newBrakeThresh >= 0) && (newBrakeThresh <= 100))
-      {
-        brakeThresh = newBrakeThresh;
+
+    if (strcmp(cmd, fans) == 0) {
+      int fanState = doc["param"];
+      if (fanState >= 0) {
+        smState = STATE_FANS_ON;
+        Serial.println("{\"result\":\"ok\"}");
+      } else {
+        smState = STATE_FANS_OFF;
         Serial.println("{\"result\":\"ok\"}");
       }
-      else
-      {
-        Serial.println("{\"error\":\"break must be between 0 - 100 (inclusive)\"}");
-      }
     }
-    
-    if (strcmp(cmd,stop)==0)
-    {
-      if (((SmState == STATE_DRIVING) || (SmState == STATE_STOPPED)))
-      { 
-        Serial.print("{\"result\":\"stopped\"");
-        const char * param = doc["param"];
-      
-        if (strcmp(param, loaded)==0){
-          //load is on
-          digitalWrite(loadLed,HIGH); 
-          digitalWrite(loadPin,HIGH); 
-          loadMessage(HIGH);
-          brakeStop = false;
 
-        }
-        else if (strcmp(param, unloaded)==0){
-          //load is off
-          digitalWrite(loadLed,LOW); 
-          digitalWrite(loadPin,LOW); 
-          loadMessage(LOW);
-          brakeStop = false;
-        }
-        else if (strcmp(param, brake)==0){
-          //load is off - else short circuit!
-          digitalWrite(loadLed,LOW); 
-          digitalWrite(loadPin,LOW); 
-          loadMessage(LOW);
-          brakeStop = true;
-        }        
-        Serial.print(",\"loaded\":");
-        Serial.print(digitalRead(loadPin));
-        Serial.print(",\"brake\":");
-        Serial.print(brakeStop);
-        Serial.print("}");
-        SmState = STATE_STOPPED;
-      }
-      else
-      {
-        Serial.print("{\"error\":\"In wrong state to stop\"}");
-      } 
-  
-    }//if stop
-    
-    if (strcmp(cmd,cal)==0)
-    {
-    
-      if ((SmState == STATE_DRIVING) || (SmState == STATE_STOPPED))
-      { 
-        Serial.println("{\"result\":\"calibrating\"}");
-        SmState = STATE_START_CALIBRATION;
-      }
-      else{
-      
-      Serial.println("{\"error\":\"In wrong state to calibrate\"}");
-      }
-    } //if cal
-    if (strcmp(cmd,start)==0)
-    {
-    
-      if ((SmState == STATE_DRIVING) || (SmState == STATE_STOPPED))
-      { 
-
-        int newStartDelay = doc["param"];
-        if ((newStartDelay >= 0) && (newStartDelay <= 500))
-        {
-          startDelay = newStartDelay;
-
-          Serial.println("{\"result\":\"starting\"}");
-          SmState = STATE_START;
-          
-        }
-        else
-        {
-          Serial.println("{\"error\":\"start must be between 0 - 500 [ms](exclusive)\"}");
-        }
-        
-
-      }
-      else{
-      
-      Serial.println("{\"error\":\"In wrong state to start\"}");
-      }
-    } //if cal
-
-  } //if bytes available
-  return SmState;
+  }  //if bytes available
+  return smState;
 }
 
 
 
+void setup() {
+  Serial.begin(115200);
+  Serial.println("\n\nDeploying Refrigeration State Machine");
+}
 
+void loop() {
+  sm_Run();
+}
