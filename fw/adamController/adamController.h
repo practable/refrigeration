@@ -21,7 +21,16 @@
 #endif
 
 
-class adamController {
+class adamController{
+
+  
+private:
+
+
+
+  EthernetClient ethClient;
+  IPAddress serverIP;
+  ModbusTCPClient modbusTCP;
 
 public:
 
@@ -29,8 +38,8 @@ public:
 
   adamController(EthernetClient client, IPAddress server)
     : ethClient(client),
-      serverIP(server);
-  {
+      serverIP(server),
+      modbusTCP(ethClient) {
   }
 
   // Constants
@@ -42,6 +51,8 @@ public:
 
   void begin();
 
+  void check_modbus_connect();
+
   int set_coil(int coilNum, bool coilState = false);
   int set_coils(uint8_t coilStates = 0b00000000);
 
@@ -49,14 +60,13 @@ public:
   uint8_t read_inputs();
 
 
-
-
-private:
+  // Variables
 
   bool modbusConnected = false;
 
-  EthernetClient ethClient;
-  IPAddress serverIP;
 
-  
+
 };
+
+
+#endif
