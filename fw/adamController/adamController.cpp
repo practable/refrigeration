@@ -33,11 +33,22 @@ void adamController::check_modbus_connect() {
 
 
 int adamController::set_coil(int coilNum, bool coilState) {
-      // write the value of 0x01, to the coil at address 0x00
-    if (!modbusTCP.coilWrite(0x10, coilState)) {
+  // write the value of 0x01, to the coil at address 0x00
+  if (coilState) {
+    if (!modbusTCP.coilWrite(0x10, 0x01)) {
       Serial.print("Failed to write coil! ");
       Serial.println(modbusTCP.lastError());
+    } else {
+      Serial.println("Coil 0x10 written True successfully");
     }
+  } else {
+    if (!modbusTCP.coilWrite(0x10, 0x00)) {
+      Serial.print("Failed to write coil! ");
+      Serial.println(modbusTCP.lastError());
+    } else {
+      Serial.println("Coil 0x10 written False successfully");
+    }
+  }
 }
 
 /*

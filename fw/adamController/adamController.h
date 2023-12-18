@@ -21,9 +21,9 @@
 #endif
 
 
-class adamController{
+class adamController {
 
-  
+
 private:
 
 
@@ -63,9 +63,6 @@ public:
   // Variables
 
   bool modbusConnected = false;
-
-
-
 };
 
 

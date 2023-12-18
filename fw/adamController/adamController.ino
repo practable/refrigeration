@@ -32,16 +32,16 @@ byte mac[] = {
 IPAddress ip(192, 168, 1, 100);
 
 // Define the IP for the server (remote modbus device)
-IPAddress server(192, 168, 1, 111);  // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6052_ip(192, 168, 1, 111);  // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6024_ip(192, 168, 1, 114);  // update with the IP Address of your Modbus server (the remote IO controller)
 
 // Create an Ethernet Client
 EthernetClient ethClient;
 // Create a Modbus client passing the ethernet client as argument
 //ModbusTCPClient modbusTCPClient(ethClient);  DEPRECIATED (now inside class)
 // Create an adamController object and pass the Ethernet Client and IP Address for the server
-adamController adam6052(ethClient, server);
-
-
+adamController adam6052(ethClient, adam6052_ip);
+adamController adam6024(ethClient, adam6024_ip);
 
 
 
@@ -68,6 +68,7 @@ void setup() {
   }
 
   adam6052.begin();
+  adam6024.begin();
 }
 
 
@@ -77,17 +78,19 @@ void setup() {
 void loop() {
 
   adam6052.check_modbus_connect();
+  adam6024.check_modbus_connect();
 
   if (adam6052.modbusConnected) {
-
     int error = adam6052.set_coil(0, true);
-
     delay(2000);
-
     error = adam6052.set_coil(0, false);
+    delay(2000);    
+  }
 
+  if(adam6024.modbusConnected){
+     int error = adam6024.set_coil(0, true);
     delay(2000);
-
-    // if client connected
+    error = adam6024.set_coil(0, false);
+    delay(2000);  
   }
 }
