@@ -59,6 +59,9 @@ public:
   bool read_digital_input(uint8_t inputNum);
   uint8_t read_digital_inputs();
 
+  bool get_output_state(uint8_t outputNum);
+
+
 
   // Variables
 

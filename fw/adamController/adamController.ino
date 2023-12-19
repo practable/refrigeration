@@ -74,6 +74,7 @@ void setup() {
 
   adam6052.begin();
   adam6024.begin();
+  adam6052.set_coils(0b00000000);
 }
 
 
@@ -83,19 +84,19 @@ void setup() {
 void loop() {
 
   adam6052.check_modbus_connect();
-  adam6024.check_modbus_connect();
+  // adam6024.check_modbus_connect();
 
+  int error;
+  int randomVal = random(256);
   if (adam6052.modbusConnected) {
-    int error = adam6052.set_coil(2, true);
-    delay(2000);
-    error = adam6052.set_coil(2, false);
-    delay(2000);    
-  }
-
-  if(adam6024.modbusConnected){
-     int error = adam6024.set_coil(0, true);
-    delay(2000);
-    error = adam6024.set_coil(0, false);
-    delay(2000);  
+    error = adam6052.set_coils(randomVal);
+    delay(1000);
+    adam6052.get_output_state(0);
   }
 }
+
+
+
+
+
+// Comment here for reasons
