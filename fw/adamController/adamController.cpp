@@ -9,6 +9,9 @@
 #include "adamController.h"
 
 
+#define DEBUG true
+
+
 void adamController::begin() {
 }
 
@@ -33,41 +36,43 @@ void adamController::check_modbus_connect() {
 
 
 int adamController::set_coil(int coilNum, bool coilState) {
-  // write the value of 0x01, to the coil at address 0x00
+  uint8_t state;
   if (coilState) {
-    if (!modbusTCP.coilWrite(0x10, 0x01)) {
-      Serial.print("Failed to write coil! ");
-      Serial.println(modbusTCP.lastError());
+    state = 0x01;
+  } else {
+    state = 0x00;
+  }
+
+  char buffer[64];
+
+  if ((coilNum >= 0) && (coilNum < 8)) {
+    if (!modbusTCP.coilWrite(0x10, state)) {
+      sprintf(buffer, "Failed to set coil: %i ( %#0x ) to %i. %s", coilNum, d_out[coilNum], coilState, modbusTCP.lastError());
+      // Serial.println(modbusTCP.lastError());
     } else {
-      Serial.println("Coil 0x10 written True successfully");
+      sprintf(buffer, "Setting Coil: %i ( %#0x ) to %i", coilNum, d_out[coilNum], coilState);
     }
   } else {
-    if (!modbusTCP.coilWrite(0x10, 0x00)) {
-      Serial.print("Failed to write coil! ");
-      Serial.println(modbusTCP.lastError());
-    } else {
-      Serial.println("Coil 0x10 written False successfully");
-    }
+    sprintf(buffer, "Unable to set Coil %i - out of range :(", coilNum);
   }
+#if DEBUG == true
+  Serial.println(buffer);
+#endif
 }
 
-/*
-    // write the value of 0x00, to the coil at address 0x00
-    if (!modbusTCPClient.coilWrite(0x10, 0x00)) {
-      Serial.print("Failed to write coil! ");
-      Serial.println(modbusTCPClient.lastError());
-    }
-*/
+
+
+
 
 int adamController::set_coils(uint8_t coilStates = 0b00000000) {
 }
 
 
 
-bool adamController::read_input(uint8_t inputNum) {
+bool adamController::read_digital_input(uint8_t inputNum) {
 }
 
 
 
-uint8_t adamController::read_inputs() {
+uint8_t adamController::read_digital_inputs() {
 }

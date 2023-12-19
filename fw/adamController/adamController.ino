@@ -15,11 +15,15 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
+
+
 // These should be depreciated
 //#include <ArduinoRS485.h>  // ArduinoModbus depends on the ArduinoRS485 library
 //#include <ArduinoModbus.h>
 
 #include "adamController.h"  // Now all modbus is handled internally to adamController class
+
+
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
@@ -49,6 +53,7 @@ adamController adam6024(ethClient, adam6024_ip);
 void setup() {
   //Initialize serial and wait for port to open:
   Serial.begin(115200);
+  Serial.println("\n");
   while (!Serial) {
     ;  // wait for serial port to connect. Needed for native USB port only
   }
@@ -81,9 +86,9 @@ void loop() {
   adam6024.check_modbus_connect();
 
   if (adam6052.modbusConnected) {
-    int error = adam6052.set_coil(0, true);
+    int error = adam6052.set_coil(2, true);
     delay(2000);
-    error = adam6052.set_coil(0, false);
+    error = adam6052.set_coil(2, false);
     delay(2000);    
   }
 

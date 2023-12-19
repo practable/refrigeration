@@ -26,7 +26,7 @@ class adamController {
 
 private:
 
-
+  
 
   EthernetClient ethClient;
   IPAddress serverIP;
@@ -56,8 +56,8 @@ public:
   int set_coil(int coilNum, bool coilState = false);
   int set_coils(uint8_t coilStates = 0b00000000);
 
-  bool read_input(uint8_t inputNum);
-  uint8_t read_inputs();
+  bool read_digital_input(uint8_t inputNum);
+  uint8_t read_digital_inputs();
 
 
   // Variables
