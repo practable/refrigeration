@@ -41,11 +41,11 @@ IPAddress adam6024_ip(192, 168, 1, 114);  // update with the IP Address of your 
 
 // Create an Ethernet Client
 EthernetClient ethClient;
-// Create a Modbus client passing the ethernet client as argument
-//ModbusTCPClient modbusTCPClient(ethClient);  DEPRECIATED (now inside class)
+
+
 // Create an adamController object and pass the Ethernet Client and IP Address for the server
-adamController adam6052(ethClient, adam6052_ip);
-adamController adam6024(ethClient, adam6024_ip);
+adamController adam6052(ethClient, adam6052_ip, "ADAM-6052-A");
+adamController adam6024(ethClient, adam6024_ip, "ADAM-6024-B");
 
 
 
@@ -57,55 +57,73 @@ void setup() {
   while (!Serial) {
     ;  // wait for serial port to connect. Needed for native USB port only
   }
-
+  Serial.println("\nAdvantec ADAM industrial Controller Library - Example");
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
 
   // Check for Ethernet hardware present
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    Serial.println("Arduino: Ethernet shield was not found.  Sorry, can't run without hardware. :(");
     while (true) {
       delay(1);  // do nothing, no point running without Ethernet hardware
     }
   }
+
+  delay(500);
+
   if (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is not connected.");
+    Serial.println("Arduino: Ethernet cable is not connected.");
   }
 
-  adam6052.begin();
+  // adam6052.begin();
   adam6024.begin();
-  adam6052.set_coils(0b00000000);
+  delay(1000);
+  // adam6052.set_coils(0b00000000);
 }
 
 
-
+uint16_t iteration = 0;
 
 
 void loop() {
+  Serial.print("\nArduino: Iteration: ");
+  Serial.println(iteration);
+
+adam6024.check_modbus_connect();
+
+
+
+  // adamDigitalController();
+
+
+  delay(10000);
+
+  iteration++;
+}
+
+
+void adamDigitalController() {
 
   adam6052.check_modbus_connect();
-  // adam6024.check_modbus_connect();
-
   int error;
   int randomVal = random(256);
   if (adam6052.modbusConnected) {
     error = adam6052.set_coils(randomVal);
+    if (error == -1) {
+      Serial.println("Arduino: Error setting coils");
+    }
     int value = adam6052.read_coils();
     if (value == randomVal) {
-      Serial.println("values match coils written successfully");
+      Serial.println("Arduino: values match coils written successfully");
     } else {
-      Serial.println("Error: Mismatch between coils written & coils read");
+      Serial.println("Arduino: Error: Mismatch between coils written & coils read");
     }
     adam6052.read_digital_inputs();
   }  // if modbusConnected
   else {
-    Serial.println("Error: Modbus connection dropped");
+    Serial.println("Arduino: Error: Modbus connection dropped");
   }
-  delay(10000);
 }
-
-
-
 
 
 // Comment here for reasons

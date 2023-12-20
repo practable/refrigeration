@@ -36,6 +36,7 @@ $aaM  = $01M
 
 
 void adamController::begin() {
+  adamController::check_modbus_connect();
 }
 
 
@@ -43,13 +44,15 @@ void adamController::begin() {
 void adamController::check_modbus_connect() {
   if (!modbusTCP.connected()) {
     // client not connected, start the Modbus TCP client
-    Serial.println("Attempting to connect to Modbus TCP server");
+    Serial.print(moduleName);
+    Serial.println(": Attempting to connect to Modbus TCP server");
     modbusConnected = false;
     if (!modbusTCP.begin(serverIP, 502)) {
-      Serial.println("Modbus TCP Client failed to connect!");
+      Serial.println(": Modbus TCP Client failed to connect!");
 
     } else {
-      Serial.println("Modbus TCP Client connected");
+      Serial.print(moduleName);
+      Serial.println(": Modbus TCP Client connected");
       modbusConnected = true;
     }
   }
@@ -71,20 +74,20 @@ int16_t adamController::set_coil(int coilNum, bool coilState) {
 
   if ((coilNum >= 0) && (coilNum < 8)) {
     if (!modbusTCP.coilWrite(0x10, state)) {
-      sprintf(buffer, "Failed to set coil: %i ( %#0x ) to %i. %s", coilNum, d_out[coilNum], coilState, modbusTCP.lastError());
+      sprintf(buffer, "%s: Failed to set coil: %i ( %#0x ) to %i. %s", moduleName, coilNum, d_out[coilNum], coilState, modbusTCP.lastError());
       coilState = -1;
       // Serial.println(modbusTCP.lastError());
     } else {
-      sprintf(buffer, "Setting Coil: %i ( %#0x ) to %i", coilNum, d_out[coilNum], coilState);
+      sprintf(buffer, "%s: Setting Coil: %i ( %#0x ) to %i", moduleName, coilNum, d_out[coilNum], coilState);
     }
   } else {
-    sprintf(buffer, "Unable to set Coil %i - out of range :(", coilNum);
+    sprintf(buffer, "%s: Unable to set Coil %i - out of range :(", moduleName, coilNum);
     coilState = -1;
   }
 #if DEBUG == true
   Serial.println(buffer);
 #endif
-return coilState;
+  return coilState;
 }
 
 
@@ -110,9 +113,9 @@ int16_t adamController::set_coils(uint8_t coilStates = 0b00000000) {
   char buffer[64];
 
   if (response == 1) {
-    sprintf(buffer, "Set Coils:   %s%s ", leadingZeros[zeroPadding], binString);
+    sprintf(buffer, "%s: Set Coils:   %s%s ", moduleName, leadingZeros[zeroPadding], binString);
   } else {
-    sprintf(buffer, "ERROR: Unable to Set Coils to: %s%s ", leadingZeros[zeroPadding], binString);
+    sprintf(buffer, "%s: ERROR: Unable to Set Coils to: %s%s ", moduleName, leadingZeros[zeroPadding], binString);
     coilStates = -1;
   }
 //  Serial.println(response);
@@ -126,15 +129,16 @@ int16_t adamController::set_coils(uint8_t coilStates = 0b00000000) {
 
 int16_t adamController::read_coil(uint8_t outputNum) {
   char buffer[64];
+  int16_t outState = -1;
   if (outputNum < 8) {
-    int16_t outState = modbusTCP.coilRead(d_out[outputNum]);
+    outState = modbusTCP.coilRead(d_out[outputNum]);
     if (outState == -1) {
-      sprintf(buffer, "Error Code %i: Unable to Read Output Status %i :(", outState, outputNum);
+      sprintf(buffer, "%s: Error Code %i: Unable to Read Output Status %i :(", moduleName, outState, outputNum);
     } else {
-      sprintf(buffer, "Output %i Status: %i", outputNum, outState);
+      sprintf(buffer, "%s: Output %i Status: %i", moduleName, outputNum, outState);
     }
   } else {
-    sprintf(buffer, "Unable to Read Output Status %i - out of range :(", outputNum);
+    sprintf(buffer, "%s: Unable to Read Output Status %i - out of range :(", moduleName, outputNum);
     outState = -1;
   }
 #if DEBUG == true
@@ -161,9 +165,9 @@ int16_t adamController::read_coils() {
     itoa(coilStates, binString, 2);  //trying some magic to make sprinf work to print status in columns
     int zeroPadding = int(8 - strlen(binString));
 
-    sprintf(buffer, "Read Coils:  %s%s ", leadingZeros[zeroPadding], binString);
+    sprintf(buffer, "%s: Read Coils:  %s%s ", moduleName, leadingZeros[zeroPadding], binString);
   } else {
-    sprintf(buffer, "ERROR: Unable to read coil status ");
+    sprintf(buffer, "%s: ERROR: Unable to read coil status ", moduleName);
   }
 
 #if DEBUG == true
@@ -178,15 +182,16 @@ int16_t adamController::read_coils() {
 
 int16_t adamController::read_digital_input(uint8_t inputNum) {
   char buffer[64];
-  if  (inputNum < 8) {
-    int16_t inputState = modbusTCP.discreteInputRead(inputNum);
+  int16_t inputState = -1;
+  if (inputNum < 8) {
+    inputState = modbusTCP.discreteInputRead(inputNum);
     if (inputState == -1) {
-      sprintf(buffer, "Error Code %i: Unable to Read Input %i :(", inputState, inputNum);
+      sprintf(buffer, "%s: Error Code %i: Unable to Read Input %i :(", moduleName, inputState, inputNum);
     } else {
-      sprintf(buffer, "Input %i Status: %i", inputNum, inputState);
+      sprintf(buffer, "%s: Input %i Status: %i", moduleName, inputNum, inputState);
     }
   } else {
-    sprintf(buffer, "Unable to Read Input %i - out of range :(", inputNum);
+    sprintf(buffer, "%s: Unable to Read Input %i - out of range :(", moduleName, inputNum);
     inputState = -1;
   }
 
@@ -200,24 +205,24 @@ int16_t adamController::read_digital_input(uint8_t inputNum) {
 
 
 int16_t adamController::read_digital_inputs() {
-  int response = modbusTCP.requestFrom( DISCRETE_INPUTS, d_in[0], 0x08);
+  int response = modbusTCP.requestFrom(DISCRETE_INPUTS, d_in[0], 0x08);
   int numReadings = modbusTCP.available();  // Is this line even needed? requestFrom returns number of readings
   int readBuffer[numReadings];
   int inputStates = 0;
   char buffer[64];
   if (response > 0) {
     for (int i = 0; i < numReadings; i++) {
-      readBuffer[i] = modbusTCP.read();  // this array fill in reverse?
+      readBuffer[i] = modbusTCP.read();                      // this array fill in reverse?
       inputStates = inputStates + readBuffer[i] * (1 << i);  // This calculates the total value of all the coils so it can be displayed in binary
     }
     char binString[9];
     itoa(inputStates, binString, 2);  //trying some magic to make sprinf work to print status in columns
     int zeroPadding = int(8 - strlen(binString));
 
-    sprintf(buffer, "Read Inputs: %s%s ", leadingZeros[zeroPadding], binString);
+    sprintf(buffer, "%s: Read Digital Inputs: %s%s ", moduleName, leadingZeros[zeroPadding], binString);
   } else {
-    sprintf(buffer, "ERROR: Unable to read input status ");
-    inputStates = -1
+    sprintf(buffer, "%s: ERROR: Unable to read input status ", moduleName);
+    inputStates = -1;
   }
 
 #if DEBUG == true
@@ -225,3 +230,8 @@ int16_t adamController::read_digital_inputs() {
 #endif
   return inputStates;
 }
+
+
+
+
+  adamController::rtnArray adamController::read_analog_inputs();
