@@ -52,7 +52,8 @@ public:
   const int a_in[8] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
   struct dataArray {
-    int data[8];
+    int i_data[8];
+    float f_data[8];
   } d_array;
 
   // Methods
@@ -72,6 +73,8 @@ public:
 
   int16_t read_analog_input(uint8_t inputNum);
   dataArray read_analog_inputs();
+
+  float daq_to_voltage(int16_t daq_value);
 
 
   // Variables

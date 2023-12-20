@@ -248,7 +248,7 @@ adamController::dataArray adamController::read_analog_inputs() {
   if (response > 0) {
     for (int i = 0; i < numReadings; i++) {
       readBuffer[i] = modbusTCP.read();
-      analogVals.data[i] = readBuffer[i];  // do the conversion to voltage/current here
+      analogVals.f_data[i] = adamController::daq_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
     }
 
 
@@ -257,10 +257,16 @@ adamController::dataArray adamController::read_analog_inputs() {
     sprintf(buffer, "%s: ERROR: Unable to read input status ", moduleName);
     inputStates = -1;
   }
- 
+
 
 #if DEBUG == true
   Serial.println(buffer);
 #endif
   return analogVals;
+}
+
+float adamController::daq_to_voltage(int16_t daq_value) {
+  float voltage = float(daq_value) - 32768.0;
+  voltage = voltage/3257.333;
+  return voltage;
 }
