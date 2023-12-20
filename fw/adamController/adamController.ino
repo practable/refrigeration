@@ -89,9 +89,15 @@ void loop() {
   Serial.print("\nArduino: Iteration: ");
   Serial.println(iteration);
 
-adam6024.check_modbus_connect();
+  adam6024.check_modbus_connect();
 
+  adam6024.d_array = adam6024.read_analog_inputs();
 
+  for (int i = 0; i < 6; i++) {
+    Serial.print(adam6024.d_array.data[i]);
+    Serial.print(", ");
+  }
+  Serial.println("");
 
   // adamDigitalController();
 

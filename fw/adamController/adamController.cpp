@@ -92,7 +92,7 @@ int16_t adamController::set_coil(int coilNum, bool coilState) {
 
 
 
-int16_t adamController::set_coils(uint8_t coilStates = 0b00000000) {
+int16_t adamController::set_coils(uint8_t coilStates) {
   int16_t response;
   response = modbusTCP.beginTransmission(COILS, 0x10, 0x08);  // type, address (any val) , nb (no bytes to be sent)
 
@@ -234,4 +234,33 @@ int16_t adamController::read_digital_inputs() {
 
 
 
-  adamController::rtnArray adamController::read_analog_inputs();
+adamController::dataArray adamController::read_analog_inputs() {
+  dataArray analogVals;
+  int response = modbusTCP.requestFrom(INPUT_REGISTERS, a_in[0], 0x06);
+  Serial.print("Response: ");
+  Serial.println(response);
+  int numReadings = modbusTCP.available();  // Is this line even needed? requestFrom returns number of readings
+  Serial.print("Num Readings: ");
+  Serial.println(numReadings);
+  int readBuffer[numReadings];
+  int inputStates = 0;
+  char buffer[64];
+  if (response > 0) {
+    for (int i = 0; i < numReadings; i++) {
+      readBuffer[i] = modbusTCP.read();
+      analogVals.data[i] = readBuffer[i];  // do the conversion to voltage/current here
+    }
+
+
+    sprintf(buffer, "%s: Read Analog Inputs: %i, %i, %i, %i, %i, %i ", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4], readBuffer[5]);
+  } else {
+    sprintf(buffer, "%s: ERROR: Unable to read input status ", moduleName);
+    inputStates = -1;
+  }
+ 
+
+#if DEBUG == true
+  Serial.println(buffer);
+#endif
+  return analogVals;
+}

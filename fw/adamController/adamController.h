@@ -48,10 +48,12 @@ public:
 
   const int d_out[8] = { 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17 };
   const int d_in[8] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
+  const int a_out[8] = {};
+  const int a_in[8] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
-  struct rtnArray {
+  struct dataArray {
     int data[8];
-  };
+  } d_array;
 
   // Methods
 
@@ -69,7 +71,7 @@ public:
   int16_t read_digital_inputs();
 
   int16_t read_analog_input(uint8_t inputNum);
-  rtnArray read_analog_inputs();
+  dataArray read_analog_inputs();
 
 
   // Variables
