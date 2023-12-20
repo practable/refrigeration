@@ -26,7 +26,7 @@ class adamController {
 
 private:
 
-  
+
 
   EthernetClient ethClient;
   IPAddress serverIP;
@@ -53,19 +53,23 @@ public:
 
   void check_modbus_connect();
 
-  int set_coil(int coilNum, bool coilState = false);
-  int set_coils(uint8_t coilStates = 0b00000000);
+  int16_t set_coil(int coilNum, bool coilState = false);
+  int16_t set_coils(uint8_t coilStates = 0b00000000);
+  int16_t read_coil(uint8_t outputNum);
+  int16_t read_coils();
 
-  bool read_digital_input(uint8_t inputNum);
-  uint8_t read_digital_inputs();
 
-  bool get_output_state(uint8_t outputNum);
+  int16_t read_digital_input(uint8_t inputNum);
+  int16_t read_digital_inputs();
 
 
 
   // Variables
-
+  char moduleName[32] = { "ADAM-xxxxA" };
   bool modbusConnected = false;
+
+private:
+  char leadingZeros[9][9] = { "", "0", "00", "000", "0000", "00000", "000000", "0000000", "00000000" };
 };
 
 

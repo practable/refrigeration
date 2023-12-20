@@ -90,9 +90,18 @@ void loop() {
   int randomVal = random(256);
   if (adam6052.modbusConnected) {
     error = adam6052.set_coils(randomVal);
-    delay(1000);
-    adam6052.get_output_state(0);
+    int value = adam6052.read_coils();
+    if (value == randomVal) {
+      Serial.println("values match coils written successfully");
+    } else {
+      Serial.println("Error: Mismatch between coils written & coils read");
+    }
+    adam6052.read_digital_inputs();
+  }  // if modbusConnected
+  else {
+    Serial.println("Error: Modbus connection dropped");
   }
+  delay(10000);
 }
 
 
