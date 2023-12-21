@@ -30,7 +30,7 @@ $aaM  = $01M
 
 #include "adamController.h"
 
-#define DEBUG true
+
 
 
 
@@ -235,38 +235,51 @@ int16_t adamController::read_digital_inputs() {
 
 
 adamController::dataArray adamController::read_analog_inputs() {
-  dataArray analogVals;
-  int response = modbusTCP.requestFrom(INPUT_REGISTERS, a_in[0], 0x06);
-  Serial.print("Response: ");
-  Serial.println(response);
-  int numReadings = modbusTCP.available();  // Is this line even needed? requestFrom returns number of readings
-  Serial.print("Num Readings: ");
-  Serial.println(numReadings);
-  int readBuffer[numReadings];
+ // dataArray analogVals; // Use the global variable its easier!
+  int response = modbusTCP.requestFrom(INPUT_REGISTERS, a_in[0], 0x06);  //HOLDING_REGISTERS
+  int numReadings = modbusTCP.available();                               // Is this line even needed? requestFrom returns number of readings
+  uint16_t readBuffer[numReadings];
   int inputStates = 0;
   char buffer[64];
   if (response > 0) {
     for (int i = 0; i < numReadings; i++) {
       readBuffer[i] = modbusTCP.read();
-      analogVals.f_data[i] = adamController::daq_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
+      switch (analogType) {
+        case DAC_OUTPUT:
+          d_array.i_data[i] = readBuffer[i];  // do the conversion to voltage/current here
+          break;
+        case VOLTAGE_OUTPUT:
+          d_array.f_data[i] = adamController::daq_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
+          break;
+        case CURRENT_OUTPUT:
+          d_array.f_data[i] = adamController::daq_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
+          break;
+        default:
+          Serial.print(moduleName);
+          Serial.println(": Error: Unknown analog data type requested");
+          break;
+      }
     }
-
-
-    sprintf(buffer, "%s: Read Analog Inputs: %i, %i, %i, %i, %i, %i ", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4], readBuffer[5]);
+    sprintf(buffer, "%s: Read Analog Inputs (DAC): %u, %u, %u, %u, %u, %u ", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4], readBuffer[5]);
   } else {
     sprintf(buffer, "%s: ERROR: Unable to read input status ", moduleName);
     inputStates = -1;
   }
 
-
 #if DEBUG == true
   Serial.println(buffer);
 #endif
-  return analogVals;
+  return d_array;
 }
 
-float adamController::daq_to_voltage(int16_t daq_value) {
+float adamController::daq_to_voltage(uint16_t daq_value) {
   float voltage = float(daq_value) - 32768.0;
-  voltage = voltage/3257.333;
+  voltage = voltage / 3257.333;
   return voltage;
+}
+
+float adamController::daq_to_current(uint16_t daq_value) {
+  float current = float(daq_value);  // - 32768.0;
+  current = current / 3257.333;
+  return current;
 }

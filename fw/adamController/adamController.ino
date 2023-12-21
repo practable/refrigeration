@@ -1,15 +1,7 @@
-/*
-  Ethernet Modbus TCP Client Toggle
+/* adamController Example
 
-  This sketch toggles the coil of a Modbus TCP server connected
-  on and off every second.
 
-  Circuit:
-   - Any Arduino MKR Board
-   - MKR ETH Shield
 
-  created 16 July 2018
-  by Sandeep Mistry
 */
 
 #include <SPI.h>
@@ -23,14 +15,30 @@
 
 #include "adamController.h"  // Now all modbus is handled internally to adamController class
 
+#include "sensorObj.h"
 
+
+
+//sensorObj TS1(VOLTAGE_SENSOR, "degC", "TS1");
+//sensorObj TS1(VOLTAGE_SENSOR, "degC", "TS2");
+//sensorObj TS1(VOLTAGE_SENSOR, "degC", "TS3");
+//sensorObj TS1(VOLTAGE_SENSOR, "degC", "TS4");
+//sensorObj TS1(VOLTAGE_SENSOR, "degC", "TS5");
+//sensorObj TS1(VOLTAGE_SENSOR, "degC", "TS6");
+
+sensorObj temp_s[6] = {
+  sensorObj(VOLTAGE_SENSOR, "v", "TS1"),
+  sensorObj(VOLTAGE_SENSOR, "v", "TS2"),
+  sensorObj(VOLTAGE_SENSOR, "v", "TS3"),
+  sensorObj(VOLTAGE_SENSOR, "v", "TS4"),
+  sensorObj(VOLTAGE_SENSOR, "v", "TS5"),
+  sensorObj(VOLTAGE_SENSOR, "v", "TS6")
+};
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 // The IP address will be dependent on your local network:
-byte mac[] = {
-  0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48
-};
+byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };
 
 //Define the ip address for the client (local modbus controller) (the device this firmware is running on)
 IPAddress ip(192, 168, 1, 100);
@@ -44,8 +52,8 @@ EthernetClient ethClient;
 
 
 // Create an adamController object and pass the Ethernet Client and IP Address for the server
-adamController adam6052(ethClient, adam6052_ip, "ADAM-6052-A");
-adamController adam6024(ethClient, adam6024_ip, "ADAM-6024-B");
+adamController adam6052(ethClient, adam6052_ip, DAC_OUTPUT, "ADAM-6052-A");
+adamController adam6024(ethClient, adam6024_ip, DAC_OUTPUT, "ADAM-6024-B");
 
 
 
@@ -79,6 +87,12 @@ void setup() {
   adam6024.begin();
   delay(1000);
   // adam6052.set_coils(0b00000000);
+  // init Temp Sensors
+  for (int i = 0; i < 6; i++) {
+    temp_s[i].set_range_min(-10);
+    temp_s[i].set_range_max(10);
+    temp_s[i].setCalibration();
+  }
 }
 
 
@@ -89,22 +103,34 @@ void loop() {
   Serial.print("\nArduino: Iteration: ");
   Serial.println(iteration);
 
-  adam6024.check_modbus_connect();
 
-  adam6024.d_array = adam6024.read_analog_inputs();
+  // TS1.updateHistory();
 
-  for (int i = 0; i < 6; i++) {
-    Serial.print(adam6024.d_array.data[i]);
-    Serial.print(", ");
-  }
-  Serial.println("");
-
+  adamAnalogController();
   // adamDigitalController();
 
 
-  delay(10000);
-
+  delay(2000);
   iteration++;
+}
+
+
+void adamAnalogController() {
+  adam6024.check_modbus_connect();
+
+  adam6024.read_analog_inputs();
+
+  for (int i = 0; i < 6; i++) {
+    Serial.print(adam6024.d_array.i_data[i]);
+    Serial.print(" : ");
+    float voltage = temp_s[i].calcProcessVar(adam6024.d_array.i_data[i]);
+    Serial.print(" ");
+    Serial.print(voltage);
+    Serial.print(" V, ");
+    temp_s[i].updateHistory(voltage);
+    Serial.println("");
+  }
+  Serial.println("");
 }
 
 
