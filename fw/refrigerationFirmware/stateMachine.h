@@ -37,7 +37,8 @@ typedef enum {
   STATE_FANS_ON,
   STATE_FANS_OFF,
   STATE_COMP_ON,
-  STATE_COMP_OFF
+  STATE_COMP_OFF,
+  STATE_REGAS
 } StateType;
 
 // State Names Array (Makes printing the current state prettier)
@@ -50,7 +51,8 @@ char stateNames[][32] = {
   "STATE_FANS_ON",
   "STATE_FANS_OFF",
   "STATE_COMP_ON",
-  "STATE_COMP_OFF"
+  "STATE_COMP_OFF",
+  "STATE_REGAS"
 
 };
 
@@ -64,6 +66,7 @@ void sm_state_fans_on(void);
 void sm_state_fans_off(void);
 void sm_state_comp_on(void);
 void sm_state_comp_off(void);
+void sm_state_regass(void);
 
 /**
  * Type definition used to define the state
@@ -93,10 +96,11 @@ StateMachineType StateMachine[] = {
   { STATE_FANS_ON, sm_state_fans_on },
   { STATE_FANS_OFF, sm_state_fans_off },
   { STATE_COMP_ON, sm_state_comp_on },
-  { STATE_COMP_OFF, sm_state_comp_off }
+  { STATE_COMP_OFF, sm_state_comp_off },
+  { STATE_REGAS, sm_state_regass }
 };
 
-int NUM_STATES = 9;
+int NUM_STATES = 10;
 
 /**
  * Stores the current state of the state machine
@@ -159,12 +163,12 @@ void sm_state_wait() {
 void sm_state_stop() {
   Serial.println("State Machine: Stop");
   // Stop Compressor
-  adam6052B.set_coil(2, false); 
+  adam6052B.set_coil(2, false);
   // Stop Fans
-  adam6052B.set_coils(0b00000000); // or set everything off 
+  adam6052B.set_coils(0b00000000);  // or set everything off
   // Close V1-4
   // Close V5 & V6
-  adam6052A.set_coils(0b00000000);  
+  adam6052A.set_coils(0b00000000);
   lastState = smState;
   smState = STATE_WAIT;
 }
@@ -181,7 +185,7 @@ void sm_state_valve() {
   Serial.print(valveNum);
   Serial.print(",  Valve Status: ");
   Serial.println(valveState);
-  adam6052A.set_coil(valveNum-1, valveState);  // -1 as array is indexed at 0
+  adam6052A.set_coil(valveNum - 1, valveState);  // -1 as array is indexed at 0
   valveNum = 0;
   valveState = 0;
   lastState = smState;
@@ -190,35 +194,48 @@ void sm_state_valve() {
 
 void sm_state_fans_on() {
   Serial.println("State Machine: Fans On");
-  adam6052B.set_coil(0, true);  
-  adam6052B.set_coil(1, true); 
+  adam6052B.set_coil(0, true);
+  adam6052B.set_coil(1, true);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_fans_off() {
   Serial.println("State Machine: Fans Off");
-  adam6052B.set_coil(0, false);  
-  adam6052B.set_coil(1, false); 
+  adam6052B.set_coil(0, false);
+  adam6052B.set_coil(1, false);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_comp_on() {
   Serial.println("State Machine: Compressor On");
-  adam6052B.set_coil(2, true);  
+  adam6052B.set_coil(2, true);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_comp_off() {
   Serial.println("State Machine: Compressor Off");
-  adam6052B.set_coil(2, false);  
+  adam6052B.set_coil(2, false);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 
+void sm_state_regass() {
+  Serial.println("State Machine: Regas System");
+  Serial.println("Opening Cut-Off Valves (1-4, 5, 6)");
+  delay(1000);
+  Serial.println("Starting Condenser Fan");
+  delay(1000);
+  Serial.println("Starting Compressor");
+  delay(1000);
+  Serial.println("Refill with 1.1 kg of refrigerant, or until sightglass is full");
+  delay(1000);
+
+  lastState = smState;
+}
 
 
 /**
@@ -244,6 +261,7 @@ void readSerialJSON(void) {
     char valve[] = "valve";
     char fans[] = "fans";
     char comp[] = "comp";
+    char regas[] = "regas";
 
     Serial.readBytesUntil(10, command, COMMAND_SIZE);
 
@@ -262,7 +280,7 @@ void readSerialJSON(void) {
     // If valve == 0 we know there is no real value there and can ignore
 
     valveNum = doc["valve"];
-    if ((valveNum > 0) && (valveNum < 8)) {
+    if ((valveNum > 0) && (valveNum < 7)) {
       Serial.print("valveNum: ");
       Serial.print(valveNum);
       Serial.print("   Valve Status: ");
@@ -271,7 +289,7 @@ void readSerialJSON(void) {
       commandParsed = true;
       smState = STATE_SELECT_VALVE;
     } else if (valveNum == 0) {
-       Serial.println("Unknown Valve Number Selected");
+      Serial.println("Unknown Valve Number Selected");
     } else if ((valveNum >= 8) || (valveNum < 0)) {
       Serial.println("Unknown Valve Number Selected");
     }
@@ -319,13 +337,16 @@ void readSerialJSON(void) {
     // Then check if first index contains a "mode"
     if (root.containsKey("mode")) {
       const char* mode = doc["mode"];
-
       Serial.println("mode detected: ");
       Serial.println(mode);
       if (strcmp(mode, stop) == 0) {
         smState = STATE_STOP;
         Serial.println("{\"result\":\"ok\"}");
+      } else if (strcmp(mode, regas) == 0) {
+        smState = STATE_REGAS;
+        Serial.println("{\"result\":\"ok\"}");
       } else {
+        Serial.println("{\"result\":\"error - unknown mode\"}");
       }
       commandParsed = true;
     }

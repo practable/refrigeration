@@ -14,15 +14,15 @@
 #include <Ethernet.h>
 
 
-#define DEBUG true
+
 
 #include "globals.h"
-
+#include "ArduinoJson-v6.9.1.h"
 #include "stateMachine.h"
-#include "adamController.h" 
+#include "adamController.h"
 #include "sensorObj.h"
 
-
+#define DEBUG_FIRMWARE false
 
 
 void setup() {
@@ -30,6 +30,7 @@ void setup() {
   ethernet_begin();
   adams_begin();
   sensors_begin();
+  Serial.println(" ");
 }
 
 void serial_begin() {
@@ -60,18 +61,18 @@ void ethernet_begin() {
 
 void adams_begin() {
   adam6052A.begin();
-  adam6052B.begin();
-  //adam6024.begin();
+  // adam6052B.begin();
+  adam6217A.begin();
   delay(1000);
   adam6052A.set_coils(0b00000000);
-  adam6052B.set_coils(0b00000000);
+  // adam6052B.set_coils(0b00000000);
 }
 
 void sensors_begin() {
   // init Temp Sensors
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    temp_s[i].set_range_min(-10);
-    temp_s[i].set_range_max(10);
+    temp_s[i].set_range_min(0, -10);  // (processVariable, measuredVal)
+    temp_s[i].set_range_max(100, 10);
     temp_s[i].setCalibration();
   }
 }
@@ -82,32 +83,36 @@ void sensors_begin() {
 
 void loop() {
   adam6052A.check_modbus_connect();
-  adam6052B.check_modbus_connect();
- // adam6024.check_modbus_connect();
+  // adam6052B.check_modbus_connect();
+  adam6217A.check_modbus_connect();
   // function here to gather all data
-  sm_Run();
+  adamAnalogController();
+  build_json();
+  //sm_Run();
 
+  delay(1000);
 }
 
-/*
-void adamAnalogController() {
- // adam6024.check_modbus_connect();
 
- // adam6024.read_analog_inputs();
+void adamAnalogController() {
+
+  adam6217A.read_analog_inputs();  // read all temperature sensor inputs
+
 
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    Serial.print(adam6024.d_array.i_data[i]);
-    Serial.print(" : ");
-    float voltage = temp_s[i].calcProcessVar(adam6024.d_array.i_data[i]);
-    Serial.print(" ");
-    Serial.print(voltage);
-    Serial.print(" V, ");
-    temp_s[i].updateHistory(voltage);
-    Serial.println("");
+    ts_vals[i] = temp_s[i].calcProcessVar(adam6217A.d_array.f_data[i]);  // calculate the process variable and save to temperature sensor array
+    ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array
+                                                                         // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
+#if DEBUG_FIRMWARE == true
+    Serial.print(ts_vals[i]);
+    Serial.print(" degC, time: ");
+    Serial.print(ts_times[i]);
+    Serial.println(" mS");
+#endif
   }
-  Serial.println("");
+  // Serial.println("");
 }
-*/
+
 
 void adamDigitalController() {
 
@@ -133,7 +138,21 @@ void adamDigitalController() {
 }
 
 
+void build_json() {
+  char json_header[] = " {\"";
+  char json_buffer[256];// = {"\n"};  // WEIRD BUG HERE - If string isnt null terminated it prints buffer from adamController::dataArray adamController::read_analog_inputs() NO IDEA WHY both arrays should be large enough
+  char float_buffer[16];
+  char json_footer[] = " \"}";
 
+
+  for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
+   // dtostrf(ts_vals[i], 6, 2, float_buffer);
+  //  Serial.println(float_buffer);
+   // sprintf(json_buffer, "%s\"TS%i\": %6s \n",json_buffer, i + 1, float_buffer);    
+  }
+  Serial.println(json_buffer);
+ // Serial.print("\n");
+}
 
 
 

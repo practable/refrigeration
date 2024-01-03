@@ -43,16 +43,25 @@ void sensorObj::setCalibration() {
 float sensorObj::calcProcessVar(float _dacVal) {
   float processVarible = 0;
   processVarible = (_dacVal * cal.factor) + cal.offset;
+  currentVal = processVarible;
+#if DEBUG == true
   Serial.print(sensorID);
   Serial.print(": ");
+  Serial.print(_dacVal);  
+  Serial.print(ADC_units);
   Serial.print(processVarible);
   Serial.print(" ");
-  Serial.print(units);
+  Serial.println(process_units);
+#endif
   return processVarible;
 }
 
+float sensorObj::returnVal() {
+  return currentVal;
+}
+
 void sensorObj::updateHistory(float _sensorVal) {
-  currenVal = _sensorVal;
+  //currentVal = _sensorVal;  // this is done during calc process val
   for (int i = 0; i < SENSOR_BUFFER_SIZE - 1; i++) {  //make space in the array: inefficient for large arrays - better solution?
     sensorHistory[i] = sensorHistory[i + 1];
   }

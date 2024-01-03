@@ -238,18 +238,21 @@ int16_t adamController::read_digital_inputs() {
 
 
 adamController::dataArray adamController::read_analog_inputs() {
- // dataArray analogVals; // Use the global variable its easier!
+  // dataArray analogVals; // Use the global variable its easier!
   int response = modbusTCP.requestFrom(INPUT_REGISTERS, a_in[0], 0x06);  //HOLDING_REGISTERS
   int numReadings = modbusTCP.available();                               // Is this line even needed? requestFrom returns number of readings
   uint16_t readBuffer[numReadings];
   int inputStates = 0;
-  char buffer[64];
+  char buffer[514];
   if (response > 0) {
     for (int i = 0; i < numReadings; i++) {
       readBuffer[i] = modbusTCP.read();
+      d_array.i_data[i] = readBuffer[i];  // always save the DAQ reading to the i_data buffer
+      d_array.timeStamp_mS[i] = millis();
       switch (analogType) {
         case DAC_OUTPUT:
-          d_array.i_data[i] = readBuffer[i];  // do the conversion to voltage/current here
+          // no other conversion needed, just copy int data to float variable to avoid breaking things when changes are made and user forgets to change i_data to f_data
+          d_array.f_data[i] = float(d_array.i_data[i]);
           break;
         case VOLTAGE_OUTPUT:
           d_array.f_data[i] = adamController::daq_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
@@ -269,9 +272,11 @@ adamController::dataArray adamController::read_analog_inputs() {
     inputStates = -1;
   }
 
-#if DEBUG == true
-  Serial.println(buffer);
+#if PRINT_RAW_DATA == true
+  Serial.println("BUT NOT PRINTING HERE");
+  Serial.println(buffer);  
 #endif
+  //delete buffer;  // doesnt work
   return d_array;
 }
 
