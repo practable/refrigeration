@@ -29,14 +29,14 @@ void sensorObj::set_range_max(float _process_max, float _dac_max) {
 void sensorObj::setCalibration() {
   Serial.print(sensorID);
   if (rangeSet < 2) {
-    Serial.println(": Sensor Range has Not Been Set!");
+    Serial.println(F(": Sensor Range has Not Been Set!"));
   } else {
     input_range = dac_max - dac_min;
     process_range = process_max - process_min;
     cal.offset = process_min;
     cal.factor = process_range / input_range;
     calSet = true;
-    Serial.println(": Sensor Calibration data saved");
+    Serial.println(F(": Sensor Calibration data saved"));
   }
 }
 
@@ -46,11 +46,11 @@ float sensorObj::calcProcessVar(float _dacVal) {
   currentVal = processVarible;
 #if DEBUG_SENSOR_CALC == true
   Serial.print(sensorID);
-  Serial.print(": ");
-  Serial.print(_dacVal);  
+  Serial.print(F(": "));
+  Serial.print(_dacVal);
   Serial.print(ADC_units);
   Serial.print(processVarible);
-  Serial.print(" ");
+  Serial.print(F(" "));
   Serial.println(process_units);
 #endif
   return processVarible;
@@ -67,12 +67,12 @@ void sensorObj::updateHistory(float _sensorVal) {
   }
   sensorHistory[SENSOR_BUFFER_SIZE - 1] = _sensorVal;
 
-#if DEBUG == true
-  // for (int i = 0; i < SENSOR_BUFFER_SIZE;i++ ){
-  // Serial.print(sensorHistory[i]);
-  // Serial.print(", ");
-  // }
-//  Serial.println();
+#if DEBUG_SENSOR_HISTORY == true
+  for (int i = 0; i < SENSOR_BUFFER_SIZE; i++) {
+    Serial.print(sensorHistory[i]);
+    Serial.print(F(", "));
+  }
+  Serial.println();
 #endif
 }
 

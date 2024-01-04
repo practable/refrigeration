@@ -88,6 +88,8 @@ public:
   float daq_to_voltage(uint16_t daq_value);
   float daq_to_current(uint16_t daq_value);
 
+  void printBin(int16_t binaryVal);
+
   // Variables
   char moduleName[32] = { "ADAM-xxxxA" };
   bool modbusConnected = false;

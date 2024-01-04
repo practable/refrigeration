@@ -115,6 +115,7 @@ int16_t adamController::set_coils(uint8_t coilStates) {
     sprintf(buffer, "%s: ERROR: Unable to Set Coils to: %s%s ", moduleName, leadingZeros[zeroPadding], binString);
     coilStates = -1;
   }
+  // g_coilState = coilStates;
 //  Serial.println(response);
 #if DEBUG == true
   Serial.println(buffer);
@@ -191,7 +192,6 @@ int16_t adamController::read_digital_input(uint8_t inputNum) {
     sprintf(buffer, "%s: Unable to Read Input %i - out of range :(", moduleName, inputNum);
     inputState = -1;
   }
-
 #if DEBUG_ADAM == true
   Serial.println(buffer);
 #endif
@@ -228,7 +228,14 @@ int16_t adamController::read_digital_inputs() {
   return inputStates;
 }
 
-
+void adamController::printBin(int16_t binaryVal) {
+  char buffer[42];
+  char binString[9];
+  itoa(binaryVal, binString, 2);  //trying some magic to make sprinf work to print status in columns
+  int zeroPadding = int(8 - strlen(binString));
+  sprintf(buffer, "%s: Read Digital Inputs: %s%s ", moduleName, leadingZeros[zeroPadding], binString);
+  Serial.println(buffer);
+}
 
 
 adamController::dataArray adamController::read_analog_inputs() {
@@ -256,7 +263,7 @@ adamController::dataArray adamController::read_analog_inputs() {
           break;
         default:
           Serial.print(moduleName);
-          Serial.println(": Error: Unknown analog data type requested");
+          Serial.println(F(": Error: Unknown analog data type requested"));
           break;
       }
     }

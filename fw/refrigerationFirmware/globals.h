@@ -23,6 +23,7 @@ Global variables for Refrigeration Experiment
 char relay_names[][5] = {"W1","W2","comp"};
 
 // Sensor & Sampling Globals
+uint32_t lastSample = 0;      // holds the time of the last sample
 uint32_t lastReport = 0;      // holds the time of the last JSON report
 
 uint32_t sampleTimestamp = 0;  // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use case a few mS will not matter)
@@ -93,18 +94,18 @@ IPAddress ip(192, 168, 1, 100);
 // Define the IP for the server (remote modbus device)
 IPAddress adam6052A_ip(192, 168, 1, 111);  // update with the IP Address of your Modbus server (the remote IO controller)
 IPAddress adam6052B_ip(192, 168, 1, 114);  // update with the IP Address of your Modbus server (the remote IO controller)
-IPAddress adam6217A_ip(192, 168, 1, 114);  // update with the IP Address of your Modbus server (the remote IO controller)
-IPAddress adam6217B_ip(192, 168, 1, 115);  // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6217C_ip(192, 168, 1, 114);  // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6217D_ip(192, 168, 1, 115);  // update with the IP Address of your Modbus server (the remote IO controller)
 
 // Create an Ethernet Client
 EthernetClient ethClient;
 
 
 // Create an adamController object and pass the Ethernet Client and IP Address for the server
-adamController adam6052A(ethClient, adam6052A_ip, DAC_OUTPUT, "ADAM-6052-A");
-adamController adam6052B(ethClient, adam6052B_ip, DAC_OUTPUT, "ADAM-6052-B");
-adamController adam6217A(ethClient, adam6217A_ip, VOLTAGE_OUTPUT, "ADAM-6217-A");
-adamController adam6217B(ethClient, adam6217B_ip, DAC_OUTPUT, "ADAM-6217-B");
+adamController adam6052_A(ethClient, adam6052A_ip, DAC_OUTPUT, "ADAM-6052-A");
+adamController adam6052_B(ethClient, adam6052B_ip, DAC_OUTPUT, "ADAM-6052-B");
+adamController adam6217_C(ethClient, adam6217C_ip, VOLTAGE_OUTPUT, "ADAM-6217-C");
+adamController adam6217_D(ethClient, adam6217D_ip, DAC_OUTPUT, "ADAM-6217-D");
 
 
 

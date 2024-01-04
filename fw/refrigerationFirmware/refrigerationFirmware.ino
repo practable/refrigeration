@@ -18,18 +18,24 @@
 #define DEBUG_ADAM false
 #define PRINT_RAW_DATA false
 #define DEBUG_STATE_MACHINE false
+#define DEBUG_STATES false
 #define DEBUG_SENSOR_CALC false
+#define DEBUG_SENSOR_HISTORY false
+#define DEBUG_SERIAL false
+#define DEBUG_JSON false
 
 // User Options
 #define PRINT_JSON true
 #define COMMAND_HINTS false
 
-#define ADAM6052A_ACTIVE false
-#define ADAM6052B_ACTIVE false
-#define ADAM6217A_ACTIVE true
-#define ADAM6217B_ACTIVE false
+#define ADAM6052A_ACTIVE true
+#define ADAM6052B_ACTIVE true
+#define ADAM6217C_ACTIVE true
+#define ADAM6217D_ACTIVE true
 
+#define SAMPLING_DELAY 1000
 #define JSON_REPORT_DELAY_mS 5000
+
 
 // Include all other files here
 
@@ -78,18 +84,18 @@ void ethernet_begin() {
 
 void adams_begin() {
 #if ADAM6052A_ACTIVE == true
-  adam6052A.begin();
-  adam6052A.set_coils(0b00000000);
+  adam6052_A.begin();
+  adam6052_A.set_coils(0b00000000);
 #endif
 #if ADAM6052B_ACTIVE == true
-  adam6052B.begin();
-  adam6052B.set_coils(0b00000000);
+  adam6052_B.begin();
+  adam6052_B.set_coils(0b00000000);
 #endif
 #if ADAM6217A_ACTIVE == true
-  adam6217A.begin();
+  adam6217_C.begin();
 #endif
 #if ADAM6217B_ACTIVE == true
-  adam6217B.begin();
+  adam6217_D.begin();
 #endif
   delay(1000);
 }
@@ -97,10 +103,27 @@ void adams_begin() {
 void sensors_begin() {
   // init Temp Sensors
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    temp_s[i].set_range_min(0, -10);  // (processVariable, measuredVal)
+    temp_s[i].set_range_min(0, 0);  // (processVariable, measuredVal)
     temp_s[i].set_range_max(100, 10);
     temp_s[i].setCalibration();
   }
+  for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {
+    pressure_s[i].set_range_min(1, 0);
+    pressure_s[i].set_range_max(6, 30);
+    pressure_s[i].setCalibration();
+  }
+  flow_s.set_range_min(4, 0);
+  flow_s.set_range_max(20, 25);
+  flow_s.setCalibration();
+  power_s.set_range_min(0, 0);
+  power_s.set_range_max(20, 1053);
+  power_s.setCalibration();
+  t_ambi.set_range_min(4, -10);  // guessing at these values for now
+  t_ambi.set_range_max(20, 100);
+  t_ambi.setCalibration();
+  p_ambi.set_range_min(4, 600);  // mBar
+  p_ambi.set_range_max(20, 1500);
+  p_ambi.setCalibration();
 }
 
 
@@ -108,25 +131,30 @@ void sensors_begin() {
 
 
 void loop() {
-   sm_Run();   // Runs JSON parser, selects operational state & sets output hardware
+  sm_Run();  // Runs JSON parser, selects operational state & sets output hardware
 
 
-// Sample all Data inputs
+  // Sample all Data inputs
+  if (millis() - lastSample >= SAMPLING_DELAY) {
+    lastSample = millis();
 #if ADAM6052A_ACTIVE == true
-  // adam6052A.check_modbus_connect();
+    adam6052_A.check_modbus_connect();
+    sample_adam6052A();
 #endif
 #if ADAM6052B_ACTIVE == true
-//  adam6052B.check_modbus_connect();
+    adam6052_B.check_modbus_connect();
+    sample_adam6052B();
 #endif
 
 
-#if ADAM6217A_ACTIVE == true
-  adam6217A.check_modbus_connect();
-  sample_adam6217A();
+#if ADAM6217C_ACTIVE == true
+    adam6217_C.check_modbus_connect();
+    sample_adam6217C();
 #endif
-#if ADAM6217B_ACTIVE == true
-  // sample_adam6217B();
+#if ADAM6217D_ACTIVE == true
+    sample_adam6217D();
 #endif
+  }
 
   if (millis() - lastReport >= JSON_REPORT_DELAY_mS) {
     build_json();
@@ -134,47 +162,52 @@ void loop() {
   }
 }
 
+void sample_adam6052A() {
+  adam6052_A.read_coils();
+//adam6052A.read_digital_inputs();  // not needed in this iteration
+#if DEBUG_SAMPLING == true
+  adam6052A.printBin(adam6052A.g_coilState);
+#endif
+}
 
 
-void sample_adam6217A() {
-  adam6217A.read_analog_inputs();  // read all temperature sensor inputs (this also gets a timestamp for each sensor reading)
-  sampleTimestamp = millis();      // This takes a "generic" timestamp that should be accurate enough for most purposes
+void sample_adam6052B() {
+  adam6052_B.read_coils();
+//adam6052A.read_digital_inputs();  // not needed in this iteration
+#if DEBUG_SAMPLING == true
+  adam6052B.printBin(adam6052B.g_coilState);
+#endif
+}
+
+
+void sample_adam6217C() {
+  adam6217_C.read_analog_inputs();  // read all temperature sensor inputs
+  sampleTimestamp = millis();       // This takes a "generic" timestamp that should be accurate enough for most purposes
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    ts_vals[i] = temp_s[i].calcProcessVar(adam6217A.d_array.f_data[i]);  // calculate the process variable and save to temperature sensor array
-                                                                         //   ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array - depreciated no space left
-                                                                         // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
+    ts_vals[i] = temp_s[i].calcProcessVar(adam6217_C.d_array.f_data[i]);  // calculate the process variable and save to temperature sensor array
+                                                                          //   ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array - depreciated no space left
+                                                                          // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
 #if DEBUG_SAMPLING == true
     Serial.print(ts_vals[i]);
-    Serial.print(F(" degC, time: "));
-    Serial.print(F(ts_times[i]));
-    Serial.println(" mS");
+    Serial.print(F(" degC"));
 #endif
   }
 }
 
-
-void adamDigitalController() {
-
-  adam6052A.check_modbus_connect();
-  int error;
-  int randomVal = random(256);
-  if (adam6052A.modbusConnected) {
-    error = adam6052A.set_coils(randomVal);
-    if (error == -1) {
-      Serial.println(F("Arduino: Error setting coils"));
-    }
-    int value = adam6052A.read_coils();
-    if (value == randomVal) {
-      Serial.println(F("Arduino: values match coils written successfully"));
-    } else {
-      Serial.println(F("Arduino: Error: Mismatch between coils written & coils read"));
-    }
-    adam6052A.read_digital_inputs();
-  }  // if modbusConnected
-  else {
-    Serial.println(F("Arduino: Error: Modbus connection dropped"));
+void sample_adam6217D() {
+  adam6217_D.read_analog_inputs();
+  sampleTimestamp = millis();  // This takes a "generic" timestamp that should be accurate enough for most purposes
+  for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
+    ts_vals[i] = temp_s[i].calcProcessVar(adam6217_D.d_array.f_data[i]);  // calculate the process variable and save to temperature sensor array
+                                                                          //   ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array - depreciated no space left
+                                                                          // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
+#if DEBUG_SAMPLING == true
+    Serial.print(ts_vals[i]);
+    Serial.print(F(" degC"));
+#endif
   }
 }
+
 
 
 void build_json() {
@@ -192,20 +225,20 @@ void build_json() {
 
 
   // start json string building
-  sprintf(json_buffer, "%s\n  \"timestamp\" : %u,", json_header, sampleTimestamp);
+  sprintf(json_buffer, "%s\n  \"timestamp\" : %lu,", json_header, sampleTimestamp);
 
 
   // load valve data
   sprintf(json_buffer, "%s\n  \"%s\" : {", json_buffer, valves);
   for (int i = 0; i < 8; i++) {
-    sprintf(json_buffer, "%s\n    \"V%i\" : %i,", json_buffer, i + 1, bool(adam6052A.g_coilState & 1 << i));  // fancy binary operation to bitmask the valvestate variable with a power of 2 to get true or false for each valve based on valvestate int
+    sprintf(json_buffer, "%s\n    \"V%i\" : %i,", json_buffer, i + 1, bool(adam6052_A.g_coilState & 1 << i));  // fancy binary operation to bitmask the valvestate variable with a power of 2 to get true or false for each valve based on valvestate int
   }
   sprintf(json_buffer, "%s\n  },", json_buffer);
 
   //load power relay data
   sprintf(json_buffer, "%s\n  \"%s\" : {", json_buffer, relays);
   for (int i = 0; i < 3; i++) {
-    sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, relay_names[i], bool(adam6052B.g_coilState & 1 << i));
+    sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, relay_names[i], bool(adam6052_B.g_coilState & 1 << i));
   }
   sprintf(json_buffer, "%s\n  },", json_buffer);
 
@@ -233,8 +266,8 @@ void build_json() {
   // load misc sensors
   sprintf(json_buffer, "%s\n    \"%s\" : {", json_buffer, misc);
   for (int i = 0; i < 4; i++) {
-        dtostrf(misc_vals[i], 6, 2, float_buffer);
-        sprintf(json_buffer, "%s\n      \"%s\" : %6s,", json_buffer, misc_names[i], float_buffer);
+    dtostrf(misc_vals[i], 6, 2, float_buffer);
+    sprintf(json_buffer, "%s\n      \"%s\" : %6s,", json_buffer, misc_names[i], float_buffer);
   }
   sprintf(json_buffer, "%s\n    }", json_buffer);
 
@@ -242,12 +275,12 @@ void build_json() {
   sprintf(json_buffer, "%s\n  },", json_buffer);
 
   // load status message
-   sprintf(json_buffer, "%s\n\"%s\" : {", json_buffer, s_status);
-    sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, status_names[0], status.ok);
-    sprintf(json_buffer, "%s\n    \"%s\" : \"%s\",", json_buffer, status_names[1], status.state);
-    sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, status_names[2], status.code);
-    sprintf(json_buffer, "%s\n    \"%s\" : \"%s\"", json_buffer, status_names[3], status.message);
-    sprintf(json_buffer, "%s\n  }", json_buffer);
+  sprintf(json_buffer, "%s\n\"%s\" : {", json_buffer, s_status);
+  sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, status_names[0], status.ok);
+  sprintf(json_buffer, "%s\n    \"%s\" : \"%s\",", json_buffer, status_names[1], status.state);
+  sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, status_names[2], status.code);
+  sprintf(json_buffer, "%s\n    \"%s\" : \"%s\"", json_buffer, status_names[3], status.message);
+  sprintf(json_buffer, "%s\n  }", json_buffer);
 
 
   // close json string

@@ -122,11 +122,12 @@ int fanState = 0;
 */
 
 void sm_state_init() {
- // Serial.println("State Machine: Init");
+  // Serial.println("State Machine: Init");
   // Init all o/ps to default state
   smState = STATE_WAIT;
 }
 
+#if COMMAND_HINTS == true
 char exampleCommands[][32] = {
   "{\"mode\":\"stop\"}",
   "{\"cmd\":\"fans\",\"param\":0}",
@@ -135,16 +136,18 @@ char exampleCommands[][32] = {
   "{\"fans\":0}",
   "{\"comp\":0}"
 };
-
+#endif
 
 void sm_state_wait() {
   // Check to see if first time state has been called in sequence
   if (lastState != smState) {
     // If first iteration print state machine status
-    Serial.println("State Machine: Waiting");
+#if DEBUG_STATES == true
+    Serial.println(F("State Machine: Waiting"));
+#endif
     // print suggested commands
 #if COMMAND_HINTS == true
-    Serial.println("\nEnter Command in format:");
+    Serial.println(F("\nEnter Command in format:"));
     int numExamples = sizeof(exampleCommands) / sizeof(exampleCommands[0]);  // just get the size of the example commands array
     for (int i = 0; i < numExamples; i++) {
       Serial.println(exampleCommands[i]);  // print example commands
@@ -159,31 +162,35 @@ void sm_state_wait() {
 }
 
 void sm_state_stop() {
-  Serial.println("State Machine: Stop");
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Stop"));
+#endif
   // Stop Compressor
-  adam6052B.set_coil(2, false);
+  adam6052_B.set_coil(2, false);
   // Stop Fans
-  adam6052B.set_coils(0b00000000);  // or set everything off
+  adam6052_B.set_coils(0b00000000);  // or set everything off
   // Close V1-4
   // Close V5 & V6
-  adam6052A.set_coils(0b00000000);
+  adam6052_A.set_coils(0b00000000);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_running() {
-//  Serial.println("State Machine: Running");
+  //  Serial.println("State Machine: Running");
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_valve() {
-  Serial.println("State Machine: Set Valve");
-  Serial.print("Valve Num: ");
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Set Valve"));
+  Serial.print(F("Valve Num: "));
   Serial.print(valveNum);
-  Serial.print(",  Valve Status: ");
+  Serial.print(F(",  Valve Status: "));
   Serial.println(valveState);
-  adam6052A.set_coil(valveNum - 1, valveState);  // -1 as array is indexed at 0
+#endif
+  adam6052_A.set_coil(valveNum - 1, valveState);  // -1 as array is indexed at 0
   valveNum = 0;
   valveState = 0;
   lastState = smState;
@@ -191,48 +198,60 @@ void sm_state_valve() {
 }
 
 void sm_state_fans_on() {
-  Serial.println("State Machine: Fans On");
-  adam6052B.set_coil(0, true);
-  adam6052B.set_coil(1, true);
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Fans On"));
+#endif
+  adam6052_B.set_coil(0, true);
+  adam6052_B.set_coil(1, true);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_fans_off() {
-  Serial.println("State Machine: Fans Off");
-  adam6052B.set_coil(0, false);
-  adam6052B.set_coil(1, false);
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Fans Off"));
+#endif
+  adam6052_B.set_coil(0, false);
+  adam6052_B.set_coil(1, false);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_comp_on() {
-  Serial.println("State Machine: Compressor On");
-  adam6052B.set_coil(2, true);
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Compressor On"));
+#endif
+  adam6052_B.set_coil(2, true);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 void sm_state_comp_off() {
-  Serial.println("State Machine: Compressor Off");
-  adam6052B.set_coil(2, false);
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Compressor Off"));
+#endif
+  adam6052_B.set_coil(2, false);
   lastState = smState;
   smState = STATE_WAIT;
 }
 
 
 void sm_state_regass() {
-  Serial.println("State Machine: Regas System");
-  Serial.println("Opening Cut-Off Valves (1-4, 5, 6)");
-  delay(1000);
-  Serial.println("Starting Condenser Fan");
-  delay(1000);
-  Serial.println("Starting Compressor");
-  delay(1000);
-  Serial.println("Refill with 1.1 kg of refrigerant, or until sightglass is full");
-  delay(1000);
-
-  lastState = smState;
+  if (lastState != smState) {
+    Serial.println(F("State Machine: Regas System"));
+    Serial.println(F("Opening Cut-Off Valves (1-4, 5, 6)"));
+    adam6052_A.set_coils(0b00111111);
+    delay(1000);
+    Serial.println(F("Starting Condenser Fan"));
+    adam6052_A.set_coil(0, true);
+    delay(1000);
+    Serial.println(F("Starting Compressor"));
+    adam6052_A.set_coil(2, true);
+    delay(1000);
+    Serial.println(F("Refill with 1.1 kg of refrigerant, or until sightglass is full"));
+    delay(1000);
+    lastState = smState;
+  }
 }
 
 
@@ -248,29 +267,37 @@ StateType readSerialJSON(StateType smState) {
 */
 
 //StateType readSerialJSON(StateType smState) {
-void readSerialJSON(void) {
+int readSerialJSON(void) {
   bool commandParsed = false;
+  int error = 0;
   if (Serial.available() > 0) {
-    char start[] = "start";
+    //  char start[] = "start";
     char stop[] = "stop";
-    char cmd_wd[] = "cmd";
-    char md_wd[] = "mode";
-    char valve[] = "valve";
+    //  char cmd_wd[] = "cmd";
+    //  char md_wd[] = "mode";
+    //   char valve[] = "valve";
     char fans[] = "fans";
     char comp[] = "comp";
     char regas[] = "regas";
-   char ok_response[20] = "{\"result\":\"ok\"}";
+    char ok_response[20] = "{\"result\":\"ok\"}";
 
     Serial.readBytesUntil(10, command, COMMAND_SIZE);
 
+#if DEBUG_SERIAL == true
     Serial.print(F("\ncommand received: "));
     Serial.println(command);
-
+#endif
     deserializeJson(doc, command);
 
 
+    // First check if state is not equal to wait
+    // :p you idiot how would you ever get out of this - think!
+    //   if (smState != STATE_WAIT) {
+    //     Serial.println(F("State is not STATE_WAIT, try sending:\n{\"mode\":\"stop\"}"));
+    //     return -1;  // return and do not continue parsing JSON
+    //   }
 
-
+    // Now to parse the JSON message
     // First work out what the command word is
 
     // First check if the first index is "valve"**** SEE NOTE!
@@ -279,14 +306,16 @@ void readSerialJSON(void) {
 
     valveNum = doc["valve"];
     if ((valveNum > 0) && (valveNum < 7)) {
+      valveState = doc["state"];
+#if DEBUG_JSON == true
       Serial.print(F("valveNum: "));
       Serial.print(valveNum);
       Serial.print(F("   Valve Status: "));
-      valveState = doc["state"];
       Serial.println(valveState);
+#endif
       commandParsed = true;
       smState = STATE_SELECT_VALVE;
-    } else if (valveNum == 0)  {
+    } else if (valveNum == 0) {
       Serial.println(F("Unknown Valve Number Selected"));
     } else if ((valveNum >= 8) || (valveNum < 0)) {
       Serial.println(F("Unknown Valve Number Selected"));
@@ -301,8 +330,10 @@ void readSerialJSON(void) {
 
     if (root.containsKey("fans")) {
       int fanState = doc["fans"];
+#if DEBUG_JSON == true
       Serial.print(F("fanState: "));
       Serial.println(fanState);
+#endif
       if (fanState > 0) {
         commandParsed = true;
         smState = STATE_FANS_ON;
@@ -317,8 +348,10 @@ void readSerialJSON(void) {
 
     if (root.containsKey("comp")) {
       int compState = doc["comp"];
+#if DEBUG_JSON == true
       Serial.print(F("compState: "));
       Serial.println(compState);
+#endif
       if (compState > 0) {
         commandParsed = true;
         smState = STATE_COMP_ON;
@@ -335,11 +368,13 @@ void readSerialJSON(void) {
     // Then check if first index contains a "mode"
     if (root.containsKey("mode")) {
       const char* mode = doc["mode"];
+#if DEBUG_JSON == true
       Serial.println(F("mode detected: "));
       Serial.println(mode);
+#endif
       if (strcmp(mode, stop) == 0) {
         smState = STATE_STOP;
-        Serial.println(F("{\"result\":\"ok\"}"));
+        Serial.println(ok_response);
       } else if (strcmp(mode, regas) == 0) {
         smState = STATE_REGAS;
         Serial.println(ok_response);
@@ -352,9 +387,10 @@ void readSerialJSON(void) {
     // Then check if first index contains a "cmd"
     if (root.containsKey("cmd")) {
       const char* cmd = doc["cmd"];
-
+#if DEBUG_JSON == true
       Serial.println(F("cmd detected: "));
       Serial.println(cmd);
+#endif
       commandParsed = true;
 
       // Then check to see what cmd has been sent
@@ -362,7 +398,7 @@ void readSerialJSON(void) {
         smState = STATE_STOP;
         Serial.println(ok_response);
       } else {
-        // Serial.println("{\"error\":\"Unable to stop\"}");
+        Serial.println(F("{\"error\":\"Unable to stop\"}"));
       }
 
 
@@ -392,13 +428,16 @@ void readSerialJSON(void) {
     }  // end of "cmd"
 
     if (commandParsed) {
+#if DEBUG_JSON == true
       Serial.println(F("Command Parsed Successfully\n"));
+#endif
+      // Error should still be zero, can be set to other values earlier to pass out other errors
     } else {
       Serial.println(F("Error Parsing JSON Command\n"));
+      error = -1;
     }
-  }  //if bytes available
-
-  // return smState;  // This is a global variable it does not need to be returned.
+  }              //if bytes available
+  return error;  // if success returns 0, else -1 or other error int
 }
 
 
@@ -419,10 +458,11 @@ void sm_Run(void) {
       Serial.println("}");
     }
 #endif
-    //sprintf(status.state, "%s", stateNames[smState]);  // added function doesnt seem to work - causing wider issues?
+    sprintf(status.state, "%s", stateNames[smState]);  // added function doesnt seem to work - causing wider issues?
     (*StateMachine[smState].func)();                   // This function does the magic
   } else {
     // could have a default function that runs here in case of exception
+    (*StateMachine[STATE_STOP].func)();
     Serial.println(F("Exception in State Machine"));
   }
 }
