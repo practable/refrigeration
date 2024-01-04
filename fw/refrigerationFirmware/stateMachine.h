@@ -21,7 +21,7 @@ State machine boilerplate from https://www.edn.com/electronics-blogs/embedded-ba
 StaticJsonDocument<COMMAND_SIZE> doc;  // This is the JSON object
 char command[COMMAND_SIZE];
 
-//#define DEBUG true
+#define DEBUG_STATE_MACHINE true
 #define COMMAND_HINTS true
 
 /**
@@ -414,14 +414,15 @@ void sm_Run(void) {
   readSerialJSON();  // listen for incoming serial commands and update global smState variable
 
   if (smState < NUM_STATES) {
-#if DEBUG == true
+#if DEBUG_STATE_MACHINE == true
     if (lastState != smState) {
       Serial.print("{\"State\":");
       Serial.print(stateNames[smState]);
       Serial.println("}");
     }
 #endif
-    (*StateMachine[smState].func)();  // This function does the magic
+    sprintf(status.state, "%s", stateNames[smState]);  // added function
+    (*StateMachine[smState].func)();                   // This function does the magic
   } else {
     // could have a default function that runs here in case of exception
     Serial.println("Exception in State Machine");

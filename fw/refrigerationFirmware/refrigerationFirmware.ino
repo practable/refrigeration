@@ -96,7 +96,8 @@ void loop() {
 
 void adamAnalogController() {
 
-  adam6217A.read_analog_inputs();  // read all temperature sensor inputs
+  adam6217A.read_analog_inputs();  // read all temperature sensor inputs (this also gets a timestamp for each sensor reading)
+  sampleTimestamp = millis();      // This takes a "generic" timestamp that should be accurate enough for most purposes
 
 
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
@@ -139,19 +140,85 @@ void adamDigitalController() {
 
 
 void build_json() {
-  char json_header[] = " {\"";
-  char json_buffer[256];// = {"\n"};  // WEIRD BUG HERE - If string isnt null terminated it prints buffer from adamController::dataArray adamController::read_analog_inputs() NO IDEA WHY both arrays should be large enough
+  char json_header[] = "\"{";
+  char json_buffer[512] = { "" };  // WEIRD BUG HERE - If string isnt initialised it prints buffer from adamController::dataArray adamController::read_analog_inputs() NO IDEA WHY both arrays should be large enough
   char float_buffer[16];
-  char json_footer[] = " \"}";
+  char json_footer[] = "\n}";
+  char valves[] = "valves";
+  char sensors[] = "sensors";
+  char temperature[] = "temperature";
+  char pressure[] = "pressure";
+  char misc[] = "misc";
+  char s_status[] = "status";
 
 
-  for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-   // dtostrf(ts_vals[i], 6, 2, float_buffer);
-  //  Serial.println(float_buffer);
-   // sprintf(json_buffer, "%s\"TS%i\": %6s \n",json_buffer, i + 1, float_buffer);    
+
+  // TEMP HOLDING VARIABLE
+  int valveState = 0b00001111;
+  // start json string building
+  sprintf(json_buffer, "%s\n  \"timestamp\" : %i,", json_header, sampleTimestamp);
+
+
+  // load valve data
+  sprintf(json_buffer, "%s\n  \"%s\" : {", json_buffer, valves);
+  for (int i = 0; i < 8; i++) {
+    sprintf(json_buffer, "%s\n    \"V%i\" : %i,", json_buffer, i + 1, bool(valveState & 1 << i));  // fancy binary operation to bitmask the valvestate variable with a power of 2 to get true or false for each valve based on valvestate int
   }
+  sprintf(json_buffer, "%s\n  },", json_buffer);
+
+  // load power relay data
+  //for (int i = 0; i < 3; i++) {
+  //    dtostrf(ts_vals[i], 6, 2, float_buffer);
+  //   sprintf(json_buffer, "%s\"TS%i\" : %6s \n",json_buffer, i + 1, float_buffer);
+  //}
+
+  // Load sensor data
+  sprintf(json_buffer, "%s\n  \"%s\" : {", json_buffer, sensors);
+
+  // load pressure sensors
+  sprintf(json_buffer, "%s\n    \"%s\" : {", json_buffer, pressure);
+  for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {
+    dtostrf(ps_vals[i], 6, 2, float_buffer);
+    sprintf(json_buffer, "%s\n      \"PS%i\" : %6s,", json_buffer, i + 1, float_buffer);
+  }
+  sprintf(json_buffer, "%s\n    },", json_buffer);
+
+
+  // load temp sensors
+  sprintf(json_buffer, "%s\n    \"%s\" : {", json_buffer, temperature);
+  for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
+    dtostrf(ts_vals[i], 6, 2, float_buffer);
+    sprintf(json_buffer, "%s\n      \"TS%i\" : %6s,", json_buffer, i + 1, float_buffer);
+  }
+  sprintf(json_buffer, "%s\n    },", json_buffer);
+
+
+  // load misc sensors
+  sprintf(json_buffer, "%s\n    \"%s\" : {", json_buffer, misc);
+  for (int i = 0; i < 4; i++) {
+    dtostrf(misc_vals[i], 6, 2, float_buffer);
+    sprintf(json_buffer, "%s\n      \"%s\" : %6s,", json_buffer, misc_names[i], float_buffer);
+  }
+  sprintf(json_buffer, "%s\n    }", json_buffer);
+
+  // close sensors
+  sprintf(json_buffer, "%s\n  },", json_buffer);
+
+  // load status message
+  sprintf(json_buffer, "%s\n\"%s\" : {", json_buffer, s_status);
+  sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, status_names[0], status.ok);
+  sprintf(json_buffer, "%s\n    \"%s\" : \"%s\",", json_buffer, status_names[1], status.state);
+  sprintf(json_buffer, "%s\n    \"%s\" : %i,", json_buffer, status_names[2], status.code);
+  sprintf(json_buffer, "%s\n    \"%s\" : \"%s\",", json_buffer, status_names[3], status.message);
+  sprintf(json_buffer, "%s\n  }", json_buffer);
+
+
+  // close json string
+  sprintf(json_buffer, "%s%s\"", json_buffer, json_footer);
+
   Serial.println(json_buffer);
- // Serial.print("\n");
+  // Serial.print("\n");
+  delay(1000);
 }
 
 

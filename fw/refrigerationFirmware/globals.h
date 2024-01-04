@@ -18,6 +18,9 @@ Global variables for Refrigeration Experiment
 
 #define NUM_TEMP_SENSORS 5
 
+uint32_t sampleTimestamp = 0;  // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use case a few mS will not matter)
+// keeping the more precise timestamps in code in case of future use case.
+
 sensorObj temp_s[NUM_TEMP_SENSORS] = {
   sensorObj(VOLTAGE_SENSOR, "degC", "TS1"),
   sensorObj(VOLTAGE_SENSOR, "degC", "TS2"),
@@ -27,8 +30,8 @@ sensorObj temp_s[NUM_TEMP_SENSORS] = {
 };
 
 // Arrays for Sensor Vals
-  float ts_vals[NUM_TEMP_SENSORS] = {0.0,0.0,0.0,0.0,0.0};               // create array for TS data 
-  uint32_t ts_times[NUM_TEMP_SENSORS] = {1000,1000,1000,1000,1000};         // create array for TS timestamps
+float ts_vals[NUM_TEMP_SENSORS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };           // create array for TS data
+uint32_t ts_times[NUM_TEMP_SENSORS] = { 1000, 1000, 1000, 1000, 1000 };  // create array for TS timestamps
 
 
 #define NUM_PRESSURE_SENSORS 3
@@ -39,14 +42,33 @@ sensorObj pressure_s[NUM_PRESSURE_SENSORS] = {
 };
 
 // Arrays for Sensor Vals
-  float ps_vals[NUM_PRESSURE_SENSORS] = {0.0, 0.0, 0.0};              // create array for TS data 
-  uint32_t ps_times[NUM_PRESSURE_SENSORS] = {1000,1000,1000};         // create array for TS timestamps
+float ps_vals[NUM_PRESSURE_SENSORS] = { 0.0, 0.0, 0.0 };         // create array for TS data
+uint32_t ps_times[NUM_PRESSURE_SENSORS] = { 1000, 1000, 1000 };  // create array for TS timestamps
 
-sensorObj power_s(CURRENT_SENSOR, "W", "power");
 sensorObj flow_s(CURRENT_SENSOR, "flow", "flow");
-
+sensorObj power_s(CURRENT_SENSOR, "W", "power");
 sensorObj t_ambi(CURRENT_SENSOR, "degC", "TS_ambi");
 sensorObj p_ambi(CURRENT_SENSOR, "mBar", "PS_ambi");
+
+// Arrays for Sensor Vals
+float misc_vals[4] = { 0.0, 0.0, 0.0, 0.0 };          // create array for TS data
+uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
+char misc_names[][16] = {"flow","power","PSA", "TSA"};
+
+
+// struct for status
+  struct _status {
+    bool ok;
+    char state[32];
+    int code;
+    char message[64];
+  } status =  {true, " ", 0, " "} ;
+
+
+
+ //status = {true, "jeff", 0, "silly"};
+// names for status
+char status_names[][16] = {"ok","state","code", "message"};
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield

@@ -243,7 +243,7 @@ adamController::dataArray adamController::read_analog_inputs() {
   int numReadings = modbusTCP.available();                               // Is this line even needed? requestFrom returns number of readings
   uint16_t readBuffer[numReadings];
   int inputStates = 0;
-  char buffer[514];
+  char buffer[514] = {0};
   if (response > 0) {
     for (int i = 0; i < numReadings; i++) {
       readBuffer[i] = modbusTCP.read();

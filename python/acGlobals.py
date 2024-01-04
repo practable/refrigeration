@@ -282,6 +282,7 @@ acUnit_dictionary = {
                 "max": 0,
                 "avg": 0,
                 "dxdt": 0,
+                
                 "lms": 0
             },
             "ATS" : {
