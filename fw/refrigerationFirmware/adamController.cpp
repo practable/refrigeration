@@ -48,14 +48,14 @@ void adamController::check_modbus_connect() {
   if (!modbusTCP.connected()) {
     // client not connected, start the Modbus TCP client
     Serial.print(moduleName);
-    Serial.println(": Attempting to connect to Modbus TCP server");
+    Serial.println(F(": Attempting to connect to Modbus TCP server"));
     modbusConnected = false;
     if (!modbusTCP.begin(serverIP, 502)) {
-      Serial.println(": Modbus TCP Client failed to connect!");
+      Serial.println(F(": Modbus TCP Client failed to connect!"));
 
     } else {
       Serial.print(moduleName);
-      Serial.println(": Modbus TCP Client connected");
+      Serial.println(F(": Modbus TCP Client connected"));
       modbusConnected = true;
     }
   }
@@ -87,7 +87,7 @@ int16_t adamController::set_coil(int coilNum, bool coilState) {
     sprintf(buffer, "%s: Unable to set Coil %i - out of range :(", moduleName, coilNum);
     coilState = -1;
   }
-#if DEBUG == true
+#if DEBUG_ADAM == true
   Serial.println(buffer);
 #endif
   return coilState;
@@ -99,15 +99,9 @@ int16_t adamController::set_coils(uint8_t coilStates) {
   int16_t response;
   response = modbusTCP.beginTransmission(COILS, 0x10, 0x08);  // type, address (any val) , nb (no bytes to be sent)
 
-  response = modbusTCP.write(coilStates & 0b00000001);
-  response = modbusTCP.write(coilStates & 0b00000010);  // Fun bitmasking operation
-  response = modbusTCP.write(coilStates & 0b00000100);
-  response = modbusTCP.write(coilStates & 0b00001000);
-  response = modbusTCP.write(coilStates & 0b00010000);
-  response = modbusTCP.write(coilStates & 0b00100000);
-  response = modbusTCP.write(coilStates & 0b01000000);
-  response = modbusTCP.write(coilStates & 0b10000000);
-
+  for (int i = 0; i < 8; i++) {
+    response = modbusTCP.write(coilStates & bitmask[i]);  // Fun bitmasking operation
+  }
   response = modbusTCP.endTransmission();
 
   char binString[9];
@@ -144,7 +138,7 @@ int16_t adamController::read_coil(uint8_t outputNum) {
     sprintf(buffer, "%s: Unable to Read Output Status %i - out of range :(", moduleName, outputNum);
     outState = -1;
   }
-#if DEBUG == true
+#if DEBUG_ADAM == true
   Serial.println(buffer);
 #endif
   return outState;
@@ -172,8 +166,8 @@ int16_t adamController::read_coils() {
   } else {
     sprintf(buffer, "%s: ERROR: Unable to read coil status ", moduleName);
   }
-
-#if DEBUG == true
+  g_coilState = coilStates;
+#if DEBUG_ADAM == true
   Serial.println(buffer);
 #endif
   return coilStates;
@@ -198,7 +192,7 @@ int16_t adamController::read_digital_input(uint8_t inputNum) {
     inputState = -1;
   }
 
-#if DEBUG == true
+#if DEBUG_ADAM == true
   Serial.println(buffer);
 #endif
   return inputState;
@@ -227,8 +221,8 @@ int16_t adamController::read_digital_inputs() {
     sprintf(buffer, "%s: ERROR: Unable to read input status ", moduleName);
     inputStates = -1;
   }
-
-#if DEBUG == true
+  g_inputState = inputStates;
+#if DEBUG_ADAM == true
   Serial.println(buffer);
 #endif
   return inputStates;
@@ -243,7 +237,7 @@ adamController::dataArray adamController::read_analog_inputs() {
   int numReadings = modbusTCP.available();                               // Is this line even needed? requestFrom returns number of readings
   uint16_t readBuffer[numReadings];
   int inputStates = 0;
-  char buffer[514] = {0};
+  char buffer[514] = { 0 };
   if (response > 0) {
     for (int i = 0; i < numReadings; i++) {
       readBuffer[i] = modbusTCP.read();
@@ -273,8 +267,7 @@ adamController::dataArray adamController::read_analog_inputs() {
   }
 
 #if PRINT_RAW_DATA == true
-  Serial.println("BUT NOT PRINTING HERE");
-  Serial.println(buffer);  
+  Serial.println(buffer);
 #endif
   //delete buffer;  // doesnt work
   return d_array;

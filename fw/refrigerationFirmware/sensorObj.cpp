@@ -44,7 +44,7 @@ float sensorObj::calcProcessVar(float _dacVal) {
   float processVarible = 0;
   processVarible = (_dacVal * cal.factor) + cal.offset;
   currentVal = processVarible;
-#if DEBUG == true
+#if DEBUG_SENSOR_CALC == true
   Serial.print(sensorID);
   Serial.print(": ");
   Serial.print(_dacVal);  

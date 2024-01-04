@@ -14,13 +14,23 @@ Global variables for Refrigeration Experiment
 #include "adamController.h"
 #include "sensorObj.h"
 
-#define DEBUG true
 
-#define NUM_TEMP_SENSORS 5
+
+// valve globals
+
+
+// Power Relay globals
+char relay_names[][5] = {"W1","W2","comp"};
+
+// Sensor & Sampling Globals
+uint32_t lastReport = 0;      // holds the time of the last JSON report
 
 uint32_t sampleTimestamp = 0;  // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use case a few mS will not matter)
 // keeping the more precise timestamps in code in case of future use case.
 
+// Temp Sensor Globals
+
+#define NUM_TEMP_SENSORS 5
 sensorObj temp_s[NUM_TEMP_SENSORS] = {
   sensorObj(VOLTAGE_SENSOR, "degC", "TS1"),
   sensorObj(VOLTAGE_SENSOR, "degC", "TS2"),
@@ -29,11 +39,11 @@ sensorObj temp_s[NUM_TEMP_SENSORS] = {
   sensorObj(VOLTAGE_SENSOR, "degC", "TS5")
 };
 
-// Arrays for Sensor Vals
+// Arrays for temp Sensor Vals
 float ts_vals[NUM_TEMP_SENSORS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };           // create array for TS data
-uint32_t ts_times[NUM_TEMP_SENSORS] = { 1000, 1000, 1000, 1000, 1000 };  // create array for TS timestamps
+//uint32_t ts_times[NUM_TEMP_SENSORS] = { 1000, 1000, 1000, 1000, 1000 };  // create array for TS timestamps  not enough space!
 
-
+// Pressure Sensor Globals
 #define NUM_PRESSURE_SENSORS 3
 sensorObj pressure_s[NUM_PRESSURE_SENSORS] = {
   sensorObj(VOLTAGE_SENSOR, "bar", "PS1"),
@@ -41,34 +51,36 @@ sensorObj pressure_s[NUM_PRESSURE_SENSORS] = {
   sensorObj(VOLTAGE_SENSOR, "bar", "PS3")
 };
 
-// Arrays for Sensor Vals
+// Arrays for Pressure Sensor Vals
 float ps_vals[NUM_PRESSURE_SENSORS] = { 0.0, 0.0, 0.0 };         // create array for TS data
-uint32_t ps_times[NUM_PRESSURE_SENSORS] = { 1000, 1000, 1000 };  // create array for TS timestamps
+//uint32_t ps_times[NUM_PRESSURE_SENSORS] = { 1000, 1000, 1000 };  // create array for TS timestamps
 
+
+// Misc Sensor Globals
 sensorObj flow_s(CURRENT_SENSOR, "flow", "flow");
 sensorObj power_s(CURRENT_SENSOR, "W", "power");
 sensorObj t_ambi(CURRENT_SENSOR, "degC", "TS_ambi");
 sensorObj p_ambi(CURRENT_SENSOR, "mBar", "PS_ambi");
 
-// Arrays for Sensor Vals
+// Arrays for Misc Sensor Vals
 float misc_vals[4] = { 0.0, 0.0, 0.0, 0.0 };          // create array for TS data
-uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
-char misc_names[][16] = {"flow","power","PSA", "TSA"};
+//uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
+char misc_names[][6] = {"flow","power","PSA", "TSA"};
+
 
 
 // struct for status
   struct _status {
     bool ok;
-    char state[32];
+    char state[20];
     int code;
-    char message[64];
+    char message[16];
   } status =  {true, " ", 0, " "} ;
 
-
-
- //status = {true, "jeff", 0, "silly"};
 // names for status
-char status_names[][16] = {"ok","state","code", "message"};
+char status_names[][8] = {"ok","state","code", "message"};
+
+
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
@@ -94,7 +106,6 @@ adamController adam6052B(ethClient, adam6052B_ip, DAC_OUTPUT, "ADAM-6052-B");
 adamController adam6217A(ethClient, adam6217A_ip, VOLTAGE_OUTPUT, "ADAM-6217-A");
 adamController adam6217B(ethClient, adam6217B_ip, DAC_OUTPUT, "ADAM-6217-B");
 
-//adamController adam6024(ethClient, adam6024_ip, DAC_OUTPUT, "ADAM-6024-C");
 
 
 

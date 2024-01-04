@@ -26,8 +26,6 @@
 #define CURRENT_SENSOR 1
 #define OTHER_SENSOR 2
 
-
-
 #define SENSOR_BUFFER_SIZE 10
 
 class sensorObj {

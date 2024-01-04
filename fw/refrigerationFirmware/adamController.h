@@ -24,8 +24,7 @@
 #include "WProgram.h"
 #endif
 
-#define DEBUG false
-//#define PRINT_RAW_DATA false
+
 
 // define type for analog inputs/output (this changes the format of the data returned from analog inputs,[ DAC value (0-65525), voltage, current]
 #define DAC_OUTPUT 0
@@ -92,6 +91,20 @@ public:
   // Variables
   char moduleName[32] = { "ADAM-xxxxA" };
   bool modbusConnected = false;
+
+  int16_t g_coilState = 0b00000000;
+  int16_t g_inputState = 0b00000000;
+
+  uint8_t bitmask[8] = {
+    0b00000001,
+    0b00000010,
+    0b00000100,
+    0b00001000,
+    0b00010000,
+    0b00100000,
+    0b01000000,
+    0b10000000
+  };
 
 
 

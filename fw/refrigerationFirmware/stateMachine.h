@@ -21,8 +21,7 @@ State machine boilerplate from https://www.edn.com/electronics-blogs/embedded-ba
 StaticJsonDocument<COMMAND_SIZE> doc;  // This is the JSON object
 char command[COMMAND_SIZE];
 
-#define DEBUG_STATE_MACHINE true
-#define COMMAND_HINTS true
+
 
 /**
  * Defines the valid states for the state machine
@@ -42,7 +41,7 @@ typedef enum {
 } StateType;
 
 // State Names Array (Makes printing the current state prettier)
-char stateNames[][32] = {
+char stateNames[][20] = {
   "STATE_INIT",
   "STATE_WAIT",
   "STATE_STOP",
@@ -53,7 +52,6 @@ char stateNames[][32] = {
   "STATE_COMP_ON",
   "STATE_COMP_OFF",
   "STATE_REGAS"
-
 };
 
 //state Machine function prototypes
@@ -124,12 +122,12 @@ int fanState = 0;
 */
 
 void sm_state_init() {
-  Serial.println("State Machine: Init");
+ // Serial.println("State Machine: Init");
   // Init all o/ps to default state
   smState = STATE_WAIT;
 }
 
-char exampleCommands[][64] = {
+char exampleCommands[][32] = {
   "{\"mode\":\"stop\"}",
   "{\"cmd\":\"fans\",\"param\":0}",
   "{\"valve\":1, \"state\":1}",
@@ -174,7 +172,7 @@ void sm_state_stop() {
 }
 
 void sm_state_running() {
-  Serial.println("State Machine: Running");
+//  Serial.println("State Machine: Running");
   lastState = smState;
   smState = STATE_WAIT;
 }
@@ -256,16 +254,16 @@ void readSerialJSON(void) {
     char start[] = "start";
     char stop[] = "stop";
     char cmd_wd[] = "cmd";
-    char vlv_wd[] = "valve";
     char md_wd[] = "mode";
     char valve[] = "valve";
     char fans[] = "fans";
     char comp[] = "comp";
     char regas[] = "regas";
+   char ok_response[20] = "{\"result\":\"ok\"}";
 
     Serial.readBytesUntil(10, command, COMMAND_SIZE);
 
-    Serial.print("\ncommand received: ");
+    Serial.print(F("\ncommand received: "));
     Serial.println(command);
 
     deserializeJson(doc, command);
@@ -281,17 +279,17 @@ void readSerialJSON(void) {
 
     valveNum = doc["valve"];
     if ((valveNum > 0) && (valveNum < 7)) {
-      Serial.print("valveNum: ");
+      Serial.print(F("valveNum: "));
       Serial.print(valveNum);
-      Serial.print("   Valve Status: ");
+      Serial.print(F("   Valve Status: "));
       valveState = doc["state"];
       Serial.println(valveState);
       commandParsed = true;
       smState = STATE_SELECT_VALVE;
-    } else if (valveNum == 0) {
-      Serial.println("Unknown Valve Number Selected");
+    } else if (valveNum == 0)  {
+      Serial.println(F("Unknown Valve Number Selected"));
     } else if ((valveNum >= 8) || (valveNum < 0)) {
-      Serial.println("Unknown Valve Number Selected");
+      Serial.println(F("Unknown Valve Number Selected"));
     }
 
     // This step added to allow parsing keys but unsure of best practice
@@ -303,7 +301,7 @@ void readSerialJSON(void) {
 
     if (root.containsKey("fans")) {
       int fanState = doc["fans"];
-      Serial.print("fanState: ");
+      Serial.print(F("fanState: "));
       Serial.println(fanState);
       if (fanState > 0) {
         commandParsed = true;
@@ -319,7 +317,7 @@ void readSerialJSON(void) {
 
     if (root.containsKey("comp")) {
       int compState = doc["comp"];
-      Serial.print("compState: ");
+      Serial.print(F("compState: "));
       Serial.println(compState);
       if (compState > 0) {
         commandParsed = true;
@@ -337,16 +335,16 @@ void readSerialJSON(void) {
     // Then check if first index contains a "mode"
     if (root.containsKey("mode")) {
       const char* mode = doc["mode"];
-      Serial.println("mode detected: ");
+      Serial.println(F("mode detected: "));
       Serial.println(mode);
       if (strcmp(mode, stop) == 0) {
         smState = STATE_STOP;
-        Serial.println("{\"result\":\"ok\"}");
+        Serial.println(F("{\"result\":\"ok\"}"));
       } else if (strcmp(mode, regas) == 0) {
         smState = STATE_REGAS;
-        Serial.println("{\"result\":\"ok\"}");
+        Serial.println(ok_response);
       } else {
-        Serial.println("{\"result\":\"error - unknown mode\"}");
+        Serial.println(F("{\"result\":\"error - unknown mode\"}"));
       }
       commandParsed = true;
     }
@@ -355,14 +353,14 @@ void readSerialJSON(void) {
     if (root.containsKey("cmd")) {
       const char* cmd = doc["cmd"];
 
-      Serial.println("cmd detected: ");
+      Serial.println(F("cmd detected: "));
       Serial.println(cmd);
       commandParsed = true;
 
       // Then check to see what cmd has been sent
       if (strcmp(cmd, stop) == 0) {
         smState = STATE_STOP;
-        Serial.println("{\"result\":\"ok\"}");
+        Serial.println(ok_response);
       } else {
         // Serial.println("{\"error\":\"Unable to stop\"}");
       }
@@ -372,10 +370,10 @@ void readSerialJSON(void) {
         int fanState = doc["param"];
         if (fanState > 0) {
           smState = STATE_FANS_ON;
-          Serial.println("{\"result\":\"ok\"}");
+          Serial.println(ok_response);
         } else {
           smState = STATE_FANS_OFF;
-          Serial.println("{\"result\":\"ok\"}");
+          Serial.println(ok_response);
         }
       }
 
@@ -384,19 +382,19 @@ void readSerialJSON(void) {
         int compState = doc["param"];
         if (compState > 0) {
           smState = STATE_COMP_ON;
-          Serial.println("{\"result\":\"ok\"}");
+          Serial.println(ok_response);
         } else {
           smState = STATE_COMP_OFF;
-          Serial.println("{\"result\":\"ok\"}");
+          Serial.println(ok_response);
         }
       }
 
     }  // end of "cmd"
 
     if (commandParsed) {
-      Serial.println("Command Parsed Successfully\n");
+      Serial.println(F("Command Parsed Successfully\n"));
     } else {
-      Serial.println("Error Parsing JSON Command\n");
+      Serial.println(F("Error Parsing JSON Command\n"));
     }
   }  //if bytes available
 
@@ -421,11 +419,11 @@ void sm_Run(void) {
       Serial.println("}");
     }
 #endif
-    sprintf(status.state, "%s", stateNames[smState]);  // added function
+    //sprintf(status.state, "%s", stateNames[smState]);  // added function doesnt seem to work - causing wider issues?
     (*StateMachine[smState].func)();                   // This function does the magic
   } else {
     // could have a default function that runs here in case of exception
-    Serial.println("Exception in State Machine");
+    Serial.println(F("Exception in State Machine"));
   }
 }
 
