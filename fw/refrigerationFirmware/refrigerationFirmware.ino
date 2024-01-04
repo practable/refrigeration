@@ -13,6 +13,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
+
 // Debugging Options
 #define DEBUG_SAMPLING false
 #define DEBUG_ADAM false
@@ -152,6 +153,7 @@ void loop() {
     sample_adam6217C();
 #endif
 #if ADAM6217D_ACTIVE == true
+    adam6217_D.check_modbus_connect();
     sample_adam6217D();
 #endif
   }
@@ -183,10 +185,17 @@ void sample_adam6052B() {
 void sample_adam6217C() {
   adam6217_C.read_analog_inputs();  // read all temperature sensor inputs
   sampleTimestamp = millis();       // This takes a "generic" timestamp that should be accurate enough for most purposes
+  for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {
+    ps_vals[i] = pressure_s[i].calcProcessVar(adam6217_C.d_array.f_data[i]);
+#if DEBUG_SAMPLING == true
+    Serial.print(ps_vals[i]);
+    Serial.print(F(" Bar"));
+#endif
+  }
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    ts_vals[i] = temp_s[i].calcProcessVar(adam6217_C.d_array.f_data[i]);  // calculate the process variable and save to temperature sensor array
-                                                                          //   ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array - depreciated no space left
-                                                                          // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
+    ts_vals[i] = temp_s[i].calcProcessVar(adam6217_C.d_array.f_data[i + 3]);  // index for temp sensors starts at 3// calculate the process variable and save to temperature sensor array
+                                                                              //   ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array - depreciated no space left
+                                                                              // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
 #if DEBUG_SAMPLING == true
     Serial.print(ts_vals[i]);
     Serial.print(F(" degC"));
@@ -195,17 +204,22 @@ void sample_adam6217C() {
 }
 
 void sample_adam6217D() {
-  adam6217_D.read_analog_inputs();
-  sampleTimestamp = millis();  // This takes a "generic" timestamp that should be accurate enough for most purposes
-  for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    ts_vals[i] = temp_s[i].calcProcessVar(adam6217_D.d_array.f_data[i]);  // calculate the process variable and save to temperature sensor array
-                                                                          //   ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array - depreciated no space left
-                                                                          // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
+  adam6217_D.read_analog_inputs();  // This samples { "flow", "power", "PSA", "TSA" };
+  //  sampleTimestamp = millis();  // This takes a "generic" timestamp that should be accurate enough for most purposes (not needed here unless running without the temp & pressure sensors)
+  misc_vals[0] = flow_s.calcProcessVar(adam6217_D.d_array.f_data[0]);
+  misc_vals[1] = power_s.calcProcessVar(adam6217_D.d_array.f_data[1]);
+  misc_vals[2] = t_ambi.calcProcessVar(adam6217_D.d_array.f_data[2]);
+  misc_vals[3] = p_ambi.calcProcessVar(adam6217_D.d_array.f_data[3]);
+
 #if DEBUG_SAMPLING == true
-    Serial.print(ts_vals[i]);
-    Serial.print(F(" degC"));
-#endif
+  for (int i = 0; i < 4; i++) {
+    Serial.print(misc_names[i]);
+    Serial.print(F(" : "));
+    Serial.print(misc_vals[i]);
+    Serial.print(F(" "));
+    Serial.println(misc_units[i]);
   }
+#endif
 }
 
 

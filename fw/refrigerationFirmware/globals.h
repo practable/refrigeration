@@ -20,11 +20,11 @@ Global variables for Refrigeration Experiment
 
 
 // Power Relay globals
-char relay_names[][5] = {"W1","W2","comp"};
+char relay_names[][5] = { "W1", "W2", "comp" };
 
 // Sensor & Sampling Globals
-uint32_t lastSample = 0;      // holds the time of the last sample
-uint32_t lastReport = 0;      // holds the time of the last JSON report
+uint32_t lastSample = 0;  // holds the time of the last sample
+uint32_t lastReport = 0;  // holds the time of the last JSON report
 
 uint32_t sampleTimestamp = 0;  // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use case a few mS will not matter)
 // keeping the more precise timestamps in code in case of future use case.
@@ -41,7 +41,7 @@ sensorObj temp_s[NUM_TEMP_SENSORS] = {
 };
 
 // Arrays for temp Sensor Vals
-float ts_vals[NUM_TEMP_SENSORS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };           // create array for TS data
+float ts_vals[NUM_TEMP_SENSORS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };  // create array for TS data
 //uint32_t ts_times[NUM_TEMP_SENSORS] = { 1000, 1000, 1000, 1000, 1000 };  // create array for TS timestamps  not enough space!
 
 // Pressure Sensor Globals
@@ -53,7 +53,7 @@ sensorObj pressure_s[NUM_PRESSURE_SENSORS] = {
 };
 
 // Arrays for Pressure Sensor Vals
-float ps_vals[NUM_PRESSURE_SENSORS] = { 0.0, 0.0, 0.0 };         // create array for TS data
+float ps_vals[NUM_PRESSURE_SENSORS] = { 0.0, 0.0, 0.0 };  // create array for TS data
 //uint32_t ps_times[NUM_PRESSURE_SENSORS] = { 1000, 1000, 1000 };  // create array for TS timestamps
 
 
@@ -64,29 +64,30 @@ sensorObj t_ambi(CURRENT_SENSOR, "degC", "TS_ambi");
 sensorObj p_ambi(CURRENT_SENSOR, "mBar", "PS_ambi");
 
 // Arrays for Misc Sensor Vals
-float misc_vals[4] = { 0.0, 0.0, 0.0, 0.0 };          // create array for TS data
+float misc_vals[4] = { 0.0, 0.0, 0.0, 0.0 };  // create array for TS data
 //uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
-char misc_names[][6] = {"flow","power","PSA", "TSA"};
-
+char misc_names[][6] = { "flow", "power", "PSA", "TSA" };
+char misc_units[][6] = {"l/h", "W", "degC", "mBar"};
 
 
 // struct for status
-  struct _status {
-    bool ok;
-    char state[20];
-    int code;
-    char message[16];
-  } status =  {true, " ", 0, " "} ;
+struct _status {
+  bool ok;
+  char state[20];
+  int code;
+  char message[16];
+} status = { true, " ", 0, " " };
 
 // names for status
-char status_names[][8] = {"ok","state","code", "message"};
+char status_names[][8] = { "ok", "state", "code", "message" };
 
 
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 // The IP address will be dependent on your local network:
-byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };
+byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };  // FOR SHIELD A
+//byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23 };  // FOR SHIELD B
 
 //Define the ip address for the client (local modbus controller) (the device this firmware is running on)
 IPAddress ip(192, 168, 1, 100);
@@ -105,7 +106,7 @@ EthernetClient ethClient;
 adamController adam6052_A(ethClient, adam6052A_ip, DAC_OUTPUT, "ADAM-6052-A");
 adamController adam6052_B(ethClient, adam6052B_ip, DAC_OUTPUT, "ADAM-6052-B");
 adamController adam6217_C(ethClient, adam6217C_ip, VOLTAGE_OUTPUT, "ADAM-6217-C");
-adamController adam6217_D(ethClient, adam6217D_ip, DAC_OUTPUT, "ADAM-6217-D");
+adamController adam6217_D(ethClient, adam6217D_ip, CURRENT_OUTPUT, "ADAM-6217-D");
 
 
 
