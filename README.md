@@ -4,9 +4,9 @@
 ## Outline
 This system is to allow automation of a refrigeration teaching experiment, using COTS (commercial off the shelf) industrial automation controllers, 
 controlled via Arduino Mega and ModBusTCP protocol.
-
+## System P&ID
+![image](https://github.com/practable/refrigeration/assets/97303986/fb311af3-5c09-40ce-975f-c99266231b8e)
 ## Hardware
-
 - Refrigeration Experiment:
 	- 7x Solenoid Valves (24v)
 	- Compressor (240VAC)
