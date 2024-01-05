@@ -240,7 +240,7 @@ void adamController::printBin(int16_t binaryVal) {
 
 adamController::dataArray adamController::read_analog_inputs() {
   // dataArray analogVals; // Use the global variable its easier!
-  int response = modbusTCP.requestFrom(INPUT_REGISTERS, a_in[0], 0x06);  //HOLDING_REGISTERS
+  int response = modbusTCP.requestFrom(INPUT_REGISTERS, a_in[0], 0x08);  //HOLDING_REGISTERS
   int numReadings = modbusTCP.available();                               // Is this line even needed? requestFrom returns number of readings
   uint16_t readBuffer[numReadings];
   int inputStates = 0;

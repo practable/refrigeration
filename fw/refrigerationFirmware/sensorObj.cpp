@@ -40,6 +40,7 @@ void sensorObj::setCalibration() {
   }
 }
 
+// Generic Method given values passed as min/max during startup. Non Generic methods coming soon!
 float sensorObj::calcProcessVar(float _dacVal) {
   float processVarible = 0;
   processVarible = (_dacVal * cal.factor) + cal.offset;

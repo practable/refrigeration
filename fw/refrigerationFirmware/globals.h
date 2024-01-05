@@ -86,16 +86,16 @@ char status_names[][8] = { "ok", "state", "code", "message" };
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 // The IP address will be dependent on your local network:
-byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };  // FOR SHIELD A
-//byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23 };  // FOR SHIELD B
+//byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };  // FOR SHIELD A
+byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23 };  // FOR SHIELD B
 
 //Define the ip address for the client (local modbus controller) (the device this firmware is running on)
 IPAddress ip(192, 168, 1, 100);
 
 // Define the IP for the server (remote modbus device)
 IPAddress adam6052A_ip(192, 168, 1, 111);  // update with the IP Address of your Modbus server (the remote IO controller)
-IPAddress adam6052B_ip(192, 168, 1, 114);  // update with the IP Address of your Modbus server (the remote IO controller)
-IPAddress adam6217C_ip(192, 168, 1, 114);  // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6052B_ip(192, 168, 1, 116);  // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6217C_ip(192, 168, 1, 112);  // update with the IP Address of your Modbus server (the remote IO controller)
 IPAddress adam6217D_ip(192, 168, 1, 115);  // update with the IP Address of your Modbus server (the remote IO controller)
 
 // Create an Ethernet Client
