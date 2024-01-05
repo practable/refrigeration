@@ -100,11 +100,6 @@ To setup experiment for basic operation, use the following commands:
 "{"valve":2, "state":1}"
 ```
 
-9. Turn on Compressor
-```
-"{"comp":1}"
-```
-
 10. Wait for system to reach homostasis and record efficiency data
 
 
