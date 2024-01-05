@@ -92,10 +92,10 @@ To setup experiment for basic operation, use the following commands:
 ```
 
 8. Select a different Expansion Valves 1-4
-	V1: Thermostatic Expansion valve - self regulating
-	V2: Short Capillary
-	V3: Medium Capillary
-	V4: Long Capillary
+	- V1: Thermostatic Expansion valve - self regulating
+	- V2: Short Capillary
+	- V3: Medium Capillary
+	- V4: Long Capillary
 ```
 "{"valve":2, "state":1}"
 ```
