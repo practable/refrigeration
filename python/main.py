@@ -11,26 +11,26 @@ https://stackoverflow.com/questions/71969640/how-to-print-countdown-timer-and-ac
 
 
 '''
-import asyncio
-import logging
 from threading import Thread
 thread_running = True
 
 
 
-import acUnitGlobals as glbs
-import acUnitStateMachine
+import acGlobals as glbs
+import acStateMachine
 import time
 
 import sensorObjects as so
 
-import commandClient as cc
-import reportingClient as rc
+import acCommandClient
+cc = acCommandClient.acCommandClient()
 
+import acReportingClient
+rc = acReportingClient.acReportClient()
 
 
 # Renaming global variables to reduce number of things.with.references.to.other.things
-hw = glbs.acHardware
+hw = glbs.hardware
 parse = glbs.jsonParse
 pack = glbs.jsonPack
 # State machine must be defined here to avoid circular references
@@ -53,7 +53,7 @@ TS_array = [TS1, TS2, TS3, TS4, TS5]
 
 
 #async def gather_data(iteration=0):
-def gather_data(iteration=0):
+def data_acquisition(iteration=0):
     global thread_running
     # Sample the hardware IOs: Valves, Power Relays, Pressure Sensors
     start_time = time.time()
@@ -126,8 +126,8 @@ def local_json_interface(iteration=0):
         #command = 0
         print(command)
         #glbs.update_command(command)  ## depreciated
-        glbs.command_received = True
-        glbs.command_queue.append(command)
+        glbs.cmd_received = True
+        glbs.cmd_queue.append(command)
         #print(iteration)
         iteration += 1
         #time.sleep(1)
@@ -136,12 +136,12 @@ def local_json_interface(iteration=0):
 def command_client():
     global thread_running
     while(thread_running):
-        cc.commandClient()
+        cc.main()
 
 def reporting_client():
     global thread_running
     while(thread_running):
-        rc.reportingClient()
+        rc.main()
 
 
 
@@ -152,7 +152,7 @@ expansion_valve_list = ["V1", "V2", "V3", "V4"]
 ##TODO write function for each state
 ##TODO state machine should just run state based on listed name
 
-sm = acUnitStateMachine.init_state()
+sm = acStateMachine.init_state()
 
 def state_machine():
     global thread_running
@@ -163,7 +163,7 @@ def state_machine():
 
 def check_globals():
     while (thread_running):
-        print(f"command_received: {glbs.command_received}")
+        print(f"command_received: {glbs.cmd_received}")
         time.sleep(10)
     #wait asyncio.sleep(1)
 
@@ -189,11 +189,11 @@ task: run-state-machine: set hardware IO and system state in response to command
 
 def main():
     i = 0
-    global thread_running
-    glbs.init_logging()
+    global thread_running, t1, t2, t3, t4
+    #glbs.init_logging()
     try:
         t1 = Thread(target=state_machine)
-        t2 = Thread(target=gather_data)
+        t2 = Thread(target=data_acquisition)
         t3 = Thread(target=command_client)
         t4 = Thread(target=reporting_client)
 
@@ -227,6 +227,7 @@ def main():
     except SystemExit or KeyboardInterrupt:
         print("User Terminated Program")
         thread_running = False
+        glbs.keep_alive = False
         t1.join()
         t2.join()
         t3.join()
@@ -234,15 +235,16 @@ def main():
     except Exception as ex:  ## generic exception handler
         glbs.generic_exception_handler(ex, "main")
         thread_running = False
-        #template = "An exception of type {0} occured. Arguments: \n{1!r}"
-        #message = template.format(type(ex).__name__, ex.args)
-        #print(message)
-        #thread_running = False
-        #print(" ")
-        #print(traceback.format_exc())
-        #pdb.post_mortem()
-        #print("Program Error")
+        glbs.keep_alive = False
         raise
+    finally:
+        thread_running = False
+        glbs.keep_alive = False
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
+
 
 
 

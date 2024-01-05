@@ -13,15 +13,14 @@ https://realpython.com/python-sockets/
 import socket
 import time
 import json
-import acUnitGlobals as glbs
+import acGlobals as glbs
 pack = glbs.jsonPack
 
 #HOST = "127.0.0.1"
 #TESTHOST = "10.42.0.1"
 #HOST = TESTHOST
-HOST = glbs.REPORT_SERVER_IP
-PORT = glbs.REPORT_PORT   ## command server is port 65432
-
+HOST = glbs.server_ip
+PORT = glbs.server_port + 1
 
 
 def pretty_print_data(data):
@@ -71,7 +70,10 @@ def reportingServer():
             glbs.generic_exception_handler(ex)
             print("Exception Handled, restarting")
             #exceptions += 1
-    print("Program Quit")
+        finally:
+            print("Program Quit")
+            s.close()
+
 
 
 #pretty_print_data(glbs.acUnit_dictionary)

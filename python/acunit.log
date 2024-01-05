@@ -1,0 +1,7 @@
+2023-12-07 16:59:57 INFO     Logging Module Started
+2023-12-07 16:59:57 INFO     State Machine: init_state
+2023-12-07 16:59:57 INFO     websocketClient: Connected to Server: <socket.socket fd=744, family=2, type=1, proto=0, laddr=('127.0.0.1', 64022), raddr=('127.0.0.1', 8182)>
+2023-12-07 16:59:57 DEBUG    Using proactor: IocpProactor
+2023-12-07 16:59:57 INFO     websocketClient: Connected to Server: <socket.socket fd=336, family=2, type=1, proto=0, laddr=('127.0.0.1', 64021), raddr=('127.0.0.1', 8181)>
+2023-12-07 16:59:57 DEBUG    Using proactor: IocpProactor
+2023-12-07 16:59:59 INFO     State Machine: wait_state

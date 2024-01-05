@@ -36,7 +36,7 @@ https://www.w3schools.com/python/python_json.asp
 """
 
 import json
-import acUnitGlobals as glbs
+import acGlobals as glbs
 
 
 valves_list = [1,0,1,0,1,0,1,0]

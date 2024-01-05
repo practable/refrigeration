@@ -6,49 +6,86 @@ import traceback   ## for debugging
 import pdb         ## most mortum analysis
 import jsonPacker
 import jsonParser
-import acUnitHardware
+import acHardware
 
 # USER OPTIONS
 COMMAND_SERVER_IP = "10.42.0.1"
 REPORT_SERVER_IP = "10.42.0.1"
 
-#SERVER_IP = "127.0.0.1"
+#COMMAND_SERVER_IP = "192.168.1.249"
+#REPORT_SERVER_IP = "192.168.1.249"
 
-COMMAND_PORT = 65432
-REPORT_PORT = 65433
-
-simulate_hardware = False
+#COMMAND_SERVER_IP = "127.0.0.1"
+#REPORT_SERVER_IP = "127.0.0.1"
 
 
-#Wrap all this inside a class?
 
-acUnitState = "init"
+COMMAND_PORT = 8181
+REPORT_PORT = 8182
+SIMULATE_HARDWARE = True
+
+server_ip = "127.0.0.1"
+server_port = 8181
+
+# acGlobals contains global variables for all acUnit variables
+
+simulate_hardware = SIMULATE_HARDWARE
+
+acState = "init"
+
+example_cmd = '{"cmd":"set", "V1":"open"}'
 
 valve_list = ["V1","V2","V3","V4","V5","V6","V7","V8"]
 relay_data_list = ["W1","W2","comp"]
 fan_names = ["W1","W2", "fans", "fan"]
 compressor_names = ["comp", "compressor", "pump"]
-outputs_list = valve_list + fan_names + compressor_names
+generic_names = ["all"]
+outputs_list = valve_list + fan_names + compressor_names + generic_names
 ps_list = ["PS1","PS2","PS3"]
 ts_list = ["TS1","TS2","TS3","TS4","TS5"]
 sense_misc_list = ["flow", "power", "APS", "ATS"]
-#history_param_list = ["dTdt", "average", "least_mean_sqr", "min", "max"]
+        #history_param_list = ["dTdt", "average", "least_mean_sqr", "min", "max"]
 sensor_param_list = ["val", "min", "max","avg","dxdt", "lms" ]
 status_list = ["ok" , "state", "code", "message"]
 
-# Creating Instances of Global Methods here to ensure that only 1 object of each. Can be renamed in local files
-acHardware = acUnitHardware.acUnitHardware()
+
+cmd_received = False
+cmd_queue = []  ##  queue is processed by state machine untill empty
+
+keep_alive = True
+
+
+hardware = acHardware.acUnitHardware()
 jsonParse = jsonParser.jsonParser()
 jsonPack = jsonPacker.jsonPacker()
 
 
 
+#Wrap all this inside a class?
+'''
+This seemed sensible but actually just broke things with circular imports.
+Maybe g_globals instead needs to be the module that pulls together all the external modules? - astill broke everything
 
-command_received = False
-command_queue = []  ##  queue is processed by state machine untill empty
+'''
 
 
-test_valve_status = [0,0,0,0,0,0,0,0]
+
+
+
+
+
+# Creating Instances of Global Methods here to ensure that only 1 object of each. Can be renamed in local files
+#acHardware = acHardware.acUnitHardware()
+#jsonParse = jsonParser.jsonParser()
+#jsonPack = jsonPacker.jsonPacker()
+
+
+
+
+
+
+
+
 
 
 import logging
@@ -92,6 +129,49 @@ def update_error_status(error_code=0, error_message= " "):
         "message":" "
 '''
 
+def generic_exception_handler(ex, location="null "):
+    template = "An exception of type {0} occured. Arguments: \n{1!r}"
+    message = template.format(type(ex).__name__, ex.args)
+    print(message)
+    print(" ")
+    print(traceback.format_exc())
+    logging.exception(f"{location} Generic Exception Handler Triggered: {ex}")
+    #pdb.post_mortem()
+    print("Program Error")
+
+
+def known_exception_handler(exception_type, location, num_exception):
+    print(f"Caught {exception_type} Exception, number since last connect: {num_exception}")
+    if num_exception < 1:  ## prevent this being written to log over and over
+        print("logging exception as first instance")
+        logging.exception(f"{location} Caught {exception_type} Exception, restarting")
+    num_exception += 1
+    return num_exception
+
+
+init_logging()  ## This here so always inits even if running modules only
+
+import prettyCLI as pcli
+
+df = pcli.pcli["default"]
+yl = pcli.pcli["fg"]["yellow"]
+cy = pcli.pcli["fg"]["cyan"]
+mg = pcli.pcli["fg"]["magenta"]
+
+def timestamp(time_float):
+    return df + str(round(time_float, 2))
+
+def timediff(time_float, last_time):
+    diff = round((time_float - last_time),2)
+    dp = round(100*(diff - round(diff, 0)),4)
+    if dp == 0.0:
+        s_diff = str(diff) + "0"
+    else:
+        s_diff = str(diff)
+    if diff < 10:
+        return f"{df}0{s_diff}"
+    else:
+        return df + s_diff
 
 
 acUnit_dictionary = {
@@ -202,6 +282,7 @@ acUnit_dictionary = {
                 "max": 0,
                 "avg": 0,
                 "dxdt": 0,
+
                 "lms": 0
             },
             "ATS" : {
@@ -221,13 +302,3 @@ acUnit_dictionary = {
         "message":" "
     }
 }
-
-def generic_exception_handler(ex, location="null "):
-    template = "An exception of type {0} occured. Arguments: \n{1!r}"
-    message = template.format(type(ex).__name__, ex.args)
-    print(message)
-    print(" ")
-    print(traceback.format_exc())
-    logging.exception(f"{location} Generic Exception Handler Triggered: {ex}")
-    #pdb.post_mortem()
-    print("Program Error")

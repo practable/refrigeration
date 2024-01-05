@@ -11,7 +11,7 @@ Sends JSON formatted data messages every X seconds
 
 import socket
 import time
-import acUnitGlobals as glbs
+import acGlobals as glbs
 
 parse = glbs.jsonParse
 pack = glbs.jsonPack

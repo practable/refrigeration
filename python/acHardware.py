@@ -12,7 +12,7 @@ Demonstrates the function of all hardware IOs.
 ## Init
 #from pyModbusTCP.client import ModbusClient
 import time
-import acUnitGlobals as glbs
+import acGlobals as glbs
 
 import adam6052ModBus as adam6052
 import adam6217ModBus as adam6217

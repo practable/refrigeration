@@ -1,11 +1,15 @@
 #
 
 #https://realpython.com/python-sockets/
-
+#https://websockets.readthedocs.io/en/stable/intro/tutorial1.html
+#https://websockets.readthedocs.io/en/stable/reference/asyncio/client.html
 
 import socket
 import time
-import acUnitGlobals as glbs
+import acGlobals as glbs
+
+import asyncio
+import websockets
 
 parse = glbs.jsonParse
 pack = glbs.jsonPack
@@ -19,6 +23,18 @@ PORT = glbs.COMMAND_PORT  # The port used by the server
 
 json_delay = 1   ## time between json messages to server
 connection_error = 0
+
+async def handler(websocket):
+    while True:
+        message = await websocket.recv()
+        print(message)
+
+async def main():
+    async with websockets.connect("ws://127.0.0.1:8001") as websocket:
+        await handler(websocket)
+
+
+
 
 def commandClient():
     global connection_error
@@ -67,4 +83,5 @@ def commandClient():
 
 
 if __name__ == '__main__':
-    commandClient()
+    asyncio.run(main())
+    #commandClient()

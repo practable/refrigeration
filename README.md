@@ -1,101 +1,188 @@
-# refrigeration
-Refrigeration teaching experiment remote lab
+# Remote Labs Refigeration Experiment
 
 
- Current Testing Instructions:
- ## Prerequisits
-`Python3` <br>
-External modules used: <br>
-`pyModbusTCP` <br>
-`numpy` <br>
-I believe this was all that was nessissary to install to run the software on RPi Ubuntu
+## Outline
+This system is to allow automation of a refrigeration teaching experiment, using COTS (commercial off the shelf) industrial automation controllers, 
+controlled via Arduino Mega and ModBusTCP protocol.
+## System P&ID
+![image](https://github.com/practable/refrigeration/assets/97303986/fb311af3-5c09-40ce-975f-c99266231b8e)
+## Hardware
+- Refrigeration Experiment:
+	- 7x Solenoid Valves (24v)
+	- Compressor (240VAC)
+	- 2x Fans (240VAC)
+	- 3x Pressure Sensors (Voltage 1-6 v)
+	- 5x Temperature Sensors (Voltage 0-10v)
+	- Flow Meter (Current 4-20mA)
+	- Power Meter (Current 4-20mA)
+	- Ambient Pressure Sensor (to be added)
+	- Ambient Temperature Sensor (to be added)
+	- Thermocouple to track compressor temperature (to be added)
 
-## Setup
- 1. Ensure that `testCommandServer.py` HOST variable is set to loopback address `127.0.0.1` OR address of server host.
- 2. Ensure that `testReportingServer.py` HOST variable is set to loopback address `127.0.0.1` OR address of server host.
- 3. Ensure that `commandClient.py` HOST variable is set to same address as server
- 4. Ensure that `reportingClient.py` HOST variable is set to same address as server
- 5. If testing without hardware, ensure that `simulate_hardware = True` set in `acUnitGlobals.py`
- 6. Run `testCommandServer.py` and `testReportingServer.py` on host server
- 7. Run `main.py` on client server (raspberrypi/SBC in final implementation) It should connect to server with no issues
+- Electronics:
+	- Arduino Mega 2560 development board
+	- [Arduino Ethernet Shield 2](https://uk.rs-online.com/web/p/shields-for-arduino/8732285?gb=s)
+	- 2x [ADAM 6052 Advantech Data Aquisition Module (DIO)](https://www.impulse-embedded.co.uk/products/adam_6052--Ethernet-Digital-IO-Module.htm) 
+	- 2x [ADAM 6271 Advantech Data Aquisition Module (AI)](https://www.impulse-embedded.co.uk/products/adam_6217--Ethernet-Analog-Input-Module.htm)
+	- Network Switch
+	- 3x DPDT Relays, 24v coil, 240VAC Switching
+	- SBC (Single Board Computer) Raspberry Pi/Odroid or similar
+	
+## Firmware
+1. Complete Firmware is found in the `fw` directory within this repo
+2. Open `refrigerationFirmware.ino` in a suitable IDE ([Arduino IDE 2.2.1 reccomended](https://www.arduino.cc/en/software))
+3. Plug Arduino into PC and select correct board in IDE.
+4. Press `Upload` sketch to flash firmware.
 
-## Operation
-1. Enter commands as prompted in `testCommandServer.py` CLI. Track changes in state and function using CLI for `main.py`. view logfile during operation for debug messages, based on logging level set in `init_logging` in `acUnitGlobals`
-2. Ensure that JSON messages reported by `testReportingServer.py` display "correct" values (if simulated hardware these values somewhat random and static at the moment
+## Connecting Automation Hardware
+* For detailed wiring diagram see ******
 
-## Issues
-
-1. NOTE: 1st command sent from `testCommandServer.py` causes websocket to loose connection & reset. All commands after this should be handled normally.
-
-## Command Examples
-`{"cmd":"set","{item}":"{state}"}`
-
-
-## Quick Start Instructions:
-1. `{"cmd":"set","V5":"open","V6":"open"}`
-2. `{"cmd":"set","V2":"open"}`
-3. `{"cmd":"set","fans":"on"}`
-4. `{"cmd":"set","comp":"on"}`
-- Wait for experiment to reach homostasis (30 min)
-5. `{"cmd":"set","comp":"off"}`
-6. `{"cmd":"set","fans":"off"}`
-7. `{"cmd":"set","V2":"close"}`
-8. `{"cmd":"set","V5":"close","V6":"close"}`
-
-#### Open all valves
-`{"cmd":"set","V1":"open","V2":"open","V3":"open","V4":"open","V5":"open","V6":"open"}`
-#### close all valves
-`{"cmd":"set","V1":"off","V2":"off","V3":"off","V4":"off","V5":"off","V6":"off"}`
+5. Arduino Ethernet sheild can now be mated to Arduino Mega 2560 development board
+6. Connect Arduino Mega 2560 to SBC using USB cable
+7. Connect Arduino Ethernet Shield to Network Switch using Ethernet Cables
+8. Connect 4x ADAM modules to Network Switch using Ethernet Cables
 
 
+## Controlling Experiment
+The experimental hardware can now be controlled using JSON formatted commands sent over Serial USB or UART connection to the Arduino.
+
+### Features:
+- Arduino will report system status including all sensor data every 1000mS in JSON format
+
+## Running Experiment (Example Commands)
+To setup experiment for basic operation, use the following commands:
+
+### Starting Experiment
+
+1. Open Valves 5 & 6
 ```
-{"cmd":"set","V1":"open"}
-{"cmd":"set","V2":"open"}
-{"cmd":"set","V3":"open"}
-{"cmd":"set","V4":"open"}
-{"cmd":"set","V5":"open"}
-{"cmd":"set","V6":"open"}
-{"cmd":"set","V7":"open"}
-
-{"cmd":"set","V5":"open","V6":"open"}
-{"cmd":"set","V5":"close","V6":"close"}
-
-{"cmd":"set","V1":"close"}
-{"cmd":"set","V2":"close"}
-{"cmd":"set","V3":"close"}
-{"cmd":"set","V4":"close"}
-{"cmd":"set","V5":"close"}
-{"cmd":"set","V6":"close"}
-{"cmd":"set","V7":"close"}
-
-{"cmd":"set","W1":"on"}
-{"cmd":"set","W1":"off"}
-{"cmd":"set","W2":"on"}
-{"cmd":"set","W2":"off"}
-{"cmd":"set","fans":"on"}
-{"cmd":"set","fans":"off"}
-
-{"cmd":"set","comp":"start"}
-{"cmd":"set","comp":"stop"}
-
-All the following words evaluate to True:
-"open","opened","on","true","high","start"
-
-All the following words evaluate to False:
-"close","shut","closed","off","false","low","stop"
-    
+"{"valve":5, "state":1}"
+"{"valve":6, "state":1}"
+```
+2. Select one of Expansion Valves 1-4
+	- V1: Thermostatic Expansion valve - self regulating
+	- V2: Short Capillary
+	- V3: Medium Capillary
+	- V4: Long Capillary
+```
+"{"valve":1, "state":1}"
 ```
 
-## Future Commands
-download CSV of all datapoints
-`{"cmd":"get","item":"csv"}`
+3. Turn on Fans
+```
+"{"fans":1}"
+```
 
-safe shutdown
-`{"cmd":"set","mode":"shutdown"}`
+4. Turn on Compressor
+```
+"{"comp":1}"
+```
 
-run experiment with expansion valve Vx
-`{"cmd":"set","mode":"V2"}`
+5. Wait for system to reach homostasis and record efficiency data
 
-![image](https://github.com/ImogenWren/adam-controller/assets/97303986/7265be20-a3c5-4dae-9d01-df3e64b89851)
+#### Selecting Another Expansion Valve
 
+6. Turn off Compressor
+```
+"{"comp":0}"
+```
+7. Close open Expansion Valve
+```
+"{"valve":1, "state":0}"
+```
+
+8. Select a different Expansion Valves 1-4
+	- V1: Thermostatic Expansion valve - self regulating
+	- V2: Short Capillary
+	- V3: Medium Capillary
+	- V4: Long Capillary
+```
+"{"valve":2, "state":1}"
+```
+
+10. Wait for system to reach homostasis and record efficiency data
+
+
+### Ending Experiment
+
+11. Turn off Compressor
+```
+"{"comp":0}"
+```
+
+12. Turn off Fans
+```
+"{"fans":0}"
+```
+
+13. Close Expansion Valve
+```
+"{"valve":4, "state":0}"
+```
+
+14. Close valves 5 & 6
+```
+"{"valve":5, "state":0}"
+"{"valve":6, "state":0}"
+```
+15. Ensure that Flow is at 0 and system can be safely powered down
+
+### Safe Shutdown
+
+_Experiment can be stopped at any time using the mode:stop command_
+	- Powers off Compressor
+	- Powers off Fans
+	- Closes all open valves
+```
+"{"mode":"stop"}"
+```
+
+
+## Commands List
+_list of suitable commands (Examples, not exhaustive)_
+```
+"{"valve":1, "state":0}"
+"{"valve":2, "state":0}"
+"{"valve":3, "state":0}"
+"{"valve":4, "state":0}"
+"{"valve":5, "state":0}"
+"{"valve":6, "state":0}"
+"{"valve":7, "state":0}"
+
+"{"valve":1, "state":1}"
+"{"valve":2, "state":1}"
+"{"valve":3, "state":1}"
+"{"valve":4, "state":1}"
+"{"valve":5, "state":1}"
+"{"valve":6, "state":1}"
+"{"valve":7, "state":1}"
+
+"{"fans":0}"
+"{"fans":1}"
+  
+"{"comp":0}"
+"{"comp":1}"
+
+"{"mode":"stop"}",
+
+"{"cmd":"fans","param":0}"  
+ 
+```
+
+## Engineering Commands
+_Note: Only to be used by qualified technicians_
+
+1. Enter Regas mode:
+	- Opens all valves except V7
+	- Powers on Expansion Fans
+	- Powers on Compressor
+	- Notifies user over Serial interface the filling procedure (1.1kg of refrigerant OR untill sight glass is full)
+```
+  "{"mode":"regas"}"
+```
+2. To exit regas mode, navigate to stop mode
+```
+  "{"mode":"stop"}"
+```
+Experiment can then be operated as normal
 
