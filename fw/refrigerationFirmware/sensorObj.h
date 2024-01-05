@@ -66,7 +66,10 @@ public:
   void set_range_max(float _process_max = 100, float _dac_max = 65535);
   void setCalibration();
 
-  float calcProcessVar(float _dacVal);
+  float calcProcessVar(float _dacVal);   // generic method uses set range functions to do a quick scaling operation and return the process val. Explicit conversion methods will be added below
+
+  float calcPressure(float _voltage);
+
   float returnVal();   // returns the current process val
 
   float sensorHistory[SENSOR_BUFFER_SIZE];

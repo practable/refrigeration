@@ -33,7 +33,7 @@ void sensorObj::setCalibration() {
   } else {
     input_range = dac_max - dac_min;
     process_range = process_max - process_min;
-    cal.offset = process_min;
+    cal.offset = dac_min;                         // the initial offset is on the DAC side, not the PROCESS side
     cal.factor = process_range / input_range;
     calSet = true;
     Serial.println(F(": Sensor Calibration data saved"));
@@ -56,6 +56,20 @@ float sensorObj::calcProcessVar(float _dacVal) {
 #endif
   return processVarible;
 }
+
+
+
+
+  float sensorObj::calcPressure(float _voltage){
+    float pressure;
+    float vMin = 1.0;
+    float vRange = 5.0;
+    float pRange = 30.0;
+    float factor = pRange/vRange;
+    pressure = ((_voltage-vMin) * factor);
+    return pressure;
+  }
+
 
 float sensorObj::returnVal() {
   return currentVal;
