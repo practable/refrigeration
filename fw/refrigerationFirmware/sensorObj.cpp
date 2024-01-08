@@ -12,43 +12,35 @@
 
 
 
-void sensorObj::set_range_min(float _process_min, float _dac_min) {
-  dac_min = _dac_min;
-  process_min = _process_min;
-  rangeSet++;
-}
 
 
-void sensorObj::set_range_max(float _process_max, float _dac_max) {
-  dac_max = _dac_max;
-  process_max = _process_max;
-  rangeSet++;
-}
 
-
-void sensorObj::setCalibration() {
+void sensorObj::setCalibration(float _process_min, float _process_max, float _adc_min, float _adc_max) {
   Serial.print(sensorID);
-  if (rangeSet < 2) {
-    Serial.println(F(": Sensor Range has Not Been Set!"));
-  } else {
-    input_range = dac_max - dac_min;
-    process_range = process_max - process_min;
-    cal.offset = dac_min;                         // the initial offset is on the DAC side, not the PROCESS side
-    cal.factor = process_range / input_range;
-    calSet = true;
-    Serial.println(F(": Sensor Calibration data saved"));
-  }
+  adc_min = _adc_min;
+  process_min = _process_min;
+  adc_max = _adc_max;
+  process_max = _process_max;
+  input_range = adc_max - adc_min;
+  process_range = process_max - process_min;
+  cal.offset = adc_min;  // the initial offset is on the adc side, not the PROCESS side
+  cal.factor = process_range / input_range;
+  calSet = true;
+  Serial.println(F(": Sensor Calibration data saved"));
 }
+
+
+
 
 // Generic Method given values passed as min/max during startup. Non Generic methods coming soon!
-float sensorObj::calcProcessVar(float _dacVal) {
+float sensorObj::calcProcessVar(float _adcVal) {
   float processVarible = 0;
-  processVarible = (_dacVal * cal.factor) + cal.offset;
+  processVarible = (_adcVal * cal.factor) + cal.offset;
   currentVal = processVarible;
 #if DEBUG_SENSOR_CALC == true
   Serial.print(sensorID);
   Serial.print(F(": "));
-  Serial.print(_dacVal);
+  Serial.print(_adcVal);
   Serial.print(ADC_units);
   Serial.print(processVarible);
   Serial.print(F(" "));
@@ -60,15 +52,15 @@ float sensorObj::calcProcessVar(float _dacVal) {
 
 
 
-  float sensorObj::calcPressure(float _voltage){
-    float pressure;
-    float vMin = 1.0;
-    float vRange = 5.0;
-    float pRange = 30.0;
-    float factor = pRange/vRange;
-    pressure = ((_voltage-vMin) * factor);
-    return pressure;
-  }
+float sensorObj::calcPressure(float _voltage) {
+  float pressure;
+  float vMin = 1.0;
+  float vRange = 5.0;
+  float pRange = 30.0;
+  float factor = pRange / vRange;
+  pressure = ((_voltage - vMin) * factor);
+  return pressure;
+}
 
 
 float sensorObj::returnVal() {

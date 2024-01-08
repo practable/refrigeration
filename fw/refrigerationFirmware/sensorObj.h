@@ -50,8 +50,8 @@ public:
   int sensorType;
 
 
-  float dac_min;  // measured value min
-  float dac_max;  // measured value max
+  float adc_min;  // measured value min
+  float adc_max;  // measured value max
   float process_min;
   float process_max;
   float input_range;
@@ -62,13 +62,12 @@ public:
   uint32_t timeStamp;   // timeStamp for last datapoint taken
 
   // Should be called in series to get sensor calibration correctly
-  void set_range_min(float _process_min = 0, float _dac_min = 0);
-  void set_range_max(float _process_max = 100, float _dac_max = 65535);
-  void setCalibration();
+  void setCalibration(float _process_min= 0, float _process_max = 100, float _adc_min = 0, float _daq_max=65535);
 
-  float calcProcessVar(float _dacVal);   // generic method uses set range functions to do a quick scaling operation and return the process val. Explicit conversion methods will be added below
+  float calcProcessVar(float _adcVal);   // generic method uses set range functions to do a quick scaling operation and return the process val. Explicit conversion methods will be added below
 
-  float calcPressure(float _voltage);
+  float calcPressure(float _voltage);     // Specific method using hardcoded variables selected for a specific sensor
+
 
   float returnVal();   // returns the current process val
 

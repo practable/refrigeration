@@ -104,27 +104,16 @@ void adams_begin() {
 void sensors_begin() {
   // init Temp Sensors
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    temp_s[i].set_range_min(0, 0);  // (processVariable, measuredVal)
-    temp_s[i].set_range_max(100, 10);
-    temp_s[i].setCalibration();
+    temp_s[i].setCalibration(0, 100, 0, 10);
   }
   for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {
-    pressure_s[i].set_range_min(1, 0);
-    pressure_s[i].set_range_max(6, 30);
-    pressure_s[i].setCalibration();
+    pressure_s[i].setCalibration(0,30,1,6);
   }
-  flow_s.set_range_min(4, 0);
-  flow_s.set_range_max(20, 25);
-  flow_s.setCalibration();
-  power_s.set_range_min(0, 0);
-  power_s.set_range_max(20, 1053);
-  power_s.setCalibration();
-  t_ambi.set_range_min(4, -10);  // guessing at these values for now
-  t_ambi.set_range_max(20, 100);
-  t_ambi.setCalibration();
-  p_ambi.set_range_min(4, 600);  // mBar
-  p_ambi.set_range_max(20, 1500);
-  p_ambi.setCalibration();
+
+  flow_s.setCalibration(0, 25, 4, 20);
+  power_s.setCalibration(0, 1052, 0, 20);
+  t_ambi.setCalibration(-10,100,4,20);
+  p_ambi.setCalibration(600,1500,4,20);
 }
 
 
