@@ -56,8 +56,8 @@ To setup experiment for basic operation, use the following commands:
 
 1. Open Valves 5 & 6
 ```
-"{"valve":5, "state":1}"
-"{"valve":6, "state":1}"
+{"valve":5, "state":1}
+{"valve":6, "state":1}
 ```
 2. Select one of Expansion Valves 1-4
 	- V1: Thermostatic Expansion valve - self regulating
@@ -65,17 +65,17 @@ To setup experiment for basic operation, use the following commands:
 	- V3: Medium Capillary
 	- V4: Long Capillary
 ```
-"{"valve":1, "state":1}"
+{"valve":1, "state":1}
 ```
 
 3. Turn on Fans
 ```
-"{"fans":1}"
+{"fans":1}
 ```
 
 4. Turn on Compressor
 ```
-"{"comp":1}"
+{"comp":1}
 ```
 
 5. Wait for system to reach homostasis and record efficiency data
@@ -84,11 +84,11 @@ To setup experiment for basic operation, use the following commands:
 
 6. Turn off Compressor
 ```
-"{"comp":0}"
+{"comp":0}
 ```
 7. Close open Expansion Valve
 ```
-"{"valve":1, "state":0}"
+{"valve":1, "state":0}
 ```
 
 8. Select a different Expansion Valves 1-4
@@ -97,7 +97,7 @@ To setup experiment for basic operation, use the following commands:
 	- V3: Medium Capillary
 	- V4: Long Capillary
 ```
-"{"valve":2, "state":1}"
+{"valve":2, "state":1}
 ```
 
 10. Wait for system to reach homostasis and record efficiency data
@@ -107,23 +107,23 @@ To setup experiment for basic operation, use the following commands:
 
 11. Turn off Compressor
 ```
-"{"comp":0}"
+{"comp":0}
 ```
 
 12. Turn off Fans
 ```
-"{"fans":0}"
+{"fans":0}
 ```
 
 13. Close Expansion Valve
 ```
-"{"valve":4, "state":0}"
+{"valve":4, "state":0}
 ```
 
 14. Close valves 5 & 6
 ```
-"{"valve":5, "state":0}"
-"{"valve":6, "state":0}"
+{"valve":5, "state":0}
+{"valve":6, "state":0}
 ```
 15. Ensure that Flow is at 0 and system can be safely powered down
 
@@ -134,38 +134,38 @@ _Experiment can be stopped at any time using the mode:stop command_
 	- Powers off Fans
 	- Closes all open valves
 ```
-"{"mode":"stop"}"
+{"mode":"stop"}
 ```
 
 
 ## Commands List
 _list of suitable commands (Examples, not exhaustive)_
 ```
-"{"valve":1, "state":0}"
-"{"valve":2, "state":0}"
-"{"valve":3, "state":0}"
-"{"valve":4, "state":0}"
-"{"valve":5, "state":0}"
-"{"valve":6, "state":0}"
-"{"valve":7, "state":0}"
+{"valve":1, "state":0}
+{"valve":2, "state":0}
+{"valve":3, "state":0}
+{"valve":4, "state":0}
+{"valve":5, "state":0}
+{"valve":6, "state":0}
+{"valve":7, "state":0}
 
-"{"valve":1, "state":1}"
-"{"valve":2, "state":1}"
-"{"valve":3, "state":1}"
-"{"valve":4, "state":1}"
-"{"valve":5, "state":1}"
-"{"valve":6, "state":1}"
-"{"valve":7, "state":1}"
+{"valve":1, "state":1}
+{"valve":2, "state":1}
+{"valve":3, "state":1}
+{"valve":4, "state":1}
+{"valve":5, "state":1}
+{"valve":6, "state":1}
+{"valve":7, "state":1}
 
-"{"fans":0}"
-"{"fans":1}"
+{"fans":0}
+{"fans":1}
   
-"{"comp":0}"
-"{"comp":1}"
+{"comp":0}
+{"comp":1}
 
-"{"mode":"stop"}",
+{"mode":"stop"}
 
-"{"cmd":"fans","param":0}"  
+{"cmd":"fans","param":0}  
  
 ```
 
@@ -178,11 +178,11 @@ _Note: Only to be used by qualified technicians_
 	- Powers on Compressor
 	- Notifies user over Serial interface the filling procedure (1.1kg of refrigerant OR untill sight glass is full)
 ```
-  "{"mode":"regas"}"
+  {"mode":"regas"}
 ```
 2. To exit regas mode, navigate to stop mode
 ```
-  "{"mode":"stop"}"
+  {"mode":"stop"}
 ```
 Experiment can then be operated as normal
 
