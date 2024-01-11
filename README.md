@@ -54,6 +54,8 @@ To setup experiment for basic operation, use the following commands:
 
 ### Starting Experiment
 
+_Note: Before starting experiment ensure that manual valves V9 and V10 (to be fitted) are OPEN_
+
 1. Open Valves 5 & 6
 ```
 {"valve":5, "state":1}
@@ -186,3 +188,35 @@ _Note: Only to be used by qualified technicians_
 ```
 Experiment can then be operated as normal
 
+## Maintainance & long Term Storage
+
+- System MUST be run for 5 minutes at least once per week to ensure proper distribution of refrigerant and prevent compressor damage
+
+- For long term storage follow long term storage procedure
+
+### Long Term Storage Procedure
+_To avoid migration of refrigerent fluid into the compressor during storage, fluid must be pumped into reciever._
+Note: This is due to solenoid valves allowing small flow of refrigerent over time, manual valves do not.
+
+1. Shut all solenoid valves (1-6) and manual valves (7, 8, 9, 10) (V9 7 V10 to be fitted)
+2. Open valve V6
+3. Open Manual Valve 10 (to be fitted)
+4. Open Solenoid Valve V6
+5. Run compressor until LP Pressure switch trips and shuts off compressor.
+6. Close Manual V10
+7. Close Solenoid V6
+
+System is now safed for long term storage.
+
+To re-commission equipment undertake the following procedure:
+
+1. Open V9
+2. Open V10
+3. Open V5
+4. Open Valves V1-4
+5. Allow pressure to equalise between High pressure & lLw pressure sides `P3 ~= P1`
+6. Open Valves V6
+7. Close V1-3
+8. Start Fans (This should come earlier?0
+9. Start compressor and run experiment for ~30 mins to ensure correct function
+10. Shut down system as normal, ensuring that manual valves V9 and V10 remain in the open position.
