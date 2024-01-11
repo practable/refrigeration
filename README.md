@@ -208,6 +208,7 @@ Note: This is due to solenoid valves allowing small flow of refrigerent over tim
 
 System is now safed for long term storage.
 
+### Recommissioning Procedure
 To re-commission equipment undertake the following procedure:
 
 1. Open V9
