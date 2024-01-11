@@ -216,9 +216,9 @@ To re-commission equipment undertake the following procedure:
 2. Open V10
 3. Open V5
 4. Open Valves V1-4
-5. Allow pressure to equalise between High pressure & Low pressure sides `P3 ~= P1`
-6. Open Valves V6
-7. Close V1-3
-8. Start Fans (This should come earlier?0
-9. Start compressor and run experiment for ~30 mins to ensure correct function
-10. Shut down system as normal, ensuring that manual valves V9 and V10 remain in the open position.
+5. Start Fans
+6. Allow pressure to equalise between High pressure & Low pressure sides `P3 ~= P1`
+7. Open Valves V6
+8. Close V1-3
+10. Start compressor and run experiment for ~30 mins to ensure correct function
+11. Shut down system as normal, ensuring that manual valves V9 and V10 remain in the open position.
