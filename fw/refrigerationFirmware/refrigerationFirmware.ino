@@ -113,8 +113,7 @@ void sensors_begin() {
   flow_s.setCalibration(0, 25, 4, 20);
   power_s.setCalibration(0, 1052, 0, 20);
   t_ambi.setCalibration(-10,100,4,20);
-  p_ambi.setCalibration(600,1500,4,20);
-}
+  p_ambi.setCalibration(600,1500,4,20);]}
 
 
 
