@@ -166,6 +166,7 @@ _list of suitable commands (Examples, not exhaustive)_
 {"comp":1}
 
 {"mode":"stop"}
+{"mode":"quick"}
 
 {"cmd":"fans","param":0}  
  
