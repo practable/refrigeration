@@ -28,6 +28,8 @@
 
 #define SENSOR_BUFFER_SIZE 10
 
+#define DISABLE_SENSOR_SCALING false   // disables sensor scaling and outputs raw DAC value - useful for calibrating sensors
+
 class sensorObj {
 
 public:
@@ -62,7 +64,7 @@ public:
   uint32_t timeStamp;   // timeStamp for last datapoint taken
 
   // Should be called in series to get sensor calibration correctly
-  void setCalibration(float _process_min= 0, float _process_max = 100, float _adc_min = 0, float _daq_max=65535);
+  void setCalibration(float _process_min= 0, float _process_max = 100, float _adc_min = 0, float _daq_max=65535, float _postoffset= 0);
 
   float calcProcessVar(float _adcVal);   // generic method uses set range functions to do a quick scaling operation and return the process val. Explicit conversion methods will be added below
 
@@ -87,8 +89,9 @@ public:
 
   bool calSet = false;
   struct calData {
-    float offset;
+    float preoffset;
     float factor;
+    float postoffset;
   } cal;
 
 private:

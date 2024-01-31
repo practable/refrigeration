@@ -15,7 +15,7 @@
 
 
 
-void sensorObj::setCalibration(float _process_min, float _process_max, float _adc_min, float _adc_max) {
+void sensorObj::setCalibration(float _process_min, float _process_max, float _adc_min, float _adc_max, float _postoffset) {
   Serial.print(sensorID);
   adc_min = _adc_min;
   process_min = _process_min;
@@ -23,8 +23,9 @@ void sensorObj::setCalibration(float _process_min, float _process_max, float _ad
   process_max = _process_max;
   input_range = adc_max - adc_min;
   process_range = process_max - process_min;
-  cal.offset = adc_min;  // the initial offset is on the adc side, not the PROCESS side
+  cal.preoffset = adc_min;  // the initial offset is on the adc side, not the PROCESS side
   cal.factor = process_range / input_range;
+  cal.postoffset = _postoffset;
   calSet = true;
   Serial.println(F(": Sensor Calibration data saved"));
 }
@@ -35,8 +36,14 @@ void sensorObj::setCalibration(float _process_min, float _process_max, float _ad
 // Generic Method given values passed as min/max during startup. Non Generic methods coming soon!
 float sensorObj::calcProcessVar(float _adcVal) {
   float processVarible = 0;
-  processVarible = (_adcVal * cal.factor) + cal.offset;
+  // Disable sensor scaling to see raw ADC value for calibration
+#if DISABLE_SENSOR_SCALING == false
+  processVarible = ((_adcVal - cal.preoffset) * cal.factor) + cal.postoffset ;
   currentVal = processVarible;
+#elif DISABLE_SENSOR_SCALING == true
+#pragma "Warning Sensor Scaling DISABLED"
+  processVarible = _adcVal;
+#endif
 #if DEBUG_SENSOR_CALC == true
   Serial.print(sensorID);
   Serial.print(F(": "));
