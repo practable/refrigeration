@@ -60,14 +60,14 @@ float ps_vals[NUM_PRESSURE_SENSORS] = { 0.0, 0.0, 0.0 };  // create array for TS
 // Misc Sensor Globals
 sensorObj flow_s(CURRENT_SENSOR, "flow", "flow");
 sensorObj power_s(CURRENT_SENSOR, "W", "power");
-sensorObj t_ambi(CURRENT_SENSOR, "degC", "TS_ambi");
-sensorObj p_ambi(CURRENT_SENSOR, "mBar", "PS_ambi");
+//sensorObj t_ambi(CURRENT_SENSOR, "degC", "TS_ambi"); Not required as i2c sensor data is delivered directly by object
+//sensorObj p_ambi(CURRENT_SENSOR, "mBar", "PS_ambi");
 
 // Arrays for Misc Sensor Vals
-float misc_vals[4] = { 0.0, 0.0, 0.0, 0.0 };  // create array for TS data
+float misc_vals[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };  // create array for misc data
 //uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
-char misc_names[][6] = { "flow", "power", "PSA", "TSA" };
-char misc_units[][6] = {"l/h", "W", "degC", "mBar"};
+char misc_names[][6] = { "flow", "power", "PSA", "TSA", "HSA"};
+char misc_units[][6] = {"l/h", "W", "degC", "mBar", "%"};
 
 
 // struct for status

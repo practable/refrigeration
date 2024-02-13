@@ -14,9 +14,14 @@ Global variables use 490 bytes (5%) of dynamic memory, leaving 7702 bytes for lo
 ```
 Saved half of dynamic memory with simple update.
 
+## Back up to 6% dynamic memory before big re-write
+
 ## i2c pins for Arduino Mega:
 SCL 21
 SDA 20
+
+
+
 */
 
 
@@ -29,6 +34,7 @@ SDA 20
 
 Adafruit_BME280 bme; // I2C
 
+
 unsigned long delayTime;
 
 void setup() {
@@ -37,12 +43,14 @@ void setup() {
     Serial.println(F("BME280 test"));
 
     unsigned status;
-    
+    //Wire.begin(0x76);
     // default settings
-    status = bme.begin();  
+  status = bme.begin(0x76); 
+    Serial.print("Status Update: ");
+    Serial.println(status); 
     // You can also pass in a Wire library object like &Wire2
-   //  status = bme.begin(0x76, &Wire2)
-    if (!status) {
+  // status = bme.begin(0x76, &Wire);
+    while (!status) {
         Serial.println(F("Could not find a valid BME280 sensor, check wiring, address, sensor ID!"));
         Serial.print(F("SensorID was: 0x"));
         Serial.println(bme.sensorID(),16);
@@ -50,7 +58,7 @@ void setup() {
         Serial.print(F("   ID of 0x56-0x58 represents a BMP 280,\n"));
         Serial.print(F("        ID of 0x60 represents a BME 280.\n"));
         Serial.print(F("        ID of 0x61 represents a BME 680.\n"));
-        while (1) delay(10);
+        delay(5000);
     }
     
     Serial.println(F("-- Default Test --"));
@@ -67,6 +75,8 @@ void loop() {
 
 
 void printValues() {
+  char buffer [64];
+  
     Serial.print(F("Temperature = "));
     Serial.print(bme.readTemperature());
     Serial.println(F(" °C"));

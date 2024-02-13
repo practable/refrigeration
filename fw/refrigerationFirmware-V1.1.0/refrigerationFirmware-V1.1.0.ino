@@ -27,12 +27,22 @@ Global variables use 870 bytes (10%) of dynamic memory, leaving 7322 bytes for l
 
 ```
 
+2. Completed adding i2c sensors UNTESTED
+
+```
+Sketch uses 41498 bytes (16%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6415 bytes (78%) of dynamic memory, leaving 1777 bytes for local variables. Maximum is 8192 bytes.
+
+```
 
 */
 
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 
 
 // Debugging Options
@@ -50,10 +60,14 @@ Global variables use 870 bytes (10%) of dynamic memory, leaving 7322 bytes for l
 #define PRINT_JSON true
 #define COMMAND_HINTS false
 
-#define ADAM6052A_ACTIVE true
-#define ADAM6052B_ACTIVE true
-#define ADAM6217C_ACTIVE true
-#define ADAM6217D_ACTIVE true
+#define ADAM6052A_ACTIVE false
+#define ADAM6052B_ACTIVE false
+#define ADAM6217C_ACTIVE false
+#define ADAM6217D_ACTIVE false
+
+#define I2C_ACTIVE true
+#define SEALEVELPRESSURE_HPA (1013.25)
+Adafruit_BME280 bme;  // I2C
 
 #define SAMPLING_DELAY 1000
 #define JSON_REPORT_DELAY_mS 5000
@@ -140,12 +154,16 @@ void sensors_begin() {
   power_s.set_range_min(0, 0);
   power_s.set_range_max(20, 1053);
   power_s.setCalibration();
-  t_ambi.set_range_min(4, -10);  // guessing at these values for now
-  t_ambi.set_range_max(20, 100);
-  t_ambi.setCalibration();
-  p_ambi.set_range_min(4, 600);  // mBar
-  p_ambi.set_range_max(20, 1500);
-  p_ambi.setCalibration();
+  // No longer needed as using i2C sensor
+  //  t_ambi.set_range_min(4, -10);  // guessing at these values for now
+  //  t_ambi.set_range_max(20, 100);
+  //  t_ambi.setCalibration();
+  //  p_ambi.set_range_min(4, 600);  // mBar
+  //  p_ambi.set_range_max(20, 1500);
+  //  p_ambi.setCalibration();
+  // Instead use!
+  unsigned status;
+  status = bme.begin(0x76);
 }
 
 
@@ -176,6 +194,9 @@ void loop() {
 #if ADAM6217D_ACTIVE == true
     adam6217_D.check_modbus_connect();
     sample_adam6217D();
+#endif
+#if I2C_ACTIVE == true
+// #TODO - Sample/loop i2c sensors
 #endif
   }
 
@@ -229,17 +250,29 @@ void sample_adam6217D() {
   //  sampleTimestamp = millis();  // This takes a "generic" timestamp that should be accurate enough for most purposes (not needed here unless running without the temp & pressure sensors)
   misc_vals[0] = flow_s.calcProcessVar(adam6217_D.d_array.f_data[0]);
   misc_vals[1] = power_s.calcProcessVar(adam6217_D.d_array.f_data[1]);
-  misc_vals[2] = t_ambi.calcProcessVar(adam6217_D.d_array.f_data[2]);
-  misc_vals[3] = p_ambi.calcProcessVar(adam6217_D.d_array.f_data[3]);
+  // misc_vals[2] = t_ambi.calcProcessVar(adam6217_D.d_array.f_data[2]);  // These are now i2c sensors
+  //  misc_vals[3] = p_ambi.calcProcessVar(adam6217_D.d_array.f_data[3]); // NOTE: This will cause errors in setion below unless loop is changed
 
 #if DEBUG_SAMPLING == true
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 2; i++) {  // changed loop from i < 4 to i < 2
     Serial.print(misc_names[i]);
     Serial.print(F(" : "));
     Serial.print(misc_vals[i]);
     Serial.print(F(" "));
     Serial.println(misc_units[i]);
   }
+#endif
+}
+
+// #TODO: is it worth seperating misc vals into 2 different arrays now? - lets try not to
+
+
+void sample_bme280() {
+  misc_vals[2] = bme.readTemperature();        // °C
+  misc_vals[3] = bme.readPressure() / 100.0F;  // hPa
+  misc_vals[4] = bme.readHumidity();           // %
+#if DEBUG_SAMPLING == true
+// Print Stuff Here if required
 #endif
 }
 
@@ -300,7 +333,7 @@ void build_json() {
 
   // load misc sensors
   sprintf(json_buffer, "%s\n    \"%s\" : {", json_buffer, misc);
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {  //# Changed loop here from i < 4 to i < 5 due to additional datapoint
     dtostrf(misc_vals[i], 6, 2, float_buffer);
     sprintf(json_buffer, "%s\n      \"%s\" : %6s,", json_buffer, misc_names[i], float_buffer);
   }
