@@ -5,6 +5,27 @@
     Imogen Heard
     21/12/23
 
+## As of V1.0.0: 21/12/23
+```
+Sketch uses 42130 bytes (16%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6650 bytes (81%) of dynamic memory, leaving 1542 bytes for local variables. Maximum is 8192 bytes.
+
+```
+
+
+## V1.1.0 Development started 13/02/24
+- Adding BME280 i2c atmospheric sensor, inc temp, pressure, humidity
+
+1. Testing Different BME280 Libraries
+  - Adafruit BME280
+    - Lots of dependancies
+  - BME280 by Tyler Glenn
+  - BME280_Zanshin
+```
+Sketch uses 14792 bytes (5%) of program storage space. Maximum is 253952 bytes.
+Global variables use 870 bytes (10%) of dynamic memory, leaving 7322 bytes for local variables. Maximum is 8192 bytes.
+
+```
 
 
 */
