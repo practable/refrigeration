@@ -66,8 +66,8 @@ sensorObj power_s(CURRENT_SENSOR, "W", "power");
 // Arrays for Misc Sensor Vals
 float misc_vals[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };  // create array for misc data
 //uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
-char misc_names[][6] = { "flow", "power", "PSA", "TSA", "HSA"};
-char misc_units[][6] = {"l/h", "W", "degC", "mBar", "%"};
+char misc_names[][6] = { "flow", "power", "TSA", "PSA", "HSA"};
+char misc_units[][6] = {"l/h", "W", "degC", "hPa", "%"};
 
 
 // struct for status

@@ -46,7 +46,7 @@ Global variables use 6415 bytes (78%) of dynamic memory, leaving 1777 bytes for 
 
 
 // Debugging Options
-#define DEBUG_SAMPLING false
+#define DEBUG_SAMPLING true
 #define DEBUG_ADAM false
 #define PRINT_RAW_DATA false
 #define DEBUG_STATE_MACHINE false
@@ -57,7 +57,7 @@ Global variables use 6415 bytes (78%) of dynamic memory, leaving 1777 bytes for 
 #define DEBUG_JSON false
 
 // User Options
-#define PRINT_JSON true
+#define PRINT_JSON false
 #define COMMAND_HINTS false
 
 #define ADAM6052A_ACTIVE false
@@ -186,7 +186,6 @@ void loop() {
     sample_adam6052B();
 #endif
 
-
 #if ADAM6217C_ACTIVE == true
     adam6217_C.check_modbus_connect();
     sample_adam6217C();
@@ -196,7 +195,7 @@ void loop() {
     sample_adam6217D();
 #endif
 #if I2C_ACTIVE == true
-// #TODO - Sample/loop i2c sensors
+    sample_bme280();
 #endif
   }
 
@@ -209,8 +208,10 @@ void loop() {
 void sample_adam6052A() {
   adam6052_A.read_coils();
 //adam6052A.read_digital_inputs();  // not needed in this iteration
+#if ADAM6052A_ACTIVE == true
 #if DEBUG_SAMPLING == true
   adam6052A.printBin(adam6052A.g_coilState);
+#endif
 #endif
 }
 
@@ -218,8 +219,10 @@ void sample_adam6052A() {
 void sample_adam6052B() {
   adam6052_B.read_coils();
 //adam6052A.read_digital_inputs();  // not needed in this iteration
+#if ADAM6052B_ACTIVE == true
 #if DEBUG_SAMPLING == true
   adam6052B.printBin(adam6052B.g_coilState);
+#endif
 #endif
 }
 
@@ -272,7 +275,13 @@ void sample_bme280() {
   misc_vals[3] = bme.readPressure() / 100.0F;  // hPa
   misc_vals[4] = bme.readHumidity();           // %
 #if DEBUG_SAMPLING == true
-// Print Stuff Here if required
+  for (int i = 2; i < 5; i++) {  // changed loop from i < 4 to i < 2
+    Serial.print(misc_names[i]);
+    Serial.print(F(" : "));
+    Serial.print(misc_vals[i]);
+    Serial.print(F(" "));
+    Serial.println(misc_units[i]);
+  }
 #endif
 }
 
@@ -333,7 +342,7 @@ void build_json() {
 
   // load misc sensors
   sprintf(json_buffer, "%s\n    \"%s\" : {", json_buffer, misc);
-  for (int i = 0; i < 4; i++) {  //# Changed loop here from i < 4 to i < 5 due to additional datapoint
+  for (int i = 0; i < 5; i++) {  //# Changed loop here from i < 4 to i < 5 due to additional datapoint
     dtostrf(misc_vals[i], 6, 2, float_buffer);
     sprintf(json_buffer, "%s\n      \"%s\" : %6s,", json_buffer, misc_names[i], float_buffer);
   }
