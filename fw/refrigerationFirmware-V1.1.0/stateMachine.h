@@ -449,7 +449,6 @@ int readSerialJSON(void) {
 void sm_Run(void) {
   // smState = readSerialJSON(smState);  // no longer needs to return variable
   readSerialJSON();  // listen for incoming serial commands and update global smState variable
-
   if (smState < NUM_STATES) {
 #if DEBUG_STATE_MACHINE == true
     if (lastState != smState) {

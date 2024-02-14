@@ -13,7 +13,7 @@
 
 void build_json() {
   char json_header[] = "\"{";
-  char json_buffer[620] = { "" };  // this needs to be sized correctly 512 is too small 600 seems to work for now
+  char json_buffer[JSON_BUFFER_SIZE] = { "" };  // this needs to be sized correctly 512 is too small 600 seems to work for now
   char float_buffer[16];
   char json_footer[] = "\n}\"";
   char valves[] = "valves";

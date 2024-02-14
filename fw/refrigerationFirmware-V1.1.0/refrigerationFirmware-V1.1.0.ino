@@ -9,31 +9,19 @@
 ```
 Sketch uses 42130 bytes (16%) of program storage space. Maximum is 253952 bytes.
 Global variables use 6650 bytes (81%) of dynamic memory, leaving 1542 bytes for local variables. Maximum is 8192 bytes.
-
 ```
 
 
-## V1.1.0 Development started 13/02/24
-- Adding BME280 i2c atmospheric sensor, inc temp, pressure, humidity
-
-1. Testing Different BME280 Libraries
-  - Adafruit BME280
-    - Lots of dependancies
-  - BME280 by Tyler Glenn
-  - BME280_Zanshin
+4. Version 1.1.0: 14/02/24 
+- Added i2c sensor for Atmospheric temp, pressure & humidity
+- Improved debugging and unit disabling options
+- Devolved functions from .ino to organised tabs
+- Increased JSON buffer size to 720 bytes
 ```
-Sketch uses 14792 bytes (5%) of program storage space. Maximum is 253952 bytes.
-Global variables use 870 bytes (10%) of dynamic memory, leaving 7322 bytes for local variables. Maximum is 8192 bytes.
-
+Sketch uses 49912 bytes (19%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6613 bytes (80%) of dynamic memory, leaving 1579 bytes for local variables. Maximum is 8192 bytes.
 ```
 
-2. Completed adding i2c sensors UNTESTED
-
-```
-Sketch uses 41498 bytes (16%) of program storage space. Maximum is 253952 bytes.
-Global variables use 6415 bytes (78%) of dynamic memory, leaving 1777 bytes for local variables. Maximum is 8192 bytes.
-
-```
 
 */
 
@@ -46,7 +34,7 @@ Global variables use 6415 bytes (78%) of dynamic memory, leaving 1777 bytes for 
 
 
 // Debugging Options
-#define DEBUG_SAMPLING true
+#define DEBUG_SAMPLING false
 #define DEBUG_ADAM false
 #define PRINT_RAW_DATA false
 #define DEBUG_STATE_MACHINE false
@@ -57,13 +45,14 @@ Global variables use 6415 bytes (78%) of dynamic memory, leaving 1777 bytes for 
 #define DEBUG_JSON false
 
 // User Options
-#define PRINT_JSON false
+#define BUILD_JSON true  //overkill but exists to enable testing with JSON being BUILT but not PRINTED or disabled entirely to prevent issues while testing
+#define PRINT_JSON true
 #define COMMAND_HINTS false
 
-#define ADAM6052A_ACTIVE false
-#define ADAM6052B_ACTIVE false
-#define ADAM6217C_ACTIVE false
-#define ADAM6217D_ACTIVE false
+#define ADAM6052A_ACTIVE true
+#define ADAM6052B_ACTIVE true
+#define ADAM6217C_ACTIVE true
+#define ADAM6217D_ACTIVE true
 
 #define I2C_ACTIVE true
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -71,6 +60,8 @@ Adafruit_BME280 bme;  // I2C
 
 #define SAMPLING_DELAY 1000
 #define JSON_REPORT_DELAY_mS 5000
+
+#define JSON_BUFFER_SIZE 720
 
 
 // Include all other files here
@@ -99,9 +90,7 @@ void setup() {
 
 
 void loop() {
-  Serial.println("Testing Blackout START");
   sm_Run();  // Runs JSON parser, selects operational state & sets output hardware
-
 
   // Sample all Data inputs
   if (millis() - lastSample >= SAMPLING_DELAY) {
@@ -125,13 +114,11 @@ void loop() {
 #endif
 #if I2C_ACTIVE == true
     sample_bme280();
-    Serial.println("Testing Blackout END");
-    delay(1000);
 #endif
   }
 
   if (millis() - lastReport >= JSON_REPORT_DELAY_mS) {
-    build_json();
+    if (BUILD_JSON) { build_json(); };
     lastReport = millis();
   }
 }
