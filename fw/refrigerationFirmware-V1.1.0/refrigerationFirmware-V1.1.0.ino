@@ -49,6 +49,7 @@ Global variables use 6613 bytes (80%) of dynamic memory, leaving 1579 bytes for 
 #define PRINT_JSON true
 #define COMMAND_HINTS false
 
+// Disabling Options (for debugging)
 #define ADAM6052A_ACTIVE true
 #define ADAM6052B_ACTIVE true
 #define ADAM6217C_ACTIVE true
@@ -84,7 +85,7 @@ void setup() {
   ethernet_begin();
   adams_begin();
   sensors_begin();
-  Serial.println(" ");
+  Serial.println(F(" "));
 }
 
 
