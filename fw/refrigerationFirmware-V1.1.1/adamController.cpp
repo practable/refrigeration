@@ -256,10 +256,10 @@ adamController::dataArray adamController::read_analog_inputs() {
           d_array.f_data[i] = float(d_array.i_data[i]);
           break;
         case VOLTAGE_OUTPUT:
-          d_array.f_data[i] = adamController::daq_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
+          d_array.f_data[i] = adamController::adc_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
           break;
         case CURRENT_OUTPUT:
-          d_array.f_data[i] = adamController::daq_to_voltage(readBuffer[i]);  // do the conversion to voltage/current here
+          d_array.f_data[i] = adamController::adc_to_current(readBuffer[i]);  // do the conversion to voltage/current here
           break;
         default:
           Serial.print(moduleName);
@@ -280,14 +280,14 @@ adamController::dataArray adamController::read_analog_inputs() {
   return d_array;
 }
 
-float adamController::daq_to_voltage(uint16_t daq_value) {
-  float voltage = float(daq_value) - 32768.0;
+float adamController::adc_to_voltage(uint16_t _adcvalue) {
+  float voltage = float(_adcvalue) - 32768.0;
   voltage = voltage / 3257.333;
   return voltage;
 }
 
-float adamController::daq_to_current(uint16_t daq_value) {
-  float current = float(daq_value);  // - 32768.0;
-  current = current / 3257.333;
+float adamController::adc_to_current(uint16_t _adcvalue) {
+  float current = float(_adcvalue);  // - 32768.0;
+  current = current / 3276.799;
   return current;
 }

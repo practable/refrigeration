@@ -28,6 +28,8 @@
 
 #define SENSOR_BUFFER_SIZE 10
 
+//#define DISABLE_SENSOR_SCALING true   // disables sensor scaling and outputs raw ADC value - useful for calibrating sensors
+
 //#define DISABLE_SENSOR_SCALING false   // disables sensor scaling and outputs raw DAC value - useful for calibrating sensors - defined in main sketch
 
 class sensorObj {
@@ -52,8 +54,8 @@ public:
   int sensorType;
 
 
-  float dac_min;  // measured value min
-  float dac_max;  // measured value max
+  float adc_min;  // measured value min
+  float adc_max;  // measured value max
   float process_min;
   float process_max;
   float input_range;

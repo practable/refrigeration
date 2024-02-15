@@ -85,8 +85,8 @@ public:
   int16_t read_analog_input(uint8_t inputNum);
   dataArray read_analog_inputs();
 
-  float daq_to_voltage(uint16_t daq_value);
-  float daq_to_current(uint16_t daq_value);
+  float adc_to_voltage(uint16_t _adcvalue);
+  float adc_to_current(uint16_t _acdvalue);
 
   void printBin(int16_t binaryVal);
 

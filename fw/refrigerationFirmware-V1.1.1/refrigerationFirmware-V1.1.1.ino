@@ -22,9 +22,16 @@ Sketch uses 49912 bytes (19%) of program storage space. Maximum is 253952 bytes.
 Global variables use 6613 bytes (80%) of dynamic memory, leaving 1579 bytes for local variables. Maximum is 8192 bytes.
 ```
 
-Version 1.1.1:
-_still in production_
-- sensor values are incorrect again.
+Version 1.1.1: 15/02/2024
+- sensor values fixed
+- Added quick start mode for V1 and fans
+- Tidied up sensor objects
+- Fully Tested and Validated with Hardware Rig
+- Changed naming convention from DAC (Data Aquisition Controller) to ADC (Analog to Digital Converter) to better represent the function of class methods
+```
+Sketch uses 50794 bytes (20%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6683 bytes (81%) of dynamic memory, leaving 1509 bytes for local variables. Maximum is 8192 bytes.
+```
 
 */
 
@@ -48,12 +55,12 @@ _still in production_
 #define DEBUG_SENSOR_HISTORY false
 #define DEBUG_SERIAL false
 #define DEBUG_JSON false
-#define DISABLE_SENSOR_SCALING false   // disables sensor scaling and outputs raw DAC value - useful for calibrating sensors
+#define DISABLE_SENSOR_SCALING false   // disables sensor scaling and outputs raw ADC value - useful for calibrating sensors
 
 // User Options     
 #define BUILD_JSON true  //overkill but exists to enable testing with JSON being BUILT but not PRINTED or disabled entirely to prevent issues while testing
 #define PRINT_JSON true
-#define COMMAND_HINTS false
+#define COMMAND_HINTS false  // Serial prints sample commands in JSON format
 
 // Disabling Options (for debugging)
 #define ADAM6052A_ACTIVE true
@@ -62,7 +69,6 @@ _still in production_
 #define ADAM6217D_ACTIVE true
 
 #define I2C_ACTIVE true
-#define BME_POWER_PIN 13    // Power for BME280 is supplied via DO pin
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BME280 bme;  // I2C
 

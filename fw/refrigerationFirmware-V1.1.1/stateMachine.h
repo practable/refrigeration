@@ -37,7 +37,8 @@ typedef enum {
   STATE_FANS_OFF,
   STATE_COMP_ON,
   STATE_COMP_OFF,
-  STATE_REGAS
+  STATE_REGAS,
+  STATE_QUICKSTART
 } StateType;
 
 // State Names Array (Makes printing the current state prettier)
@@ -51,7 +52,8 @@ char stateNames[][20] = {
   "STATE_FANS_OFF",
   "STATE_COMP_ON",
   "STATE_COMP_OFF",
-  "STATE_REGAS"
+  "STATE_REGAS",
+  "STATE_QUICKSTART"
 };
 
 //state Machine function prototypes
@@ -65,6 +67,7 @@ void sm_state_fans_off(void);
 void sm_state_comp_on(void);
 void sm_state_comp_off(void);
 void sm_state_regass(void);
+void sm_state_quick(void);
 
 /**
  * Type definition used to define the state
@@ -95,10 +98,11 @@ StateMachineType StateMachine[] = {
   { STATE_FANS_OFF, sm_state_fans_off },
   { STATE_COMP_ON, sm_state_comp_on },
   { STATE_COMP_OFF, sm_state_comp_off },
-  { STATE_REGAS, sm_state_regass }
+  { STATE_REGAS, sm_state_regass },
+  { STATE_QUICKSTART, sm_state_quick }
 };
 
-int NUM_STATES = 10;
+int NUM_STATES = 11;
 
 /**
  * Stores the current state of the state machine
@@ -172,6 +176,22 @@ void sm_state_stop() {
   // Close V1-4
   // Close V5 & V6
   adam6052_A.set_coils(0b00000000);
+  lastState = smState;
+  smState = STATE_WAIT;
+}
+
+void sm_state_quick() {
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Quickstart"));
+#endif
+  // open V1, V7
+  adam6052_A.set_coils(0b01000001);  // or set everything off
+  delay(1000);
+  // Start Fans
+  adam6052_B.set_coils(0b00000011);  // or set everything off
+  delay(2000);
+  //Start Compressor (disabled for now)
+  //adam6052_B.set_coil(2, true);
   lastState = smState;
   smState = STATE_WAIT;
 }
@@ -279,6 +299,7 @@ int readSerialJSON(void) {
     char fans[] = "fans";
     char comp[] = "comp";
     char regas[] = "regas";
+    char quick[] = "quick";
     char ok_response[20] = "{\"result\":\"ok\"}";
 
     Serial.readBytesUntil(10, command, COMMAND_SIZE);
@@ -305,7 +326,7 @@ int readSerialJSON(void) {
     // If valve == 0 we know there is no real value there and can ignore
 
     valveNum = doc["valve"];
-    if ((valveNum > 0) && (valveNum < 7)) {
+    if ((valveNum > 0) && (valveNum < 8)) {
       valveState = doc["state"];
 #if DEBUG_JSON == true
       Serial.print(F("valveNum: "));
@@ -318,7 +339,7 @@ int readSerialJSON(void) {
     } else if (valveNum == 0) {
       Serial.println(F("Unknown Valve Number Selected"));
     } else if ((valveNum >= 8) || (valveNum < 0)) {
-      Serial.println(F("Unknown Valve Number Selected"));
+    //  Serial.println(F("Unknown Valve Number Selected"));
     }
 
     // This step added to allow parsing keys but unsure of best practice
@@ -377,6 +398,9 @@ int readSerialJSON(void) {
         Serial.println(ok_response);
       } else if (strcmp(mode, regas) == 0) {
         smState = STATE_REGAS;
+        Serial.println(ok_response);
+      } else if (strcmp(mode, quick) == 0) {
+        smState = STATE_QUICKSTART;  
         Serial.println(ok_response);
       } else {
         Serial.println(F("{\"result\":\"error - unknown mode\"}"));
@@ -449,6 +473,7 @@ int readSerialJSON(void) {
 void sm_Run(void) {
   // smState = readSerialJSON(smState);  // no longer needs to return variable
   readSerialJSON();  // listen for incoming serial commands and update global smState variable
+
   if (smState < NUM_STATES) {
 #if DEBUG_STATE_MACHINE == true
     if (lastState != smState) {

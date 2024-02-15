@@ -33,7 +33,7 @@ float sensorObj::calcProcessVar(float _adcVal) {
   float processVarible = 0;
   // Disable sensor scaling to see raw ADC value for calibration
 #if DISABLE_SENSOR_SCALING == false
-  processVarible = ((_adcVal - cal.preoffset) * cal.factor) + cal.postoffset ;
+  processVarible = ((_adcVal - cal.preoffset) * cal.factor) + cal.postoffset;
   currentVal = processVarible;
 #elif DISABLE_SENSOR_SCALING == true
 #pragma "Warning Sensor Scaling DISABLED"
@@ -74,12 +74,17 @@ void sensorObj::updateHistory(float _sensorVal) {
 
 
 float sensorObj::calAverage() {
+  return 0;
 }
 float sensorObj::calcMin() {
+  return 0;
 }
 float sensorObj::calcMax() {
+  return 0;
 }
 float sensorObj::calcDxDy() {
+  return 0;
 }
 float sensorObj::calcLMS() {
+  return 0;
 }
