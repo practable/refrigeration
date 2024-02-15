@@ -28,6 +28,8 @@
 
 #define SENSOR_BUFFER_SIZE 10
 
+//#define DISABLE_SENSOR_SCALING false   // disables sensor scaling and outputs raw DAC value - useful for calibrating sensors - defined in main sketch
+
 class sensorObj {
 
 public:
@@ -61,18 +63,19 @@ public:
   float currentVal = 0;  //current value of the sensor
   uint32_t timeStamp;   // timeStamp for last datapoint taken
 
-  // Should be called in series to get sensor calibration correctly
-  void set_range_min(float _process_min = 0, float _dac_min = 0);
-  void set_range_max(float _process_max = 100, float _dac_max = 65535);
-  void setCalibration();
+  // Should be called before calcProcessVar() to set sensor calibration
+  void setCalibration(float _process_min= 0, float _process_max = 100, float _adc_min = 0, float _daq_max=65535, float _postoffset= 0);
 
-  float calcProcessVar(float _dacVal);
+  float calcProcessVar(float _adcVal);
+
   float returnVal();   // returns the current process val
 
   float sensorHistory[SENSOR_BUFFER_SIZE];
   //std::vector<float> sensorHistory;
 
+
   void updateHistory(float _sensorVal);
+// Not Implemented yet
   float calAverage();
   float calcMin();
   float calcMax();
@@ -85,8 +88,9 @@ public:
 
   bool calSet = false;
   struct calData {
-    float offset;
+    float preoffset;
     float factor;
+    float postoffset;
   } cal;
 
 private:

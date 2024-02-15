@@ -48,8 +48,9 @@ _still in production_
 #define DEBUG_SENSOR_HISTORY false
 #define DEBUG_SERIAL false
 #define DEBUG_JSON false
+#define DISABLE_SENSOR_SCALING false   // disables sensor scaling and outputs raw DAC value - useful for calibrating sensors
 
-// User Options
+// User Options     
 #define BUILD_JSON true  //overkill but exists to enable testing with JSON being BUILT but not PRINTED or disabled entirely to prevent issues while testing
 #define PRINT_JSON true
 #define COMMAND_HINTS false

@@ -10,34 +10,24 @@
 void sensors_begin() {
   // init Temp Sensors
   for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
-    temp_s[i].set_range_min(0, 0);  // (processVariable, measuredVal)
-    temp_s[i].set_range_max(100, 10);
-    temp_s[i].setCalibration();
+    temp_s[i].setCalibration(0, 100, 0, 10);  // (process low, process high, voltage low, voltage high, postoffset) Linear sensor scaling
   }
-  for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {
-    pressure_s[i].set_range_min(1, 0);
-    pressure_s[i].set_range_max(6, 30);
-    pressure_s[i].setCalibration();
-  }
-  flow_s.set_range_min(4, 0);
-  flow_s.set_range_max(20, 25);
-  flow_s.setCalibration();
-  power_s.set_range_min(0, 0);
-  power_s.set_range_max(20, 1053);
-  power_s.setCalibration();
+
+  pressure_s[0].setCalibration(-0.8, 7, 1, 6, -0.48);  // (process low, process high, voltage low, voltage high, postoffset) Linear sensor scaling
+  pressure_s[1].setCalibration(0, 30, 1, 6);           // (process low, process high, voltage low, voltage high) Linear sensor scaling
+  pressure_s[2].setCalibration(0, 30, 1, 6);           // (process low, process high, voltage low, voltage high) Linear sensor scaling
+
+  flow_s.setCalibration(0, 25, 0, 20);     // (process low, process high, current low, current high) Linear sensor scaling
+  power_s.setCalibration(0, 1300, 0, 20);  // (process low, process high, current low, current high) Linear sensor scaling
   // No longer needed as using i2C sensor
-  //  t_ambi.set_range_min(4, -10);  // guessing at these values for now
-  //  t_ambi.set_range_max(20, 100);
-  //  t_ambi.setCalibration();
-  //  p_ambi.set_range_min(4, 600);  // mBar
-  //  p_ambi.set_range_max(20, 1500);
-  //  p_ambi.setCalibration();
+  //  t_ambi.setCalibration(-10, 100, 4, 20);        // (process low, process high, current low, current high) Linear sensor scaling
+  //  p_ambi.setCalibration(600, 1500, 4, 20);       // (process low, process high, current low, current high) Linear sensor scaling
   // Instead use!
   unsigned status;
   status = bme.begin(0x76);
   Serial.print(F("BME280 Status: "));
   Serial.println(status);
-  if (status == 0){
+  if (status == 0) {
     Serial.println(F("BME280 Error"));
   } else {
     Serial.println(F("BME280 Detected"));
