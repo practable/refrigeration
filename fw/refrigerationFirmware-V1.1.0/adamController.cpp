@@ -243,7 +243,7 @@ adamController::dataArray adamController::read_analog_inputs() {
   int response = modbusTCP.requestFrom(INPUT_REGISTERS, a_in[0], 0x08);  //HOLDING_REGISTERS
   int numReadings = modbusTCP.available();                               // Is this line even needed? requestFrom returns number of readings
   uint16_t readBuffer[numReadings];
-  int inputStates = 0;
+  //int inputStates = 0; Not used remove in later version I dont know what the intended function for this was
   char buffer[514] = { 0 };
   if (response > 0) {
     for (int i = 0; i < numReadings; i++) {
@@ -270,7 +270,7 @@ adamController::dataArray adamController::read_analog_inputs() {
     sprintf(buffer, "%s: Read Analog Inputs (DAC): %u, %u, %u, %u, %u, %u ", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4], readBuffer[5]);
   } else {
     sprintf(buffer, "%s: ERROR: Unable to read input status ", moduleName);
-    inputStates = -1;
+   // inputStates = -1;
   }
 
 #if PRINT_RAW_DATA == true

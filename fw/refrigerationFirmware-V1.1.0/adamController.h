@@ -62,9 +62,9 @@ public:
   const int a_in[8] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 };
 
   struct dataArray {
-    uint16_t i_data[8];     // Always holds the direct ADC value read from data aquisition module
-    float f_data[8];        // holds the calculated voltage or current value, or a copy of the ADC as a float
-    uint32_t timeStamp_mS[8];     // holds the time data was sampled in mS from time of power up
+    uint16_t i_data[8];        // Always holds the direct ADC value read from data aquisition module
+    float f_data[8];           // holds the calculated voltage or current value, or a copy of the ADC as a float
+    uint32_t timeStamp_mS[8];  // holds the time data was sampled in mS from time of power up
   } d_array;
 
   // Methods

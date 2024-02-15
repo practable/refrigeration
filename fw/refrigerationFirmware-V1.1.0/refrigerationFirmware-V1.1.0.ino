@@ -32,6 +32,8 @@ Global variables use 6613 bytes (80%) of dynamic memory, leaving 1579 bytes for 
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 
+// Hardware Options
+#define ETHERNET_SHIELD 'A'     // Select from 'A' or 'B' (Only applies to practable.io hardware - for your own hardware change byte mac[] in globals.h to match your ethernet shield)
 
 // Debugging Options
 #define DEBUG_SAMPLING false
@@ -56,8 +58,10 @@ Global variables use 6613 bytes (80%) of dynamic memory, leaving 1579 bytes for 
 #define ADAM6217D_ACTIVE true
 
 #define I2C_ACTIVE true
+#define BME_POWER_PIN 13    // Power for BME280 is supplied via DO pin
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BME280 bme;  // I2C
+
 
 #define SAMPLING_DELAY 1000
 #define JSON_REPORT_DELAY_mS 5000

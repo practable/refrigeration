@@ -16,6 +16,22 @@ Global variables for Refrigeration Experiment
 
 
 
+// Enter a MAC address for your controller below.
+// Newer Ethernet shields have a MAC address printed on a sticker on the shield
+// The IP address will be dependent on your local network:
+
+
+#if ETHERNET_SHIELD == 'A'
+  #pragma Ethernet Shield A Selected
+  byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };  // FOR SHIELD A
+#elif ETHERNET_SHIELD == 'B'
+  #pragma Ethernet Shield B Selected
+  byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23 };  // FOR SHIELD B
+#else
+  #error "VALID MAC ADDRESS NOT FOUND"
+#endif
+
+
 // valve globals
 
 
@@ -66,8 +82,8 @@ sensorObj power_s(CURRENT_SENSOR, "W", "power");
 // Arrays for Misc Sensor Vals
 float misc_vals[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };  // create array for misc data
 //uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
-char misc_names[][6] = { "flow", "power", "TSA", "PSA", "HSA"};
-char misc_units[][6] = {"l/h", "W", "degC", "hPa", "%"};
+char misc_names[][6] = { "flow", "power", "TSA", "PSA", "HSA" };
+char misc_units[][6] = { "l/h", "W", "degC", "hPa", "%" };
 
 
 // struct for status
@@ -83,11 +99,7 @@ char status_names[][8] = { "ok", "state", "code", "message" };
 
 
 
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
-// The IP address will be dependent on your local network:
-//byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };  // FOR SHIELD A
-byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23 };  // FOR SHIELD B
+
 
 //Define the ip address for the client (local modbus controller) (the device this firmware is running on)
 IPAddress ip(192, 168, 1, 100);

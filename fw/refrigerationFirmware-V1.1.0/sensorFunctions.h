@@ -35,6 +35,13 @@ void sensors_begin() {
   // Instead use!
   unsigned status;
   status = bme.begin(0x76);
+  Serial.print(F("BME280 Status: "));
+  Serial.println(status);
+  if (status == 0){
+    Serial.println(F("BME280 Error"));
+  } else {
+    Serial.println(F("BME280 Detected"));
+  }
 }
 
 
