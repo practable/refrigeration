@@ -174,6 +174,14 @@ _list of suitable commands (Examples, not exhaustive)_
 ## JSON Report
 _The system will report all sensor values and status in the following format:
 ```
+"{
+  "timestamp" : 15260,
+  "valves" : {
+    "V1" : 0,
+    "V2" : 0,
+    "V3" : 0,
+    "V4" : 0,
+    "V5" : 0,
     "V6" : 0,
     "V7" : 0,
     "V8" : 0,
