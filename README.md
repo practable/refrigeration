@@ -1,4 +1,4 @@
-# Remote Labs Refigeration Experiment
+# Remote Labs Refrigeration Experiment
 
 
 ## Outline
