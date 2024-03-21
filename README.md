@@ -171,6 +171,64 @@ _list of suitable commands (Examples, not exhaustive)_
 {"cmd":"fans","param":0}  
  
 ```
+## JSON Report
+_The system will report all sensor values and status in the following format:
+```
+    "V6" : 0,
+    "V7" : 0,
+    "V8" : 0,
+  },
+  "relays" : {
+    "W1" : 0,
+    "W2" : 0,
+    "comp" : 0,
+  },
+  "sensors" : {
+    "pressure" : {
+      "PS1" :  -2.04,
+      "PS2" :  -6.00,
+      "PS3" :  -6.00,
+    },
+    "temperature" : {
+      "TS1" :   0.00,
+      "TS2" :   0.00,
+      "TS3" :   0.00,
+      "TS4" :   0.00,
+      "TS5" :   0.00,
+    },
+    "misc" : {
+      "flow" :   0.00,
+      "power" :   0.00,
+      "TSA" :   0.00,
+      "PSA" :   0.00,
+      "HSA" :   0.00,
+    }
+  },
+"status" : {
+    "ok" : 1,
+    "state" : "STATE_WAIT",
+    "code" : 0,
+    "message" : " "
+  }
+}"
+
+```
+Additionally, some errors are also sent as standalone message in the following format, These messages are mostly used during the debugging process and are not expected to be seen during normal operation,
+though they may be seen on a reboot and errors could indicate that the system is not plugged in correctly to the ADAM Industrial Controllers or other periferal hardware.
+```
+{"model":"frig00","version":"refrigerationFirmware-V1.1.2"}
+{"error":"Arduino: Ethernet cable is not connected."}
+{"error":"ADAM-6052-A: Modbus TCP Client failed to connect!"}
+{"error":"ADAM-6052-B: Modbus TCP Client failed to connect!"}
+{"status":"BME280:0"}
+{"error":" BME280 Error"}
+ 
+{"error":"ADAM-6052-A: Modbus TCP Client failed to connect!"}
+{"error":"ADAM-6052-B: Modbus TCP Client failed to connect!"}
+{"error":"ADAM-6217-C: Modbus TCP Client failed to connect!"}
+{"error":"ADAM-6217-D: Modbus TCP Client failed to connect!"}``
+
+```
 
 ## Engineering Commands
 _Note: Only to be used by qualified technicians_
