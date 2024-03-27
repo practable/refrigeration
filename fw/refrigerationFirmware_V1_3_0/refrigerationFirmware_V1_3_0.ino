@@ -51,6 +51,16 @@ Sketch uses 50682 bytes (19%) of program storage space. Maximum is 253952 bytes.
 Global variables use 6779 bytes (82%) of dynamic memory, leaving 1413 bytes for local variables. Maximum is 8192 bytes.
 ```
 
+Version 1.3.0: 27/04/2024
+- Removed all newline chars from JSON printout,
+- Added PRETTY_PRINT_JSON to re-enable all newline chars for debugging
+
+```
+
+```
+
+
+
 */
 
 
