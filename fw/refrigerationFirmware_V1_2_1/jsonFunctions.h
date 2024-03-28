@@ -7,7 +7,13 @@
 */
 
 
-
+#if PRETTY_PRINT_JSON == true
+  #pragma JSON set to Pretty Print! - May experience problems with Machine Parsing!
+  char newline[3] = {"\n"};
+#else
+  #pragma JSON set to standard JSON output - For human readability try enabling Pretty Print!
+  char newline[3] = {""};
+#endif
 
 
 
@@ -26,7 +32,7 @@ void build_json() {
 
 
   // start json string building
-  sprintf(json_buffer, "%s\n  \"timestamp\" : %lu,", json_header, sampleTimestamp);
+  sprintf(json_buffer, "%s\n  \"timestamp\" : %lu,", json_header,newline, sampleTimestamp);
 
 
   // load valve data

@@ -51,6 +51,27 @@ Sketch uses 50682 bytes (19%) of program storage space. Maximum is 253952 bytes.
 Global variables use 6779 bytes (82%) of dynamic memory, leaving 1413 bytes for local variables. Maximum is 8192 bytes.
 ```
 
+Version 1.3.0: 27/04/2024
+- Removed all newline chars from JSON printout,
+- Added PRETTY_PRINT_JSON option to re-enable all newline chars for debugging
+
+```
+Sketch uses 50890 bytes (20%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6815 bytes (83%) of dynamic memory, leaving 1377 bytes for local variables. Maximum is 8192 bytes.
+```
+
+
+Version 1.3.1: 28/04/2024
+- Removed additional commas from JSON message - BUG FIX
+- Changed double to single quotes to wrap JSON
+- rebooting error detected - stackoverflow?
+- Reduced size of JSON buffer from 720 to 620
+- Fixed rebooting error but check for problem reappearing
+- #TODO: If rebooting issue or stackoverflow reappears devolve pretty print JSON into own function & only load into memory if option is selected
+```
+Sketch uses 50780 bytes (19%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6921 bytes (84%) of dynamic memory, leaving 1271 bytes for local variables. Maximum is 8192 bytes.
+```
 */
 
 
@@ -95,11 +116,11 @@ Adafruit_BME280 bme;  // I2C
 #define SAMPLING_DELAY 1000
 #define JSON_REPORT_DELAY_mS 5000
 
-#define JSON_BUFFER_SIZE 720
+#define JSON_BUFFER_SIZE 620  // 720 too big?  NOTE: on recieved message through backend, message is 698 char long, but this may include system overhead NOTE: this INCLUDES spaces, can remove them for non pretty print
 
-char JSON_status_header[16] = {"{\"status\":\""};    // JSON Status header
-char JSON_error_header[15] = {"{\"error\":\""};     //     JSON Error header
-char JSON_footer[4] = {"\"}"};                     //  JSON status/error footer
+//char JSON_status_header[15] = {"{\"status\":\""};    // JSON Status header
+//char JSON_error_header[14] = {"{\"error\":\""};     //     JSON Error header
+//char JSON_footer[4] = {"\"}"};                     //  JSON status/error footer
 
 // Include all other files here
 
