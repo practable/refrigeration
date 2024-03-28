@@ -77,10 +77,13 @@ Global variables use 6921 bytes (84%) of dynamic memory, leaving 1271 bytes for 
 Version 1.3.2: 28/04/2024
 - Devolved PrettyPrint JSON into its own function - only loaded into memory if selected as option
 - removed ALL spaces from Non Pretty Print JSON Message
+- Removed Single quote ' from JSON header & Footer
+- Changed print JSON from println to print - does this print \r\n?
+- Added print line afdter print JSON to print null char (\n) to test different options (\n worked!)
 
 ```
-Sketch uses 50640 bytes (19%) of program storage space. Maximum is 253952 bytes.
-Global variables use 6767 bytes (82%) of dynamic memory, leaving 1425 bytes for local variables. Maximum is 8192 bytes.
+Sketch uses 50618 bytes (19%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6761 bytes (82%) of dynamic memory, leaving 1431 bytes for local variables. Maximum is 8192 bytes.
 ```
 
 

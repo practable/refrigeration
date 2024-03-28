@@ -111,10 +111,10 @@ void build_json() {
 //char newline[3] = { " " };
 void build_json() {
   char newline[3] = { "" };
-  char json_header[] = "\'{";
+  char json_header[] = "{";
   char json_buffer[JSON_BUFFER_SIZE] = { "" };  // this needs to be sized correctly 512 is too small 600 seems to work for now
   char float_buffer[8];
-  char json_footer[] = "}\'";
+  char json_footer[] = "}";
   char valves[] = "valves";
   char relays[] = "relays";
   char sensors[] = "sensors";
@@ -202,7 +202,8 @@ void build_json() {
   sprintf(json_buffer, "%s%s%s", json_buffer, newline, json_footer);
 
   if (PRINT_JSON) {
-    Serial.println(json_buffer);
+    Serial.print(json_buffer);
+    Serial.print("\n");
   }
 }
 #endif
