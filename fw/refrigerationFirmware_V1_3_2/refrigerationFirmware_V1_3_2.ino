@@ -72,6 +72,18 @@ Version 1.3.1: 28/04/2024
 Sketch uses 50780 bytes (19%) of program storage space. Maximum is 253952 bytes.
 Global variables use 6921 bytes (84%) of dynamic memory, leaving 1271 bytes for local variables. Maximum is 8192 bytes.
 ```
+
+
+Version 1.3.2: 28/04/2024
+- Devolved PrettyPrint JSON into its own function - only loaded into memory if selected as option
+- removed ALL spaces from Non Pretty Print JSON Message
+
+```
+Sketch uses 50640 bytes (19%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6767 bytes (82%) of dynamic memory, leaving 1425 bytes for local variables. Maximum is 8192 bytes.
+```
+
+
 */
 
 
