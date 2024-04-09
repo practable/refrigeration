@@ -27,6 +27,10 @@ Global variables for Refrigeration Experiment
 #elif ETHERNET_SHIELD == 'B'
   #pragma Ethernet Shield B Selected
   byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23 };  // FOR SHIELD B
+#elif ETHERNET_SHIELD == 'C'
+  #pragma Ethernet Shield CARDUINO Selected
+  byte mac[] = { 0xA8, 0X61, 0x0A, 0xAF, 0x14, 0x67 };  // FOR SHIELD B
+
 #else
   #error "VALID MAC ADDRESS NOT FOUND"
 #endif
