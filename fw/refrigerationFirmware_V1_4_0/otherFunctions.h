@@ -16,7 +16,7 @@ void serial_begin() {
   while (!Serial) {
     ;  // wait for serial port to connect. Needed for native USB port only
   }
- Serial.println(F("{\"model\":\"frig00\",\"version\":\"refrigerationFirmware-V1.3.2\"}"));
+ Serial.println(F("{\"model\":\"" EXPERIMENT_NAME "\",\"version\":\"" FIRMWARE_VERSION "\"}"));
 }
 
 

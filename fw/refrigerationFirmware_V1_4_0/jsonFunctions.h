@@ -203,7 +203,7 @@ void build_json() {
 
   if (PRINT_JSON) {
     Serial.print(json_buffer);
-    Serial.print("\ni");
+    Serial.print("\n");
   }
 }
 #endif

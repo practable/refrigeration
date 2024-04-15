@@ -89,6 +89,8 @@ Global variables use 6761 bytes (82%) of dynamic memory, leaving 1431 bytes for 
 Version 1.4.0: 
 # IN DEVELOPMENT 15/04/2024
 - Adding status/error messages for low/high pressure to indicate to user that compressor may be close to deactivation.
+- Moved Sample Timestamp to main loop for flexibility
+- Added definitions for experiment type & firmware version
 
 
 
@@ -101,8 +103,13 @@ Version 1.4.0:
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 
+// Firmware Options
+
+#define EXPERIMENT_NAME "frig00"
+#define FIRMWARE_VERSION "refrigerationFirmware_V1.4.0"
+
 // Hardware Options
-#define ETHERNET_SHIELD 'A'     // Select from 'A' or 'B' (Only applies to practable.io hardware - for your own hardware change byte mac[] in globals.h to match your ethernet shield)
+#define ETHERNET_SHIELD 'A'  // Select from 'A' or 'B' (Only applies to practable.io hardware - for your own hardware change byte mac[] in globals.h to match your ethernet shield)
 
 // Debugging Options
 #define DEBUG_SAMPLING false
@@ -114,19 +121,19 @@ Version 1.4.0:
 #define DEBUG_SENSOR_HISTORY false
 #define DEBUG_SERIAL false
 #define DEBUG_JSON false
-#define DISABLE_SENSOR_SCALING false   // disables sensor scaling and outputs raw ADC value - useful for calibrating sensors
+#define DISABLE_SENSOR_SCALING false  // disables sensor scaling and outputs raw ADC value - useful for calibrating sensors
 
-// User Options     
+// User Options
 #define BUILD_JSON true  //overkill but exists to enable testing with JSON being BUILT but not PRINTED or disabled entirely to prevent issues while testing
 #define PRINT_JSON true
 #define PRETTY_PRINT_JSON false  // Makes JSON Human readable (But not machine readable!)
-#define COMMAND_HINTS false  // Serial prints sample commands in JSON format
+#define COMMAND_HINTS false      // Serial prints sample commands in JSON format
 
 // Disabling Options (for debugging)
-#define ADAM6052A_ACTIVE true
-#define ADAM6052B_ACTIVE true
-#define ADAM6217C_ACTIVE true
-#define ADAM6217D_ACTIVE true
+#define ADAM6052A_ACTIVE false
+#define ADAM6052B_ACTIVE false
+#define ADAM6217C_ACTIVE false
+#define ADAM6217D_ACTIVE false
 
 #define I2C_ACTIVE true
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -172,7 +179,6 @@ void loop() {
 
   // Sample all Data inputs
   if (millis() - lastSample >= SAMPLING_DELAY) {
-    lastSample = millis();
 #if ADAM6052A_ACTIVE == true
     adam6052_A.check_modbus_connect();
     sample_adam6052A();
@@ -193,6 +199,8 @@ void loop() {
 #if I2C_ACTIVE == true
     sample_bme280();
 #endif
+    lastSample = millis();
+    sampleTimestamp = lastSample;  // This takes a "generic" timestamp that should be accurate enough for most purposes
   }
 
   if (millis() - lastReport >= JSON_REPORT_DELAY_mS) {
