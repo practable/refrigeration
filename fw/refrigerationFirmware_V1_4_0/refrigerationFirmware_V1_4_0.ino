@@ -125,7 +125,7 @@ Version 1.4.0:
 
 // User Options
 #define BUILD_JSON true  //overkill but exists to enable testing with JSON being BUILT but not PRINTED or disabled entirely to prevent issues while testing
-#define PRINT_JSON true
+#define PRINT_JSON false
 #define PRETTY_PRINT_JSON false  // Makes JSON Human readable (But not machine readable!)
 #define COMMAND_HINTS false      // Serial prints sample commands in JSON format
 
