@@ -60,7 +60,7 @@ void sample_adam6052B() {
 
 void sample_adam6217C() {
   adam6217_C.read_analog_inputs();  // read all temperature sensor inputs
-  sampleTimestamp = millis();       // This takes a "generic" timestamp that should be accurate enough for most purposes
+ // sampleTimestamp = millis();       // This takes a "generic" timestamp that should be accurate enough for most purposes
   for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {
     ps_vals[i] = pressure_s[i].calcProcessVar(adam6217_C.d_array.f_data[i]);
     // Check pressure vals here?

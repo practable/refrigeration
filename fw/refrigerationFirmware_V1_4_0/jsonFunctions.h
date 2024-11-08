@@ -201,9 +201,9 @@ void build_json() {
   // close json string
   sprintf(json_buffer, "%s%s%s", json_buffer, newline, json_footer);
 
-  if (PRINT_JSON) {
+  if (PRINT_JSON) {    
     Serial.print(json_buffer);
-    Serial.print("\ni");
+    Serial.print("\n");
   }
 }
 #endif
