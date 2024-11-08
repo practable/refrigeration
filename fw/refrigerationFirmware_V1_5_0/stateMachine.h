@@ -41,7 +41,7 @@ typedef enum {
   STATE_LIGHTS_OFF,
   STATE_REGAS,
   STATE_QUICKSTART,
-  NUM_STATES     // guard to return the number of states
+  NUM_STATES  // guard to return the number of states
 } StateType;
 
 // State Names Array (Makes printing the current state prettier)
@@ -264,6 +264,23 @@ void sm_state_comp_off() {
   smState = STATE_WAIT;
 }
 
+void sm_state_lights_on() {
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Lights On"));
+#endif
+  adam6052_B.set_coil(3, true);
+  lastState = smState;
+  smState = STATE_WAIT;
+}
+
+void sm_state_lights_off() {
+#if DEBUG_STATES == true
+  Serial.println(F("State Machine: Lights Off"));
+#endif
+  adam6052_B.set_coil(3, false);
+  lastState = smState;
+  smState = STATE_WAIT;
+}
 
 void sm_state_regass() {
   if (lastState != smState) {
@@ -309,6 +326,7 @@ int readSerialJSON(void) {
     char comp[] = "comp";
     char regas[] = "regas";
     char quick[] = "quick";
+    char lights[] = "lights";
     char ok_response[20] = "{\"result\":\"ok\"}";
 
     Serial.readBytesUntil(10, command, COMMAND_SIZE);
@@ -394,6 +412,24 @@ int readSerialJSON(void) {
       // Do nothing - Look for other keys
     }
 
+    if (root.containsKey("lights")) {
+      int lightState = doc["comp"];
+#if DEBUG_JSON == true
+      Serial.print(F("lightState: "));
+      Serial.println(lightState);
+#endif
+      if (lightState > 0) {
+        commandParsed = true;
+        smState = STATE_LIGHTS_ON;
+      } else if (fanState == 0) {
+        commandParsed = true;
+        smState = STATE_LIGHTS_OFF;
+      }
+    } else {
+      // Serial.println("Could not find key \"lights\"");
+      // Do nothing - Look for other keys
+    }
+
 
     // Then check if first index contains a "mode"
     if (root.containsKey("mode")) {
@@ -457,6 +493,20 @@ int readSerialJSON(void) {
           Serial.println(ok_response);
         }
       }
+
+         if (strcmp(cmd, lights) == 0) {
+        int lightState = doc["param"];
+        if (lightState > 0) {
+          smState = STATE_LIGHTS_ON;
+          Serial.println(ok_response);
+        } else {
+          smState = STATE_LIGHTS_OFF;
+          Serial.println(ok_response);
+        }
+      }
+
+
+
 
     }  // end of "cmd"
 
