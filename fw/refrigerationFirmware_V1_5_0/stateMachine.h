@@ -169,6 +169,11 @@ void sm_state_wait() {
     lastState = smState;
     // Do anything else that needs to happen first time state is called
   }
+  if (lights_active) {
+    if (millis() - lights_active_time_mS >= LIGHTS_ACTIVE_TIME_mS) {  // If lights timer runs out
+      smState = STATE_LIGHTS_OFF;
+    }
+  }
   // Do everything that repeats in this state
   // Define the next state if required
   // smState = STATE_WAIT; // In this case this is the default state
@@ -269,6 +274,8 @@ void sm_state_lights_on() {
   Serial.println(F("State Machine: Lights On"));
 #endif
   adam6052_B.set_coil(3, true);
+  lights_active = true;
+  lights_active_time_mS = millis();
   lastState = smState;
   smState = STATE_WAIT;
 }
@@ -278,6 +285,7 @@ void sm_state_lights_off() {
   Serial.println(F("State Machine: Lights Off"));
 #endif
   adam6052_B.set_coil(3, false);
+  lights_active = false;
   lastState = smState;
   smState = STATE_WAIT;
 }
@@ -494,7 +502,7 @@ int readSerialJSON(void) {
         }
       }
 
-         if (strcmp(cmd, lights) == 0) {
+      if (strcmp(cmd, lights) == 0) {
         int lightState = doc["param"];
         if (lightState > 0) {
           smState = STATE_LIGHTS_ON;

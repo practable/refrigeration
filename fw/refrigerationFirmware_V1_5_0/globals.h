@@ -107,8 +107,8 @@ struct _status {
 // names for status
 char status_names[][8] = { "ok", "state", "code", "message" };
 
-
-
+bool lights_active = false;
+uint32_t lights_active_time_mS;
 
 
 
