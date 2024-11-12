@@ -125,21 +125,22 @@ Version 1.4.0:
 
 // User Options
 #define BUILD_JSON true  //overkill but exists to enable testing with JSON being BUILT but not PRINTED or disabled entirely to prevent issues while testing
-#define PRINT_JSON false
+#define PRINT_JSON true
 #define PRETTY_PRINT_JSON false  // Makes JSON Human readable (But not machine readable!)
 #define COMMAND_HINTS false      // Serial prints sample commands in JSON format
 
 // Disabling Options (for debugging)
-#define ADAM6052A_ACTIVE false
-#define ADAM6052B_ACTIVE false
-#define ADAM6217C_ACTIVE false
-#define ADAM6217D_ACTIVE false
+#define ADAM6052A_ACTIVE true
+#define ADAM6052B_ACTIVE true
+#define ADAM6217C_ACTIVE true
+#define ADAM6217D_ACTIVE true
 
 #define I2C_ACTIVE true
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BME280 bme;  // I2C
 
-#define LIGHTS_ACTIVE_TIME_mS 900000 // = 15 min
+#define LIGHTS_ACTIVE_TIME_mS 3600000 // = 15 min
+#define GLOBAL_TIMEOUT_mS    3600000 // = 1h
 
 
 #define SAMPLING_DELAY 1000

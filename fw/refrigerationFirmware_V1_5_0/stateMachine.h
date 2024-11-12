@@ -174,6 +174,13 @@ void sm_state_wait() {
       smState = STATE_LIGHTS_OFF;
     }
   }
+  if (experiment_active) {
+    if (millis() - last_cmd_rx_mS >= GLOBAL_TIMEOUT_mS) {
+      experiment_active = false;
+      smState = STATE_STOP;
+    }
+  }
+
   // Do everything that repeats in this state
   // Define the next state if required
   // smState = STATE_WAIT; // In this case this is the default state
@@ -356,26 +363,6 @@ int readSerialJSON(void) {
     // Now to parse the JSON message
     // First work out what the command word is
 
-    // First check if the first index is "valve"**** SEE NOTE!
-    // In this case we can just test if valve has a value.
-    // If valve == 0 we know there is no real value there and can ignore
-
-    valveNum = doc["valve"];
-    if ((valveNum > 0) && (valveNum < 8)) {
-      valveState = doc["state"];
-#if DEBUG_JSON == true
-      Serial.print(F("valveNum: "));
-      Serial.print(valveNum);
-      Serial.print(F("   Valve Status: "));
-      Serial.println(valveState);
-#endif
-      commandParsed = true;
-      smState = STATE_SELECT_VALVE;
-    } else if (valveNum == 0) {
-      Serial.println(F("Unknown Valve Number Selected"));
-    } else if ((valveNum >= 8) || (valveNum < 0)) {
-      //  Serial.println(F("Unknown Valve Number Selected"));
-    }
 
     // This step added to allow parsing keys but unsure of best practice
     JsonObject root = doc.as<JsonObject>();  // this was previously doc.to<JsonObject>(); DID NOT WORK! does now with "as"
@@ -383,6 +370,29 @@ int readSerialJSON(void) {
 
     // First check if the first index is "fans"**** SEE NOTE!
     // In this case fans value could be 0, therefore we need to lookup and see if key exists first
+
+    // First check if the first index is "valve"**** SEE NOTE!
+    // In this case we can just test if valve has a value.
+    // If valve == 0 we know there is no real value there and can ignore
+    if (root.containsKey("valve")) {
+      valveNum = doc["valve"];
+      if ((valveNum > 0) && (valveNum < 8)) {
+        valveState = doc["state"];
+#if DEBUG_JSON == true
+        Serial.print(F("valveNum: "));
+        Serial.print(valveNum);
+        Serial.print(F("   Valve Status: "));
+        Serial.println(valveState);
+#endif
+        commandParsed = true;
+        smState = STATE_SELECT_VALVE;
+      } else if (valveNum == 0) {
+        Serial.println(F("{\"Error\": \"Unknown Valve Number Selected\"}"));
+      } else if ((valveNum >= 8) || (valveNum < 0)) {
+        //  Serial.println(F("Unknown Valve Number Selected"));
+      }
+    }
+
 
     if (root.containsKey("fans")) {
       int fanState = doc["fans"];
@@ -421,7 +431,7 @@ int readSerialJSON(void) {
     }
 
     if (root.containsKey("lights")) {
-      int lightState = doc["comp"];
+      int lightState = doc["lights"];
 #if DEBUG_JSON == true
       Serial.print(F("lightState: "));
       Serial.println(lightState);
@@ -522,9 +532,11 @@ int readSerialJSON(void) {
 #if DEBUG_JSON == true
       Serial.println(F("Command Parsed Successfully\n"));
 #endif
+      last_cmd_rx_mS = millis();
+      experiment_active = true;
       // Error should still be zero, can be set to other values earlier to pass out other errors
     } else {
-      Serial.println(F("Error Parsing JSON Command\n"));
+      Serial.println(F("{\"Error\":\"Unable to Parse JSON Command\"}\n"));
       error = -1;
     }
   }              //if bytes available

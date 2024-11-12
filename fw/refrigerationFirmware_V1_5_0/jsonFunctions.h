@@ -140,10 +140,10 @@ void build_json() {
   //load power relay data
   sprintf(json_buffer, "%s%s\"%s\":{", json_buffer, newline, relays);
   // sprintf(json_buffer, "%s%s  \"relays\" : {", json_buffer, newline);   // trying to save space // didnt work
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 3; i++) {
     sprintf(json_buffer, "%s%s\"%s\":%i,", json_buffer, newline, relay_names[i], bool(adam6052_B.g_coilState & 1 << i));
   }
-  sprintf(json_buffer, "%s%s\"%s\":%i", json_buffer, newline, relay_names[2], bool(adam6052_B.g_coilState & 1 << 2));  // Added to remove comma from last line of JSON subsection
+  sprintf(json_buffer, "%s%s\"%s\":%i", json_buffer, newline, relay_names[3], bool(adam6052_B.g_coilState & 1 << 3));  // Added to remove comma from last line of JSON subsection
   sprintf(json_buffer, "%s%s},", json_buffer, newline);
 
   // Load sensor data

@@ -40,7 +40,7 @@ Global variables for Refrigeration Experiment
 
 
 // Power Relay globals
-char relay_names[][5] = { "W1", "W2", "comp" };
+char relay_names[][7] = { "W1", "W2", "comp", "lights" };
 
 // Sensor & Sampling Globals
 // NOTE: these were all 32bit values, reduced to save space
@@ -110,6 +110,8 @@ char status_names[][8] = { "ok", "state", "code", "message" };
 bool lights_active = false;
 uint32_t lights_active_time_mS;
 
+bool experiment_active = false;
+uint32_t last_cmd_rx_mS;
 
 
 //Define the ip address for the client (local modbus controller) (the device this firmware is running on)
