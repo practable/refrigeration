@@ -13,7 +13,7 @@ void sensors_begin() {
     temp_s[i].setCalibration(0, 100, 0, 10);  // (process low, process high, voltage low, voltage high, postoffset) Linear sensor scaling
   }
 
-  pressure_s[0].setCalibration(-0.8, 7, 1, 6, -0.48);  // (process low, process high, voltage low, voltage high, postoffset) Linear sensor scaling
+  pressure_s[0].setCalibration(-0.8, 7, 1, 6, -0.77);  // (process low, process high, voltage low, voltage high, postoffset) Linear sensor scaling
   pressure_s[1].setCalibration(0, 30, 1, 6);           // (process low, process high, voltage low, voltage high) Linear sensor scaling
   pressure_s[2].setCalibration(0, 30, 1, 6);           // (process low, process high, voltage low, voltage high) Linear sensor scaling
 
