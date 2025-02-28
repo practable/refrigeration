@@ -1,0 +1,394 @@
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    margin-top: 60px;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    --text-color: #121629;
+    --text-color-inverted: #fffffe;
+    --background-color: #DDDEE4;
+    --background-color-inverted: #232946;
+    --background-color-secondary: #bebfc5;
+    --background-color-warning: #ff7b00;
+    --background-color-danger: #e00000;
+    --button-color-primary: #090C9B;
+    --button-color-secondary: #3066BE;
+    --button-color-tertiary: #3e31f3;
+    --button-color-hover: #DDDEE4;
+    --text-color-hover: #121629;
+}
+
+body.dark-theme {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    --text-color: #fffffe;
+    --text-color-inverted: #121629;
+    --background-color: #232946;
+    --background-color-inverted: #DDDEE4;
+    --background-color-secondary: #202541;
+    --background-color-warning: #ff7b00;
+    --background-color-danger: #e00000;
+    --button-color-primary: #B4E1F9;
+    --button-color-secondary: #8A84E2;
+    --button-color-tertiary: #70a3f5;
+    --button-color-hover: #232946;
+    --text-color-hover: #DDDEE4;
+}
+
+.navbar-background {
+    background-color: var(--background-color-inverted);
+    color: var(--text-color-inverted);
+}
+
+#navbarDropdown {
+    color: var(--text-color-inverted)
+}
+
+#toolsdropdown {
+    color: var(--text-color-inverted)
+}
+
+.drop-area {
+    background-color: var(--background-color);
+    margin: 5px;
+    padding: 20px;
+    border-style: dashed;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: var(--background-color-inverted)
+}
+
+.drop-area-highlighted {
+    background-color: var(--background-color-inverted);
+    margin: 5px;
+    padding: 20px;
+    border-style: dashed;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: var(--background-color)
+}
+
+.practable-component {
+    background-color: var(--background-color);
+}
+
+.button-lg {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 24px;
+    margin: 8px 4px;
+    transition-duration: 0.2s;
+    cursor: pointer;
+}
+
+.button-sm {
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 8px 4px;
+    transition-duration: 0.2s;
+    cursor: pointer;
+}
+
+.button-xsm {
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 8px 4px;
+    transition-duration: 0.2s;
+    cursor: pointer;
+}
+
+.button-toolbar {
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 0px 0px;
+    transition-duration: 0.2s;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    max-width: 40px;
+    padding: 0px 0px;
+}
+
+.button-primary {
+    background-color: var(--button-color-primary);
+    color: var(--text-color-inverted);
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--button-color-primary);
+}
+
+.button-primary:hover {
+    background-color: var(--button-color-hover);
+    color: var(--text-color-hover);
+}
+
+.button-secondary {
+    background-color: var(--button-color-secondary);
+    color: var(--text-color-inverted);
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--button-color-secondary);
+}
+
+.button-secondary:hover {
+    background-color: var(--button-color-hover);
+    color: var(--text-color-hover);
+}
+
+.button-tertiary {
+    background-color: var(--button-color-tertiary);
+    color: var(--text-color-inverted);
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--button-color-tertiary);
+}
+
+.button-tertiary:hover {
+    background-color: var(--button-color-hover);
+    color: var(--text-color-hover);
+}
+
+.button-warning {
+    background-color: #f7910d;
+    color: var(--text-color-inverted);
+    border-width: 2px;
+    border-style: solid;
+    border-color: #f7910d;
+}
+
+.button-warning:hover {
+    background-color: var(--button-color-hover);
+    color: var(--text-color-hover);
+}
+
+.button-danger {
+    background-color: #E00000;
+    color: white;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #E00000;
+}
+
+.button-danger:hover {
+    background-color: var(--button-color-hover);
+    color: var(--text-color-hover);
+}
+
+
+.slidecontainer {
+    width: 100%;
+    /* Width of the outside container */
+}
+
+.slider {
+    /* -webkit-appearance: none; */
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: var(--background-color-inverted);
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    cursor: pointer;
+}
+
+.slider:focus {
+    border-width: 2px;
+    border-style: solid;
+    border-color: #E00000;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--button-color-primary);
+    cursor: grab;
+}
+
+.slider::-webkit-slider-thumb:focus {
+    background: var(--button-color-warning);
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--button-color-primary);
+    cursor: grab;
+}
+
+.slider::-moz-range-thumb:focus {
+    background: var(--button-color-warning);
+}
+
+/* Mouse-over effects */
+.slider:hover {
+    opacity: 1;
+    /* Fully shown on mouse-over */
+}
+
+.txt-bold {
+    font-weight: bold;
+}
+
+.h-divider {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    height: 1px;
+    width: 100%;
+    border-top: 1px solid var(--background-color-inverted)
+}
+
+.white-divider {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    height: 1px;
+    width: 100%;
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: var(--background-color)
+}
+
+#optionsMenu {
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #333;
+    color: red;
+    align-content: center;
+    margin: auto;
+    width: 100%;
+    padding: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+input[type=checkbox] {
+    position: left;
+    cursor: pointer;
+}
+
+/* Only have scrollable left and right screen divs if on a large screen size or bigger. */
+@media only screen and (min-width: 992px) {
+    #left-screen {
+        overflow: scroll;
+        max-height: 100vh;
+    }
+
+    #right-screen {
+        overflow: scroll;
+        max-height: 100vh;
+    }
+}
+
+
+.input {
+    border: 1px solid rgba(20, 51, 186, 0.25);
+    border-radius: 4px;
+    background-color: white;
+    background-clip: padding-box;
+    text-align: center;
+    transition: border-color .25s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.input:focus {
+    /* color: #212529; */
+    background-color: white;
+    border-color: #1433BA;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(71, 212, 217, .25);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.input-disabled {
+    color: var(--text-color);
+    border: 1px solid rgba(20, 51, 186, 0.25);
+    border-radius: 4px;
+    background-color: rgba(159, 159, 159, 0.5);
+    /* Grey */
+    background-clip: padding-box;
+    text-align: center;
+    transition: border-color .25s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.input[type=text] {
+    min-width: 100px;
+}
+
+.input[type=number] {
+    min-width: 100px;
+}
+
+.table {
+    overflow: scroll;
+    max-height: 500px;
+    color: var(--text-color);
+
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background: var(--background-color-inverted);
+    color: var(--text-color-inverted);
+}
+
+.modal-header {
+    background-color: var(--background-color-inverted);
+    color: var(--text-color-inverted);
+}
+
+.modal-body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    max-height: 100%;
+    overflow-y: scroll;
+}
+
+.modal-footer {
+    background-color: var(--background-color-inverted);
+    color: var(--text-color-inverted);
+}
+
+#modal-show {
+    display: block;
+
+}
+
+.modal-backdrop {
+    display: none !important;
+    /* Completely hide the backdrop */
+    pointer-events: none;
+    /* Allow interactions behind the modal */
+}
