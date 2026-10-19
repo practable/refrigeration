@@ -4,7 +4,8 @@
 #ifndef jsonStateMachine_h
 #define jsonStateMachine_h
 
-#define DEBUG_STATE_MACHINE true
+#define DEBUG_STATE_MACHINE false
+#define DEBUG_STATES true
 
 #include "cmds.h"
 #include "jsonStateData.h"

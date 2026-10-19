@@ -6,6 +6,19 @@
 
 */
 
+
+/*  Changelog
+
+V2.1.0
+Sketch uses 33924 bytes (13%) of program storage space. Maximum is 253952 bytes.
+Global variables use 6119 bytes (74%) of dynamic memory, leaving 2073 bytes for local variables. Maximum is 8192 bytes.
+- No memory Warning
+- jsonMessenger devolved parsing function proof of concept (expand out to each datatype + add new entry for DUAL_INT)
+- States need implementing copying previous implementation
+
+
+*/
+
 #include "globals.h"
 
 

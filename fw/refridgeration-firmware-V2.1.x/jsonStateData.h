@@ -49,16 +49,16 @@ typedef enum {
 
 // 1b. Also define the names for the ENUMs as const char strings
 constexpr const char *stateNames[NUM_STATES] = {  // force newline
-  "NULL",                                                /// can I comment here
-  "INIT",                                                // or here?
-  "WAIT",                                                //
-  "STOP",                                                //
-  "RUNNING",                                             //
-  "VALVE",                                               //
-  "COMP",                                                //
-  "LIGHTS",                                              //
-  "FANS",                                                //
-  "EVAP",                                                //
+  "NULL",                                         /// can I comment here
+  "INIT",                                         // or here?
+  "WAIT",                                         //
+  "STOP",                                         //
+  "RUNNING",                                      //
+  "VALVE",                                        //
+  "COMP",                                         //
+  "LIGHTS",                                       //
+  "FANS",                                         //
+  "EVAP",                                         //
   "COND",
   "FANS_SPEED",
   "EVAP_SPEED",  //
@@ -97,7 +97,7 @@ const dataTypes_t dataTypes_array[10] = { EMPTY, INTEGER, UINT, FLOAT, CSTRING, 
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
 // 2c. List the same enums as cStrings, this will enable human readability of enum above
-static char typeNames[][8] = { "EMPTY", "INTEGER", "UINT", "FLOAT", "CSTRING", "BOOL", "AUTHINT", "AUTHFLT", "AUTHMSG" };
+static char typeNames[][8] = { "EMPTY", "INTEGER", "UINT", "FLOAT", "CSTRING", "BOOL", "DUALINT", "AUTHINT", "AUTHFLT", "AUTHMSG" };
 
 #pragma GCC diagnostic pop
 
@@ -112,7 +112,7 @@ typedef struct {
 
 // 3b. Fill out state map for each command word
 
-const jsonStateMapData_t jsonStateMap[] = {{ "na", dataTypes_t::EMPTY, STATE_NULL },
+const jsonStateMapData_t jsonStateMap[] = { { "na", dataTypes_t::EMPTY, STATE_NULL },
                                             // Unique States
                                             { "stop", dataTypes_t::EMPTY, STATE_STOP },
                                             { "valve", dataTypes_t::DUAL_INT, STATE_SET_VALVE },

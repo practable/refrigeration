@@ -120,6 +120,7 @@ void stateMachine::sm_state_bump(jsonStateData_t &stateData) {
     Serial.println(F("state: BUMP"));
 #endif
     stateData.uInt++;
+    Serial.println(stateData.signedInt);
 
     lastState = smState;
   }
@@ -222,7 +223,7 @@ void stateMachine::sm_state_printrate(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
     Serial.println(F("st: PRINT RATE"));
 #endif
- //   error.json_error("WARNING", "Print Rate Update Disabled");
+    //   error.json_error("WARNING", "Print Rate Update Disabled");
     lastState = smState;
   }
   if (stateData.uInt < 1 || stateData.uInt > 50) {

@@ -1,33 +1,33 @@
 #include "cmds.h"
 
-const char null_desc[] = "n/a";
+const char PROGMEM null_desc[] = "n/a";
 // Unique Cmnds
-const char desc_0[] = "Set Fan Speed: 0 - 180";
-const char desc_1[] = "Set Yaw Angle: 0 - 180 deg";
-const char desc_2[] = "Set Blade Pitch Angle: 0 - 180 deg";
-const char desc_3[] = "Stop Fan (estop)";
-const char desc_4[] = "Bump Fan Speed to Bump Speed";
-const char desc_5[] = "Set load: True / False";
-const char desc_6[] = "Set Smoothing Caps: True / False";
+const char PROGMEM desc_0[] = "Set Fan Speed: 0 - 180";
+const char PROGMEM desc_1[] = "Set Yaw Angle: 0 - 180 deg";
+const char PROGMEM desc_2[] = "Set Blade Pitch Angle: 0 - 180 deg";
+const char PROGMEM desc_3[] = "Stop Fan (estop)";
+const char PROGMEM desc_4[] = "Bump Fan Speed to Bump Speed";
+const char PROGMEM desc_5[] = "Set load: True / False";
+const char PROGMEM desc_6[] = "Set Smoothing Caps: True / False";
 // new cmnds
-const char desc_7[] = "Set/Reset Motor Runtime (S): INT & AUTH";
-const char desc_8[] = "Set/Reset Generator Rotations: INT & AUTH";
-const char desc_9[] = "Set/Reset Yaws Commanded: INT & AUTH";
-const char desc_10[] = "Set/Reset Pitch Commanded: INT & AUTH";
+const char PROGMEM desc_7[] = "Set/Reset Motor Runtime (S): INT & AUTH";
+const char PROGMEM desc_8[] = "Set/Reset Generator Rotations: INT & AUTH";
+const char PROGMEM desc_9[] = "Set/Reset Yaws Commanded: INT & AUTH";
+const char PROGMEM desc_10[] = "Set/Reset Pitch Commanded: INT & AUTH";
 
 // Common Commands
-const char desc_A[] = "Set Samplerate in Hz (dflt: 1) DNU";
-const char desc_B[] = "Set Print Rate in Hz (dflt: 1) DNU";
-const char desc_C[] = "Start Data Streaming";
-const char desc_D[] = "End Data Streaming";
-const char desc_E[] = "set the secret word";
-const char desc_F[] = "Reset to Default Condition NIY";
-const char desc_G[] = "print sensor data & status NIY";
-const char desc_H[] = "print commands list";
+const char PROGMEM desc_A[] = "Set Samplerate in Hz (dflt: 1) DNU";
+const char PROGMEM desc_B[] = "Set Print Rate in Hz (dflt: 1) DNU";
+const char PROGMEM desc_C[] = "Start Data Streaming";
+const char PROGMEM desc_D[] = "End Data Streaming";
+const char PROGMEM desc_E[] = "set the secret word";
+const char PROGMEM desc_F[] = "Reset to Default Condition NIY";
+const char PROGMEM desc_G[] = "print sensor data & status NIY";
+const char PROGMEM desc_H[] = "print commands list";
 
 extern const int16_t NUM_CMDS = 20;
 
-const char *const cmdDesc[] = {null_desc, desc_0, desc_1, desc_2, desc_3, desc_4, desc_5, desc_6, desc_7, desc_8, desc_9, desc_10, desc_A, desc_B, desc_C, desc_D, desc_E, desc_F, desc_G, desc_H};
+const char *const cmdDesc[] PROGMEM = {null_desc, desc_0, desc_1, desc_2, desc_3, desc_4, desc_5, desc_6, desc_7, desc_8, desc_9, desc_10, desc_A, desc_B, desc_C, desc_D, desc_E, desc_F, desc_G, desc_H};
 
 void print_cmds() {
     // Serial.println(F("{\"na     \" : \"n/a\", \"desc\" : \"n/a\"}"));

@@ -14,253 +14,248 @@ VERSION V0.2.0 REFACTORED TO USE ARRAYs instead of std::map
 jsonMessenger::jsonMessenger() {}
 
 void jsonMessenger::jsonBegin() {
-    Serial.begin(115200);
-    Serial.print("{\"json\":\"messenger\",\"version\":\"");
-    Serial.print(JSON_MESSENGER_VERSION);
-    Serial.println("\"}");
+  Serial.begin(115200);
+  Serial.print("{\"json\":\"messenger\",\"version\":\"");
+  Serial.print(JSON_MESSENGER_VERSION);
+  Serial.println("\"}");
 }
 
 void jsonMessenger::printJSON(StaticJsonDocument<JSON_RX_SIZE> *jsonDoc) {
 #if PRETTY_PRINT_JSON == true
 #pragma JSON set to Pretty Print !-May experience problems with Machine Parsing
-    serializeJsonPretty(*jsonDoc, Serial);
+  serializeJsonPretty(*jsonDoc, Serial);
 #else
 #pragma JSON set to standard JSON output - For human readability try enabling Pretty Print !
-    serializeJson(*jsonDoc, Serial);
+  serializeJson(*jsonDoc, Serial);
 #endif
-    Serial.print(F("\n"));
+  Serial.print(F("\n"));
 }
 
 void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
 
-    jsonRX_data = jsonStateData_t{STATE_NULL, EMPTY, 0, 0, 0.0, false, "", "", false}; // Default message that will be passed out if no data received or cannot be parsed
+  jsonRX_data = jsonStateData_t{ STATE_NULL, EMPTY, 0, 0, 0.0, false, "", "", false };  // Default message that will be passed out if no data received or cannot be parsed
 
-    if (Serial.available() > 0) {
-        // Serial.println("Serial Available");
-        char command[JSON_RX_SIZE];
-        // create JSON document
-        StaticJsonDocument<JSON_RX_SIZE> jsonRXdoc;
-        // Receive Command
-        Serial.readBytesUntil(10, command, JSON_RX_SIZE); // 10 = "\n"
+  if (Serial.available() > 0) {
+    // Serial.println("Serial Available");
+    char command[JSON_RX_SIZE];
+    // create JSON document
+    StaticJsonDocument<JSON_RX_SIZE> jsonRXdoc;
+    // Receive Command
+    Serial.readBytesUntil(10, command, JSON_RX_SIZE);  // 10 = "\n"
 
-        for (int i = 0; i < JSON_RX_SIZE; i++) { // trim command down to remove redundent characters
-            if (command[i] == '}') {
-                command[i + 1] = '\0';
-                break;
-            }
-        }
+    for (int i = 0; i < JSON_RX_SIZE; i++) {  // trim command down to remove redundent characters
+      if (command[i] == '}') {
+        command[i + 1] = '\0';
+        break;
+      }
+    }
 
 #if PRINT_RX_COMMAND == true
-        Serial.print(F("\n{\"rxed\": \""));
-        Serial.print(command);
-        Serial.println(F("\"}"));
+    Serial.print(F("\n{\"rxed\": \""));
+    Serial.print(command);
+    Serial.println(F("\"}"));
 #endif
 
-        // Serial.read();  // clear any additional data left in the buffer
+    // Serial.read();  // clear any additional data left in the buffer
 
-        // NEW FUNCTION, try deserializing directly from stream
-        // deserializeJson(jsonRXdoc, Serial);  // less overhead but harder to debug
-        [[maybe_unused]] DeserializationError error = deserializeJson(jsonRXdoc, command); // more overhead but can print message before processing (good for debugging)
+    // NEW FUNCTION, try deserializing directly from stream
+    // deserializeJson(jsonRXdoc, Serial);  // less overhead but harder to debug
+    [[maybe_unused]] DeserializationError error = deserializeJson(jsonRXdoc, command);  // more overhead but can print message before processing (good for debugging)
 
 #if PRINT_DESERIAL_ERROR == true
-        Serial.print("{\"deserialization\":\"");
-        Serial.print(error.c_str());
-        Serial.println(F("\"}"));
+    Serial.print("{\"deserialization\":\"");
+    Serial.print(error.c_str());
+    Serial.println(F("\"}"));
 #endif
 
-        JsonObject root = jsonRXdoc.as<JsonObject>(); // this was previously doc.to<JsonObject>(); DID NOT WORK! does now with "as"
-                                                      // Now to parse the JSON message
-                                                      // First get number of elements in the jsonStates enum numValues = NUM_VALUES;
-                                                      // Then loop through all keys & see if root contains key
+    JsonObject root = jsonRXdoc.as<JsonObject>();  // this was previously doc.to<JsonObject>(); DID NOT WORK! does now with "as"
+                                                   // Now to parse the JSON message
+                                                   // First get number of elements in the jsonStates enum numValues = NUM_VALUES;
+                                                   // Then loop through all keys & see if root contains key
 
-        bool set_keyword_used = false; // Make the assumption that set keyword has not been used,
-                                       // NOTE THIS LINE CHANGED 27/11/25 to try and fix compiler warning about unititialised var
-        //  const char *keyString;  // If the root contains "set" -> preload value (which contains key) into valueString and compare this along with root.key in loop below (2 birds, 1 stone)
-        const char *keyString = {"\n"};
-        if (root.containsKey("set")) {
-            keyString = jsonRXdoc["set"];
-            set_keyword_used = true; // if set has been used, then we need to extract the data in a slightly different way
-        }
+    bool set_keyword_used = false;  // Make the assumption that set keyword has not been used,
+                                    // NOTE THIS LINE CHANGED 27/11/25 to try and fix compiler warning about unititialised var
+    //  const char *keyString;  // If the root contains "set" -> preload value (which contains key) into valueString and compare this along with root.key in loop below (2 birds, 1 stone)
+    const char *keyString = { "\n" };
+    if (root.containsKey("set")) {
+      keyString = jsonRXdoc["set"];
+      set_keyword_used = true;  // if set has been used, then we need to extract the data in a slightly different way
+    }
 
-        for (int i = 0; i < NUM_CMDS; i++) {
-            //  Serial.print(i);  // loop through all the keys
-            //  Serial.print("  Checking against key: ");
-            //  Serial.println(jsonCommandKeys[i]);
+    for (int i = 0; i < NUM_CMDS; i++) {
+      //  Serial.print(i);  // loop through all the keys
+      //  Serial.print("  Checking against key: ");
+      //  Serial.println(jsonCommandKeys[i]);
 
-            if (root.containsKey(jsonStateMap[i].cmd) || strcmp(keyString, jsonStateMap[i].cmd) == 0) { // Match is found, i holds the correct ENUM reference for the state
+      if (root.containsKey(jsonStateMap[i].cmd) || strcmp(keyString, jsonStateMap[i].cmd) == 0) {  // Match is found, i holds the correct ENUM reference for the state
 
-                jsonRX_data.data_type = dataTypes_array[jsonStateMap[i].data_type]; // this should contain the correct enum for the datatype
+        jsonRX_data.data_type = dataTypes_array[jsonStateMap[i].data_type];  // this should contain the correct enum for the datatype
 
 #if DEBUG_JSON_MESSENGER == true
-                Serial.print(F("{\"cmd\":\""));
-                Serial.print(jsonStateMap[i].cmd);
-                Serial.print(F("\",\"num\":\""));
-                Serial.print(i);
-                Serial.print(F("\",\"dataType\":\""));
-                Serial.print(jsonStateMap[i].data_type);
-                Serial.print("\",\"typeName\":\"");
-                Serial.print(typeNames[jsonStateMap[i].data_type]);
-                Serial.print("\",");
-                // Set the flags to trigger the state change
-                Serial.print("\"state\":\"");
-                Serial.print(jsonStateMap[i].state);
-                Serial.print("\",");
-                Serial.print(F("\"data\":\""));
+        Serial.print(F("{\"cmd\":\""));
+        Serial.print(jsonStateMap[i].cmd);
+        Serial.print(F("\",\"num\":\""));
+        Serial.print(i);
+        Serial.print(F("\",\"dataType\":\""));
+        Serial.print(jsonStateMap[i].data_type);
+        Serial.print("\",\"typeName\":\"");
+        Serial.print(typeNames[jsonStateMap[i].data_type]);
+        Serial.print("\",");
+        // Set the flags to trigger the state change
+        Serial.print("\"state\":\"");
+        Serial.print(jsonStateMap[i].state);
+        Serial.print("\",");
+        Serial.print(F("\"data\":\""));
 #endif
 
-                //  jsonRX_data.cmdState = i;  //
-                jsonRX_data.stateEnum = jsonStateMap[i].state;
-                //    jsonRX_data.cmdState = jsonStates(jsonStateMap[i].cmd);  // these two lines should be identical, except one passes the ENUM, the other (the same) int value
-                jsonRX_data.cmd_received = true; // Set flag to be passed outside of library and notify a command has been sent (depreciated if using queue)
+        //  jsonRX_data.cmdState = i;  //
+        jsonRX_data.stateEnum = jsonStateMap[i].state;
+        //    jsonRX_data.cmdState = jsonStates(jsonStateMap[i].cmd);  // these two lines should be identical, except one passes the ENUM, the other (the same) int value
+        jsonRX_data.cmd_received = true;  // Set flag to be passed outside of library and notify a command has been sent (depreciated if using queue)
 
-                // Copy data into  correct place in data structure, and convert to string for debugging printing
-                // then deal with data depending on state
+        // Copy data into  correct place in data structure, and convert to string for debugging printing
+        // then deal with data depending on state
 
-                if (jsonRX_data.data_type == EMPTY) { // ____________############# NO DATA TO EXTRACT ####################____________________
-                                                      // Do nothing
+        if (jsonRX_data.data_type == EMPTY) {  // ____________############# NO DATA TO EXTRACT ####################____________________
+                                               // Do nothing
 #if DEBUG_JSON_MESSENGER == true
-                    Serial.print("empty");
+          Serial.print("empty");
 #endif
-                } else if (jsonRX_data.data_type == INTEGER) { // ____________############# PARSING INTEGERS ####################____________________
-                    if (set_keyword_used) {
-                        jsonRX_data.signedInt = jsonRXdoc["to"].as<int16_t>();
-                    } else {
-                        jsonRX_data.signedInt = jsonRXdoc[jsonStateMap[i].cmd].as<int16_t>();
-                    }
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print(jsonRX_data.signedInt);
-#endif
-                } else if (jsonRX_data.data_type == UINT) { // ____________############# PARSING UNSIGNED INTEGERS ####################____________________
-                    if (set_keyword_used) {
-                        jsonRX_data.uInt = jsonRXdoc["to"].as<uint16_t>();
-                    } else {
-                        jsonRX_data.uInt = jsonRXdoc[jsonStateMap[i].cmd].as<uint16_t>();
-                    }
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print(jsonRX_data.uInt);
-#endif
-                } else if (jsonRX_data.data_type == FLOAT) { // ____________############# PARSING FLOATS ####################____________________
-                    if (set_keyword_used) {
-                        jsonRX_data.floatData = root["to"].as<float>();
-                    } else {
-                        // jsonRX_data.floatData = jsonRXdoc[jsonCommandKeys[i]].as<float>();   // this line not working and stalling everything ( may have been unrelated!)
-                        jsonRX_data.floatData = root[jsonStateMap[i].cmd].as<float>(); // try extracted from root doc instead
-                    }
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print(jsonRX_data.floatData);
-#endif
-                } else if (jsonRX_data.data_type == BOOL) { // ____________############# PARSING BOOLS ####################____________________
-                    if (set_keyword_used) {
-                        jsonRX_data.boolData = root["to"].as<bool>(); // # NOTE FOR LATER, AT THE MOMENT THIS IS EXTRACTING FROM ROOT DOC, could also try jsonRXdoc
-                    } else {
-                        jsonRX_data.boolData = root[jsonStateMap[i].cmd].as<bool>();
-                    }
-#if DEBUG_JSON_MESSENGER == true
-                    if (jsonRX_data.boolData) {
-                        Serial.print("true");
-                    } else {
-                        Serial.print("false");
-                    }
-#endif
-                } else if (jsonRX_data.data_type == CSTRING) { // ____________############# PARSING C-STYLE STRINGS (char arrays) ####################____________________
-                    const char *extracted;
-                    if (set_keyword_used) {
-                        extracted = jsonRXdoc["to"].as<const char *>();
-                    } else {
-                        extracted = jsonRXdoc[jsonStateMap[i].cmd].as<const char *>();
-                    }
-                    memcpy(jsonRX_data.msg, extracted, JSON_MSG_LENGTH);
-                    jsonRX_data.msg[JSON_MSG_LENGTH - 1] = '\0';
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print(jsonRX_data.msg);
-#endif
-                } else if (jsonRX_data.data_type == AUTH_INT) { // ____________############# PARSING INT WITH AUTH ####################____________________// if auth then two datas must be extracted
-                    const char *extract_secret;
-                    if (set_keyword_used) {
-                        jsonRX_data.signedInt = jsonRXdoc["to"].as<int16_t>();
-                    } else {
-                        jsonRX_data.signedInt = jsonRXdoc[jsonStateMap[i].cmd].as<int16_t>();
-                    }
-                    //  extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
-                    JsonVariant auth = jsonRXdoc["auth"]; /// safer? method
+        } else if (jsonRX_data.data_type == INTEGER) {  // ____________############# PARSING INTEGERS ####################____________________
 
-                    if (auth.is<const char *>()) {
-                        const char *extract_secret = auth.as<const char *>();
+          jsonMessenger::extract_int(jsonRX_data, root, i, set_keyword_used);
 
-                        jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret,
-                                                        sizeof jsonRX_data.auth); //// new version using strcpy and wrapped in function
-                                                                                  //  memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  // old version using memcpy
-                                                                                  //   jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
-                    } else {
-                        jsonRX_data.auth[0] = '\0';
-                    }
+        } else if (jsonRX_data.data_type == UINT) {  // ____________############# PARSING UNSIGNED INTEGERS ####################____________________
+          if (set_keyword_used) {
+            jsonRX_data.uInt = jsonRXdoc["to"].as<uint16_t>();
+          } else {
+            jsonRX_data.uInt = jsonRXdoc[jsonStateMap[i].cmd].as<uint16_t>();
+          }
 #if DEBUG_JSON_MESSENGER == true
-                    Serial.print("data: ");
-                    Serial.print(jsonRX_data.signedInt);
-                    Serial.print(" auth: ");
-                    Serial.print(jsonRX_data.auth);
+          Serial.print(jsonRX_data.uInt);
 #endif
-                } else if (jsonRX_data.data_type == AUTH_FLOAT) { // ____________############# PARSING FLOAT WITH AUTH ####################____________________//
-                    const char *extract_secret;
-                    if (set_keyword_used) {
-                        jsonRX_data.floatData = root["to"].as<float>();
-                    } else {
-                        jsonRX_data.floatData = root[jsonStateMap[i].cmd].as<float>();
-                    }
-                    extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
-                    jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret, sizeof jsonRX_data.auth); //// new version using strcpy and wrapped in function
+        } else if (jsonRX_data.data_type == FLOAT) {  // ____________############# PARSING FLOATS ####################____________________
+          if (set_keyword_used) {
+            jsonRX_data.floatData = root["to"].as<float>();
+          } else {
+            // jsonRX_data.floatData = jsonRXdoc[jsonCommandKeys[i]].as<float>();   // this line not working and stalling everything ( may have been unrelated!)
+            jsonRX_data.floatData = root[jsonStateMap[i].cmd].as<float>();  // try extracted from root doc instead
+          }
+#if DEBUG_JSON_MESSENGER == true
+          Serial.print(jsonRX_data.floatData);
+#endif
+        } else if (jsonRX_data.data_type == BOOL) {  // ____________############# PARSING BOOLS ####################____________________
+          if (set_keyword_used) {
+            jsonRX_data.boolData = root["to"].as<bool>();  // # NOTE FOR LATER, AT THE MOMENT THIS IS EXTRACTING FROM ROOT DOC, could also try jsonRXdoc
+          } else {
+            jsonRX_data.boolData = root[jsonStateMap[i].cmd].as<bool>();
+          }
+#if DEBUG_JSON_MESSENGER == true
+          if (jsonRX_data.boolData) {
+            Serial.print("true");
+          } else {
+            Serial.print("false");
+          }
+#endif
+        } else if (jsonRX_data.data_type == CSTRING) {  // ____________############# PARSING C-STYLE STRINGS (char arrays) ####################____________________
+          const char *extracted;
+          if (set_keyword_used) {
+            extracted = jsonRXdoc["to"].as<const char *>();
+          } else {
+            extracted = jsonRXdoc[jsonStateMap[i].cmd].as<const char *>();
+          }
+          memcpy(jsonRX_data.msg, extracted, JSON_MSG_LENGTH);
+          jsonRX_data.msg[JSON_MSG_LENGTH - 1] = '\0';
+#if DEBUG_JSON_MESSENGER == true
+          Serial.print(jsonRX_data.msg);
+#endif
+        } else if (jsonRX_data.data_type == AUTH_INT) {  // ____________############# PARSING INT WITH AUTH ####################____________________// if auth then two datas must be extracted
+          const char *extract_secret;
+          if (set_keyword_used) {
+            jsonRX_data.signedInt = jsonRXdoc["to"].as<int16_t>();
+          } else {
+            jsonRX_data.signedInt = jsonRXdoc[jsonStateMap[i].cmd].as<int16_t>();
+          }
+          //  extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
+          JsonVariant auth = jsonRXdoc["auth"];  /// safer? method
+
+          if (auth.is<const char *>()) {
+            const char *extract_secret = auth.as<const char *>();
+
+            jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret,
+                                            sizeof jsonRX_data.auth);  //// new version using strcpy and wrapped in function
+                                                                       //  memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  // old version using memcpy
+                                                                       //   jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
+          } else {
+            jsonRX_data.auth[0] = '\0';
+          }
+#if DEBUG_JSON_MESSENGER == true
+          Serial.print("data: ");
+          Serial.print(jsonRX_data.signedInt);
+          Serial.print(" auth: ");
+          Serial.print(jsonRX_data.auth);
+#endif
+        } else if (jsonRX_data.data_type == AUTH_FLOAT) {  // ____________############# PARSING FLOAT WITH AUTH ####################____________________//
+          const char *extract_secret;
+          if (set_keyword_used) {
+            jsonRX_data.floatData = root["to"].as<float>();
+          } else {
+            jsonRX_data.floatData = root[jsonStateMap[i].cmd].as<float>();
+          }
+          extract_secret = jsonRXdoc["auth"].as<const char *>();                                       // this will always use auth keyword
+          jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret, sizeof jsonRX_data.auth);  //// new version using strcpy and wrapped in function
 //  memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  // old version using memcpy
 //   jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
 #if DEBUG_JSON_MESSENGER == true
-                    Serial.print("data: ");
-                    Serial.print(jsonRX_data.floatData);
-                    Serial.print(" auth: ");
-                    Serial.print(jsonRX_data.auth);
+          Serial.print("data: ");
+          Serial.print(jsonRX_data.floatData);
+          Serial.print(" auth: ");
+          Serial.print(jsonRX_data.auth);
 #endif
-                } else if (jsonRX_data.data_type == AUTH_MSG) { // ____________############# PARSING MSG (cstring) WITH AUTH ####################____________________//
-                    const char *extract_msg;
-                    const char *extract_secret;
-                    // first get the msg data
-                    if (set_keyword_used) {
-                        extract_msg = jsonRXdoc["to"].as<const char *>();
-                    } else {
-                        extract_msg = jsonRXdoc[jsonStateMap[i].cmd].as<const char *>();
-                    }
-                    jsonMessenger::safe_copy_string(jsonRX_data.msg, extract_msg, sizeof jsonRX_data.msg);
-                    // then use similar method for auth msg
-                    extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
-                    jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret, sizeof jsonRX_data.auth); // new version using strcpy and wrapped in function
-                                                                                                                // memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  old version using
-                                                                                                                // memcpy jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
+        } else if (jsonRX_data.data_type == AUTH_MSG) {  // ____________############# PARSING MSG (cstring) WITH AUTH ####################____________________//
+          const char *extract_msg;
+          const char *extract_secret;
+          // first get the msg data
+          if (set_keyword_used) {
+            extract_msg = jsonRXdoc["to"].as<const char *>();
+          } else {
+            extract_msg = jsonRXdoc[jsonStateMap[i].cmd].as<const char *>();
+          }
+          jsonMessenger::safe_copy_string(jsonRX_data.msg, extract_msg, sizeof jsonRX_data.msg);
+          // then use similar method for auth msg
+          extract_secret = jsonRXdoc["auth"].as<const char *>();                                       // this will always use auth keyword
+          jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret, sizeof jsonRX_data.auth);  // new version using strcpy and wrapped in function
+                                                                                                       // memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  old version using
+                                                                                                       // memcpy jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
 #if DEBUG_JSON_MESSENGER == true
-                    Serial.print("data: ");
-                    Serial.print(jsonRX_data.msg);
-                    Serial.print(" auth: ");
-                    Serial.print(jsonRX_data.auth);
+          Serial.print("data: ");
+          Serial.print(jsonRX_data.msg);
+          Serial.print(" auth: ");
+          Serial.print(jsonRX_data.auth);
 #endif
-                } else {
+        } else {
 #if DEBUG_JSON_MESSENGER == true
-                    Serial.println(F("dataType-exception"));
+          Serial.println(F("dataType-exception"));
 #endif
-                }
+        }
 #if DEBUG_JSON_MESSENGER == true
-                Serial.println("\"}");
+        Serial.println("\"}");
 #endif
 #if JSON_USE_QUEUE == true
-                if (jsonMessenger::enque_cmd(&jsonRX_data) == -1) {
-                    Serial.println(F("{\cmd\":\"enque-failed\"}"));
-                }
-#endif
-                return; //  no longer returns data as uses pass by reference // jsonRX_data;  // return the structure as the data has been extracted
-            } else {
-                if (i == NUM_CMDS - 1) { // if i = NUM_VALUES we have reached the end of the for loop, if no match has been found, print the unknown cmd
-                    Serial.println(F("{\"cmd\":\"unknown\"}"));
-                }
-                // We have pre-parsed the alternative set command so now else doesnt need to do anything
-            }
+        if (jsonMessenger::enque_cmd(&jsonRX_data) == -1) {
+          Serial.println(F("{\cmd\":\"enque-failed\"}"));
         }
+#endif
+        return;  //  no longer returns data as uses pass by reference // jsonRX_data;  // return the structure as the data has been extracted
+      } else {
+        if (i == NUM_CMDS - 1) {  // if i = NUM_VALUES we have reached the end of the for loop, if no match has been found, print the unknown cmd
+          Serial.println(F("{\"cmd\":\"unknown\"}"));
+        }
+        // We have pre-parsed the alternative set command so now else doesnt need to do anything
+      }
     }
-    return; // now returns data passed by reference jsonRX_data;
+  }
+  return;  // now returns data passed by reference jsonRX_data;
 }
 
 // const char *jsonMessenger::getCMDkey(jsonStates state) {
@@ -268,35 +263,48 @@ void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
 //  return jsonStateMap[state].cmd;
 // }
 
-const char *jsonMessenger::getDataType(dataTypes_t type) {
-    // std::cout << typeNames[type] << "\0";
-    return typeNames[type];
+void jsonMessenger::extract_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {  //jsonRX_data.
+  if (set_keyword) {
+    data.signedInt = root["to"].as<int16_t>();
+  } else {
+    data.signedInt = root[jsonStateMap[map_number].cmd].as<int16_t>();
+  }
+#if DEBUG_JSON_MESSENGER == true
+  Serial.print(data.signedInt);
+#endif
 }
 
-const char *jsonMessenger::getStateEnum(stateDef_t state) { return stateNames[state]; }
+const char *jsonMessenger::getDataType(dataTypes_t type) {
+  // std::cout << typeNames[type] << "\0";
+  return typeNames[type];
+}
+
+const char *jsonMessenger::getStateEnum(stateDef_t state) {
+  return stateNames[state];
+}
 
 void jsonMessenger::printStateData(
-    jsonStateData_t &data) { // Use -> to assess members of a pointer to a struct
-                             // Serial.print(F("state: "));
-                             // Serial.print(jsonMessenger::getCMDkey(data->stateEnum));   // this no longer works as there is no way to back translate the current state back into
-                             // the command, but we can just print the actual triggered state, though this is now saved in PROGMEM so is a pain. Excluding for now
-    Serial.print("stateEnum: ");
-    Serial.println(jsonMessenger::getStateEnum(data.stateEnum));
-    Serial.print(F(" dataType: "));
-    Serial.println(jsonMessenger::getDataType(data.data_type));
-    Serial.print(F(" signedInt: "));
-    Serial.println(data.signedInt);
-    Serial.print(F(" uInt: "));
-    Serial.println(data.uInt);
-    Serial.print(F(" Float: "));
-    Serial.println(data.floatData);
-    Serial.print(F(" bool: "));
-    Serial.println(data.boolData);
-    Serial.print(F(" msg: "));
-    Serial.println(data.msg);
-    Serial.print(F(" cmd: "));
-    Serial.println(data.cmd_received);
-    Serial.println();
+  jsonStateData_t &data) {  // Use -> to assess members of a pointer to a struct
+                            // Serial.print(F("state: "));
+                            // Serial.print(jsonMessenger::getCMDkey(data->stateEnum));   // this no longer works as there is no way to back translate the current state back into
+                            // the command, but we can just print the actual triggered state, though this is now saved in PROGMEM so is a pain. Excluding for now
+  Serial.print("stateEnum: ");
+  Serial.println(jsonMessenger::getStateEnum(data.stateEnum));
+  Serial.print(F(" dataType: "));
+  Serial.println(jsonMessenger::getDataType(data.data_type));
+  Serial.print(F(" signedInt: "));
+  Serial.println(data.signedInt);
+  Serial.print(F(" uInt: "));
+  Serial.println(data.uInt);
+  Serial.print(F(" Float: "));
+  Serial.println(data.floatData);
+  Serial.print(F(" bool: "));
+  Serial.println(data.boolData);
+  Serial.print(F(" msg: "));
+  Serial.println(data.msg);
+  Serial.print(F(" cmd: "));
+  Serial.println(data.cmd_received);
+  Serial.println();
 }
 
 /*
@@ -317,43 +325,43 @@ void jsonMessenger::print_cmds() {
 
 // Call this in this format secretObject::safe_copy_string(target, newString , sizeof target);
 void jsonMessenger::safe_copy_string(char *target, const char *newString, uint8_t targetLength) {
-    strncpy(target, newString, targetLength - 1);
-    target[targetLength - 1] = '\0'; // null terminator
+  strncpy(target, newString, targetLength - 1);
+  target[targetLength - 1] = '\0';  // null terminator
 }
 
 #if JSON_USE_QUEUE == true
 // Returns the number of items in the queue, or -1 on fail
 int8_t jsonMessenger::enque_cmd(jsonStateData_t *newItem) {
-    Serial.print(F("enque -> length:  "));
-    if (queue_size < CMD_QUEUE_LENGTH) {
-        jsonQueue[queue_size] = *newItem;
-        queue_size++;
-        Serial.println(queue_size);
-        return queue_size;
-    } else {
-        Serial.println(-1);
-        return -1;
-    }
+  Serial.print(F("enque -> length:  "));
+  if (queue_size < CMD_QUEUE_LENGTH) {
+    jsonQueue[queue_size] = *newItem;
+    queue_size++;
+    Serial.println(queue_size);
+    return queue_size;
+  } else {
+    Serial.println(-1);
+    return -1;
+  }
 }
 #endif
 
 #if JSON_USE_QUEUE == true
 // returns first queue item or 0 if queue is empty when called
 jsonStateData_t jsonMessenger::dequeue_cmd() {
-    jsonStateData_t first_item = {NONE, EMPTY, 0, 0.0, "", false};
-    if (queue_size > 0) {
-        jsonStateData_t first_item = jsonQueue[0];
+  jsonStateData_t first_item = { NONE, EMPTY, 0, 0.0, "", false };
+  if (queue_size > 0) {
+    jsonStateData_t first_item = jsonQueue[0];
 
-        for (int i = 0; i < queue_size; i++) {
-            // std::cout << "i: " << i << " i+1: " << i + 1 << std::endl;
-            jsonQueue[i] = jsonQueue[i + 1];
-        }
-        queue_size--;
-        Serial.print(F("Dequeue -> length:  "));
-        Serial.println(queue_size);
-        return first_item;
-    } else {
-        return first_item;
+    for (int i = 0; i < queue_size; i++) {
+      // std::cout << "i: " << i << " i+1: " << i + 1 << std::endl;
+      jsonQueue[i] = jsonQueue[i + 1];
     }
+    queue_size--;
+    Serial.print(F("Dequeue -> length:  "));
+    Serial.println(queue_size);
+    return first_item;
+  } else {
+    return first_item;
+  }
 }
 #endif
