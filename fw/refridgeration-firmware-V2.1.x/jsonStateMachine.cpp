@@ -27,9 +27,12 @@ e.g. In these states, the pulse state is blocking while it sends one wave out. T
 
 stateMachine::stateMachine() {}
 
+
 stateDef_t stateMachine::get_state() {
   return smState;
 }
+
+
 
 void stateMachine::sm_state_null(jsonStateData_t &stateData) {
   Serial.println(F("ERROR: NULL STATE!"));
@@ -66,10 +69,17 @@ void stateMachine::sm_state_wait(jsonStateData_t &stateData) {
   }
 }
 
-void stateMachine::sm_state_set_fan(jsonStateData_t &stateData) {
+
+
+
+
+
+
+// stop compressor, after delay, close valves
+void stateMachine::sm_state_stop(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SETFAN"));
+    Serial.println(F("state: STOP"));
 #endif
     // Serial.print("abs_diff: ");
     // Serial.println(absDiff(0.0, stateData.floatData));
@@ -78,10 +88,11 @@ void stateMachine::sm_state_set_fan(jsonStateData_t &stateData) {
   smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_yaw(jsonStateData_t &stateData) {
+// Dont know if needed any longer
+void stateMachine::sm_state_running(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SETYAW"));
+    Serial.println(F("state: RUNNING"));
 #endif
     lastState = smState;
   }
@@ -89,22 +100,29 @@ void stateMachine::sm_state_set_yaw(jsonStateData_t &stateData) {
   //  smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_pitch(jsonStateData_t &stateData) {
+
+
+
+
+// Set Valve to State
+void stateMachine::sm_state_valve(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SETPITCH"));
+    Serial.println(F("state: VALVE"));
 #endif
 
     lastState = smState;
   }
-  stateMachine::change_state(STATE_WAIT);
-  // smState = STATE_WAIT;
+  // stateMachine::change_state(STATE_WAIT);  // this function only needed outside of library
+
+  smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_stop(jsonStateData_t &stateData) {
+// Set compressor state
+void stateMachine::sm_state_comp(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: STOP"));
+    Serial.println(F("state: COMP"));
 #endif
     // stateData.uInt++;
 
@@ -113,24 +131,32 @@ void stateMachine::sm_state_stop(jsonStateData_t &stateData) {
   smState = STATE_WAIT;
 }
 
-// this can be inconsistant when initial velocity is at 0 but otherwise seems reliable
-void stateMachine::sm_state_bump(jsonStateData_t &stateData) {
+
+
+
+
+
+
+
+
+// set lights state
+void stateMachine::sm_state_lights(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: BUMP"));
+    Serial.println(F("state: LIGHTS"));
 #endif
     stateData.uInt++;
     Serial.println(stateData.signedInt);
-
     lastState = smState;
   }
   smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_load(jsonStateData_t &stateData) {
+// set both fans state
+void stateMachine::sm_state_fans(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SETLOAD"));
+    Serial.println(F("state: FANS"));
 #endif
 
     lastState = smState;
@@ -138,10 +164,18 @@ void stateMachine::sm_state_set_load(jsonStateData_t &stateData) {
   smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_smooth(jsonStateData_t &stateData) {
+
+
+
+
+
+
+
+// set the state of the evaporation fan
+void stateMachine::sm_state_evap(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SETSMOOTH"));
+    Serial.println(F("state: EVAP"));
 #endif
 
     lastState = smState;
@@ -149,10 +183,12 @@ void stateMachine::sm_state_set_smooth(jsonStateData_t &stateData) {
   smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_m_rntm(jsonStateData_t &stateData) {
+
+// set the state of the condensing fan
+void stateMachine::sm_state_cond(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SET_MOTOR_RUNTIME"));
+    Serial.println(F("state: COND"));
 #endif
 
     lastState = smState;
@@ -160,10 +196,11 @@ void stateMachine::sm_state_set_m_rntm(jsonStateData_t &stateData) {
   smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_gen_rots(jsonStateData_t &stateData) {
+// set both fan speeds to the same value
+void stateMachine::sm_state_fanspeed(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SET_GEN_ROTS"));
+    Serial.println(F("state: FANSPEED"));
 #endif
 
     lastState = smState;
@@ -171,10 +208,15 @@ void stateMachine::sm_state_set_gen_rots(jsonStateData_t &stateData) {
   smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_yaws_cmd(jsonStateData_t &stateData) {
+
+
+
+
+// set the speed of the evaporation fan
+void stateMachine::sm_state_evapspeed(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SET_YAWS_CMD"));
+    Serial.println(F("state: EVAPSPEED"));
 #endif
 
     lastState = smState;
@@ -182,16 +224,46 @@ void stateMachine::sm_state_set_yaws_cmd(jsonStateData_t &stateData) {
   smState = STATE_WAIT;
 }
 
-void stateMachine::sm_state_set_pitch_cmd(jsonStateData_t &stateData) {
+
+// Set the speed of the condensing fan
+void stateMachine::sm_state_condspeed(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SET_PITCH_CMD"));
+    Serial.println(F("state: CONDSPEED"));
 #endif
 
     lastState = smState;
   }
   smState = STATE_WAIT;
 }
+
+
+
+// enter regas state (what does this mean rn?)
+void stateMachine::sm_state_regas(jsonStateData_t &stateData) {
+  if (lastState != smState) {
+#if DEBUG_STATES == true
+    Serial.println(F("state: REGAS"));
+#endif
+
+    lastState = smState;
+  }
+  smState = STATE_WAIT;
+}
+
+
+// set up fridge with default working values (what does this mean?)
+void stateMachine::sm_state_quickstart(jsonStateData_t &stateData) {
+  if (lastState != smState) {
+#if DEBUG_STATES == true
+    Serial.println(F("state: QUICKSTART"));
+#endif
+
+    lastState = smState;
+  }
+  smState = STATE_WAIT;
+}
+
 
 // Change the samplerate of streamed or snapshotted data (Init at 10 Hz)
 void stateMachine::sm_state_samplerate(jsonStateData_t &stateData) {
@@ -247,10 +319,10 @@ void stateMachine::sm_state_start_stream(jsonStateData_t &stateData) {
     Serial.println(F("st: STARTSTREAM"));
 #endif
     stateData.uInt++;
-    print_json_active = true;
+    report.start_printing();
     lastState = smState;
   }
-  print_json_active = true;
+
   // streaming_active = true;
   // samples_written = 0;  // start sampling again, wondering if this is the cause of the issues
   //  snapshot_timer_mS = jsonStateData_t.signedInt;
@@ -261,10 +333,10 @@ void stateMachine::sm_state_start_stream(jsonStateData_t &stateData) {
 void stateMachine::sm_state_stop_stream(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: STOPSTREAM"));
+    Serial.println(F("st: STOPSTREAM"));
 #endif
     stateData.uInt++;
-    print_json_active = false;
+    report.stop_printing();
     lastState = smState;
   }
   // streaming_active = false;
@@ -278,7 +350,7 @@ void stateMachine::sm_state_stop_stream(jsonStateData_t &stateData) {
 void stateMachine::sm_state_set_secret(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: SET SECRET"));
+    Serial.println(F("st: SET SECRET"));
 #endif
     lastState = smState;
     if (stateData.msg[0] == '\0') {  // empty string
@@ -295,7 +367,7 @@ void stateMachine::sm_state_set_secret(jsonStateData_t &stateData) {
 void stateMachine::sm_state_reset(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: RESET"));
+    Serial.println(F("st: RESET"));
 #endif
     //   error.json_error("WARNING", "Reset State Undefined");
     stateData.uInt++;
@@ -308,7 +380,7 @@ void stateMachine::sm_state_reset(jsonStateData_t &stateData) {
 void stateMachine::sm_state_info(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: help"));
+    Serial.println(F("st: help"));
 #endif
     //   error.json_error("WARNING", "Info State Undefined");
     stateData.uInt++;
@@ -322,7 +394,7 @@ void stateMachine::sm_state_info(jsonStateData_t &stateData) {
 void stateMachine::sm_state_help(jsonStateData_t &stateData) {
   if (lastState != smState) {
 #if DEBUG_STATES == true
-    Serial.println(F("state: help"));
+    Serial.println(F("st: help"));
 #endif
     stateData.uInt++;
     lastState = smState;
@@ -353,6 +425,6 @@ void stateMachine::sm_Run(jsonStateData_t &stateData) {
 
   } else {
     sm_state_wait(stateData);
-    Serial.println("sm: Exception -> NUM_STATES exceeded");
+    Serial.println(F("sm: Exception -> NUM_STATES exceeded"));
   }
 }

@@ -13,6 +13,10 @@
 #include "jsonMessenger.h"
 #include "jsonStateMachine.h"
 
+#include "jsonReporter.h"
+
+
+
 // Program Attributes
 #define PROGRAM_NAME "refrigeration-V2"
 #define FIRMWARE_VERSION "2.1.0"
@@ -39,6 +43,9 @@ extern stateMachine sm;
 
 // JSON error reporting
 extern jsonError error;
+
+// JSON data reporting
+extern jsonReporter report;
 
 
 
@@ -104,7 +111,7 @@ struct _status {
   char message[16];
 };
 
-extern _status status;
+//extern _status status;
 
 // names for status
 extern char status_names[][8];
@@ -128,12 +135,9 @@ extern IPAddress adam6217D_ip;  // update with the IP Address of your Modbus ser
 // Create an Ethernet Client
 extern EthernetClient ethClient;
 
+#include "adamFunctions.h"
 
-// Create an adamController object and pass the Ethernet Client and IP Address for the server
-extern adamController adam6052_A;
-extern adamController adam6052_B;
-extern adamController adam6217_C;
-extern adamController adam6217_D;
+extern adamFunctions adams;
 
 
 

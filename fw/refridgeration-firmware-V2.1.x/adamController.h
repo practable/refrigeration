@@ -46,7 +46,7 @@ public:
 
   // Constructor
 
-  adamController(EthernetClient _client, IPAddress _server, int _analogType = 0, const char _moduleID[32] = { "ADAM-xxxx" })
+  adamController(EthernetClient _client, IPAddress _server, int _analogType = 0, const char _moduleID[12] = { "ADAM-xxxx" })
     : ethClient(_client),
       serverIP(_server),
       modbusTCP(ethClient),
@@ -71,7 +71,7 @@ public:
 
   void begin();
 
-  void check_modbus_connect();
+  bool check_modbus_connect();
 
   int16_t set_coil(int coilNum, bool coilState = false);
   int16_t set_coils(uint8_t coilStates = 0b00000000);
@@ -91,7 +91,7 @@ public:
   void printBin(int16_t binaryVal);
 
   // Variables
-  char moduleName[32] = { "ADAM-xxxxA" };
+  char moduleName[12] = { "ADAM-xxxxA" };
   bool modbusConnected = false;
 
   int16_t g_coilState = 0b00000000;

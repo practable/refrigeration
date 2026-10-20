@@ -11,16 +11,18 @@
 
 #include "globals.h"
 
-bool print_json_active = true;
+
+jsonReporter::jsonReporter() {}
+
 
 // rounds a number to 2 decimal places
 // example: round(3.14159) -> 3.14
-float round2(double value) {
+float jsonReporter::round2(double value) {
   return (int)(value * 100 + 0.5) / 100.0;
 }
 
 // rounds a number to X decimal places and ensures fixed width of signed and unsigned
-void formatFloat(float value, char *buffer, size_t length, int decimalPlaces) {
+void jsonReporter::formatFloat(float value, char *buffer, size_t length, int decimalPlaces) {
   if (length < 4) {  // Ensure buffer is large enough
     if (length > 0)
       buffer[0] = '\0';
@@ -54,7 +56,18 @@ void formatFloat(float value, char *buffer, size_t length, int decimalPlaces) {
   buffer[length - 1] = '\0';  // Ensure null termination
 }
 
-void update_json() {  //const instrumentData_t &data
+
+void jsonReporter::start_printing() {
+  print_json_active = true;
+}
+
+void jsonReporter::stop_printing() {
+  print_json_active = false;
+}
+
+
+
+void jsonReporter::print_json() {  //const instrumentData_t &data
 
   StaticJsonDocument<JSON_TX_BUFFER_SIZE> jsonTX;
 

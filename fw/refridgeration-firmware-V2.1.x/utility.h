@@ -5,8 +5,8 @@
 
 
 */
-#ifndef jsonReporter_h
-#define jsonReporter_h
+#ifndef utility_h
+#define utility_h
 
 #if (ARDUINO >= 100)
 #include <Arduino.h>

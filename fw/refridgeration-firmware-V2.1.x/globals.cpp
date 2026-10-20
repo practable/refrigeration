@@ -36,6 +36,9 @@ stateMachine sm;
 // JSON error reporting
 jsonError error;
 
+// JSON data reporting
+jsonReporter report;
+
 
 
 // Power Relay globals
@@ -97,7 +100,7 @@ char misc_names[][6] = { "flow", "power", "TSA", "PSA", "HSA" };
 char misc_units[][6] = { "l/h", "W", "degC", "hPa", "%" };
 
 
-_status status = { true, " ", 0, " " };
+//_status status = { true, " ", 0, " " };
 
 // names for status
 char status_names[][8] = { "ok", "state", "code", "message" };
@@ -121,9 +124,4 @@ IPAddress adam6217D_ip(192, 168, 1, 115);  // update with the IP Address of your
 // Create an Ethernet Client
 EthernetClient ethClient;
 
-
-// Create an adamController object and pass the Ethernet Client and IP Address for the server
-adamController adam6052_A(ethClient, adam6052A_ip, DAC_OUTPUT, "ADAM-6052-A");
-adamController adam6052_B(ethClient, adam6052B_ip, DAC_OUTPUT, "ADAM-6052-B");
-adamController adam6217_C(ethClient, adam6217C_ip, VOLTAGE_OUTPUT, "ADAM-6217-C");
-adamController adam6217_D(ethClient, adam6217D_ip, CURRENT_OUTPUT, "ADAM-6217-D");
+adamFunctions adams;

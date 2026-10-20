@@ -44,7 +44,7 @@ void adamController::begin() {
 
 
 
-void adamController::check_modbus_connect() {
+bool adamController::check_modbus_connect() {
   if (!modbusTCP.connected()) {
 #if DEBUG_ADAM == true
     // client not connected, start the Modbus TCP client
@@ -63,6 +63,7 @@ void adamController::check_modbus_connect() {
       Serial.println(F(": Modbus TCP Client connected"));
 #endif
       modbusConnected = true;
+      return modbusConnected;
     }
   }
 }
