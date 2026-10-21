@@ -28,10 +28,11 @@ Global variables use 6155 bytes (75%) of dynamic memory, leaving 2037 bytes for 
 
 #include "globals.h"
 
-#define ADAM6052A_ACTIVE true
-#define ADAM6052B_ACTIVE true
-#define ADAM6217C_ACTIVE true
-#define ADAM6217D_ACTIVE true
+#define ADAM6052A_ACTIVE false
+#define ADAM6052B_ACTIVE false
+#define ADAM6217C_ACTIVE false
+#define ADAM6217D_ACTIVE false
+#define I2C_ACTIVE false
 
 #define SAMPLING_DELAY 500
 #define JSON_REPORT_DELAY_mS 1000

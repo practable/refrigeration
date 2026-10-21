@@ -103,15 +103,7 @@ extern char misc_names[][6];
 extern char misc_units[][6];
 
 
-// struct for status
-struct _status {
-  bool ok;
-  char state[20];
-  int code;
-  char message[16];
-};
 
-//extern _status status;
 
 // names for status
 extern char status_names[][8];

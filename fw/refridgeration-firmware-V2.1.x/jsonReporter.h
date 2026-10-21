@@ -18,7 +18,7 @@
 
 
 
-#define JSON_TX_BUFFER_SIZE 300
+#define JSON_TX_BUFFER_SIZE 100
 
 
 //

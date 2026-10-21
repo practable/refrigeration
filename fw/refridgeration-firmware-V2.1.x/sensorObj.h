@@ -36,7 +36,7 @@ class sensorObj {
 
 public:
 
-  sensorObj(int _sensorType, const char _sensorUnits[16], const char _sensorID[24] = { "xx_sensor" })
+  sensorObj(int _sensorType, const char _sensorUnits[16], const char _sensorID[8] = { "0x00" })
     : sensorType(_sensorType) {
     strcpy(sensorID, _sensorID);
     strcpy(process_units, _sensorUnits);
@@ -84,7 +84,7 @@ public:
   float calcDxDy();
   float calcLMS();
 
-  char sensorID[8] = { " sensor_xx " };
+  char sensorID[8] = { "0x00" };
   char process_units[12] = { " unit " };
   char ADC_units[12] = {" unit "};
 
