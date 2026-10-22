@@ -1,0 +1,7 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 200
+#BinPackArguments: false
+#BinPackParameters: false
+#BinPackArguments: false
+#BinPackParameters: false
