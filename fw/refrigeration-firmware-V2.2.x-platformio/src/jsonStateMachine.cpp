@@ -94,11 +94,14 @@ void stateMachine::sm_state_valve(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: VALVE"));
 #endif
-
+        if (stateData.uintData > 0 && stateData.uintData <= 7) {
+            adams.set_DO(ADAM6052_A, (stateData.uintData - 1), stateData.intData);
+        } else {
+            error.json_error("ERROR", "Valve Number Out of Bounds");
+        }
         lastState = smState;
     }
     // stateMachine::change_state(STATE_WAIT);  // this function only needed outside of library
-
     smState = STATE_WAIT;
 }
 
@@ -221,7 +224,7 @@ void stateMachine::sm_state_quickstart(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: QUICKSTART"));
 #endif
-
+        Serial.println(stateData.msg);
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -333,6 +336,10 @@ void stateMachine::sm_state_reset(jsonStateData_t &stateData) {
 #endif
         //   error.json_error("WARNING", "Reset State Undefined");
         stateData.uintData++;
+        Serial.print("Secret: ");
+        Serial.print(stateData.auth);
+        Serial.print(" float: ");
+        Serial.println(stateData.msg);
         lastState = smState;
     }
     smState = STATE_WAIT;

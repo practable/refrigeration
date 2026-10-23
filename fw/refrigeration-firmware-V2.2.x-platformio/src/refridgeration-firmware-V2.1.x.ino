@@ -32,10 +32,6 @@ Flash: [==        ]  15.2% (used 38628 bytes from 253952 bytes)
 
 #include "globals.h"
 
-#define ADAM6052A_ACTIVE true
-#define ADAM6052B_ACTIVE true
-#define ADAM6217C_ACTIVE false
-#define ADAM6217D_ACTIVE false
 #define I2C_ACTIVE false
 
 #define SAMPLING_DELAY 500

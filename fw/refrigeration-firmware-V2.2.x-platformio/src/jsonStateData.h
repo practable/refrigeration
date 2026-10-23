@@ -123,14 +123,14 @@ const jsonStateMapData_t jsonStateMap[] = {{"na", dataTypes_t::EMPTY, STATE_NULL
                                            {"evapspeed", dataTypes_t::INTEGER, STATE_EVAP_SPEED},
                                            {"condspeed", dataTypes_t::INTEGER, STATE_COND_SPEED},
                                            {"regas", dataTypes_t::EMPTY, STATE_REGAS},
-                                           {"quickst", dataTypes_t::EMPTY, STATE_REGAS},
+                                           {"quickst", dataTypes_t::CSTRING, STATE_QUICKSTART},
                                            // Common States
                                            {"sample", dataTypes_t::UINT, STATE_SAMPLERATE},
                                            {"print", dataTypes_t::UINT, STATE_PRINTRATE},
                                            {"stream", dataTypes_t::EMPTY, STATE_STARTSTREAM},
                                            {"endst", dataTypes_t::EMPTY, STATE_STOPSTREAM},
                                            {"secret", dataTypes_t::CSTRING, STATE_SETSECRET},
-                                           {"reset", dataTypes_t::EMPTY, STATE_RESET},
+                                           {"reset", dataTypes_t::AUTH_MSG, STATE_RESET},
                                            {"info", dataTypes_t::EMPTY, STATE_INFO},
                                            {"help", dataTypes_t::EMPTY, STATE_HELP}};
 

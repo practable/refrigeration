@@ -9,9 +9,9 @@
 
 // #pragma "Use ESP32 Version 3.x.x"
 
-#include "libs.h" // include all libraries used in project
 #include "jsonMessenger.h"
 #include "jsonStateMachine.h"
+#include "libs.h" // include all libraries used in project
 
 #include "jsonReporter.h"
 
@@ -21,6 +21,11 @@
 #define DEVELOPER "Imogen-Wren"
 
 #define ETHERNET_SHIELD 'D'
+
+#define ADAM6052A_ACTIVE true
+#define ADAM6052B_ACTIVE true
+#define ADAM6217C_ACTIVE false
+#define ADAM6217D_ACTIVE false
 
 extern byte mac[];
 
@@ -49,7 +54,8 @@ extern char relay_names[][7];
 extern uint32_t lastSample; // holds the time of the last sample
 extern uint32_t lastReport; // holds the time of the last JSON report
 
-extern uint32_t sampleTimestamp; // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use case a few mS will not matter)
+extern uint32_t sampleTimestamp; // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use
+                                 // case a few mS will not matter)
 // keeping the more precise timestamps in code in case of future use case.
 
 // Temp Sensor Globals

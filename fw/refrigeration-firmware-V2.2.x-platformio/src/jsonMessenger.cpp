@@ -130,81 +130,15 @@ void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
                 } else if (jsonRX_data.data_type == BOOL) { // ____________############# PARSING BOOLS ####################____________________
                     jsonMessenger::extract_bool(jsonRX_data, root, i, set_keyword_used);
                 } else if (jsonRX_data.data_type == CSTRING) { // ____________############# PARSING C-STYLE STRINGS (char arrays) ####################____________________
-                    const char *extracted;
-                    if (set_keyword_used) {
-                        extracted = jsonRXdoc["to"].as<const char *>();
-                    } else {
-                        extracted = jsonRXdoc[jsonStateMap[i].cmd].as<const char *>();
-                    }
-                    memcpy(jsonRX_data.msg, extracted, JSON_MSG_LENGTH);
-                    jsonRX_data.msg[JSON_MSG_LENGTH - 1] = '\0';
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print(jsonRX_data.msg);
-#endif
+                    jsonMessenger::extract_cstring(jsonRX_data, root, i, set_keyword_used);
+                } else if (jsonRX_data.data_type == DUAL_INT) { // ____________############# PARSING DUAL INTEGERS ####################____________________
+                    jsonMessenger::extract_dual_int(jsonRX_data, root, i, set_keyword_used);
                 } else if (jsonRX_data.data_type == AUTH_INT) { // ____________############# PARSING INT WITH AUTH ####################____________________// if auth then two datas must be extracted
-                    const char *extract_secret;
-                    if (set_keyword_used) {
-                        jsonRX_data.intData = jsonRXdoc["to"].as<int16_t>();
-                    } else {
-                        jsonRX_data.intData = jsonRXdoc[jsonStateMap[i].cmd].as<int16_t>();
-                    }
-                    //  extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
-                    JsonVariant auth = jsonRXdoc["auth"]; /// safer? method
-
-                    if (auth.is<const char *>()) {
-                        const char *extract_secret = auth.as<const char *>();
-
-                        jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret,
-                                                        sizeof jsonRX_data.auth); //// new version using strcpy and wrapped in function
-                                                                                  //  memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  // old version using memcpy
-                                                                                  //   jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
-                    } else {
-                        jsonRX_data.auth[0] = '\0';
-                    }
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print("data: ");
-                    Serial.print(jsonRX_data.intData);
-                    Serial.print(" auth: ");
-                    Serial.print(jsonRX_data.auth);
-#endif
+                    jsonMessenger::extract_auth_int(jsonRX_data, root, i, set_keyword_used);
                 } else if (jsonRX_data.data_type == AUTH_FLOAT) { // ____________############# PARSING FLOAT WITH AUTH ####################____________________//
-                    const char *extract_secret;
-                    if (set_keyword_used) {
-                        jsonRX_data.floatData = root["to"].as<float>();
-                    } else {
-                        jsonRX_data.floatData = root[jsonStateMap[i].cmd].as<float>();
-                    }
-                    extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
-                    jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret, sizeof jsonRX_data.auth); //// new version using strcpy and wrapped in function
-//  memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  // old version using memcpy
-//   jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print("data: ");
-                    Serial.print(jsonRX_data.floatData);
-                    Serial.print(" auth: ");
-                    Serial.print(jsonRX_data.auth);
-#endif
+                    jsonMessenger::extract_auth_float(jsonRX_data, root, i, set_keyword_used);
                 } else if (jsonRX_data.data_type == AUTH_MSG) { // ____________############# PARSING MSG (cstring) WITH AUTH ####################____________________//
-                    const char *extract_msg;
-                    const char *extract_secret;
-                    // first get the msg data
-                    if (set_keyword_used) {
-                        extract_msg = jsonRXdoc["to"].as<const char *>();
-                    } else {
-                        extract_msg = jsonRXdoc[jsonStateMap[i].cmd].as<const char *>();
-                    }
-                    jsonMessenger::safe_copy_string(jsonRX_data.msg, extract_msg, sizeof jsonRX_data.msg);
-                    // then use similar method for auth msg
-                    extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
-                    jsonMessenger::safe_copy_string(jsonRX_data.auth, extract_secret, sizeof jsonRX_data.auth); // new version using strcpy and wrapped in function
-                                                                                                                // memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  old version using
-                                                                                                                // memcpy jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
-#if DEBUG_JSON_MESSENGER == true
-                    Serial.print("data: ");
-                    Serial.print(jsonRX_data.msg);
-                    Serial.print(" auth: ");
-                    Serial.print(jsonRX_data.auth);
-#endif
+                    jsonMessenger::extract_auth_msg(jsonRX_data, root, i, set_keyword_used);
                 } else {
 #if DEBUG_JSON_MESSENGER == true
                     Serial.println(F("dataType-exception"));
@@ -234,6 +168,8 @@ void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
 // std::cout << jsonCommandKeys[state] << "\0";
 //  return jsonStateMap[state].cmd;
 // }
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< DATA EXTRACTION FUNCTIONS >>>>>>>>>>>>>>>>>>>>
 
 void jsonMessenger::extract_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) { // jsonRX_data.
     if (set_keyword) {
@@ -284,12 +220,105 @@ void jsonMessenger::extract_bool(jsonStateData_t &data, JsonObject &root, uint8_
 #endif
 }
 
-void jsonMessenger::extract_cstring(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {}
+void jsonMessenger::extract_cstring(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {
+    const char *extracted;
+    if (set_keyword) {
+        extracted = root["to"].as<const char *>();
+    } else {
+        extracted = root[jsonStateMap[map_number].cmd].as<const char *>();
+    }
+    memcpy(data.msg, extracted, JSON_MSG_LENGTH);
+    data.msg[JSON_MSG_LENGTH - 1] = '\0';
+#if DEBUG_JSON_MESSENGER == true
+    Serial.print(data.msg);
+#endif
+}
 
-void jsonMessenger::extract_dual_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {}
-void jsonMessenger::extract_auth_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {}
-void jsonMessenger::extract_auth_float(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {}
-void jsonMessenger::extract_auth_msg(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {}
+void jsonMessenger::extract_dual_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {
+    if (set_keyword) {
+        data.intData = root["to"].as<int16_t>();
+        data.uintData = root["num"].as<uint16_t>();
+    } else {
+        data.uintData = root[jsonStateMap[map_number].cmd].as<uint16_t>();
+        data.intData = root["state"].as<int16_t>();
+    }
+#if DEBUG_JSON_MESSENGER == true
+    Serial.print("dataA: ");
+    Serial.print(data.uintData);
+    Serial.print(" dataB: ");
+    Serial.print(data.intData);
+
+#endif
+}
+
+void jsonMessenger::extract_auth_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {
+    const char *extract_secret;
+    if (set_keyword) {
+        data.intData = root["to"].as<int16_t>();
+    } else {
+        data.intData = root[jsonStateMap[map_number].cmd].as<int16_t>();
+    }
+    //  extract_secret = jsonRXdoc["auth"].as<const char *>();                                      // this will always use auth keyword
+    JsonVariant auth = root["auth"]; /// safer? method
+
+    if (auth.is<const char *>()) {
+        const char *extract_secret = auth.as<const char *>();
+
+        jsonMessenger::safe_copy_string(data.auth, extract_secret, sizeof data.auth); //// new version using strcpy and wrapped in function
+                                                                                      //  memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  // old version using memcpy
+                                                                                      //   jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
+    } else {
+        data.auth[0] = '\0';
+    }
+#if DEBUG_JSON_MESSENGER == true
+    Serial.print("data: ");
+    Serial.print(data.intData);
+    Serial.print(" auth: ");
+    Serial.print(data.auth);
+#endif
+}
+
+void jsonMessenger::extract_auth_float(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {
+    const char *extract_secret;
+    if (set_keyword) {
+        data.floatData = root["to"].as<float>();
+    } else {
+        data.floatData = root[jsonStateMap[map_number].cmd].as<float>();
+    }
+    extract_secret = root["auth"].as<const char *>();                             // this will always use auth keyword
+    jsonMessenger::safe_copy_string(data.auth, extract_secret, sizeof data.auth); //// new version using strcpy and wrapped in function
+//  memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  // old version using memcpy
+//   jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
+#if DEBUG_JSON_MESSENGER == true
+    Serial.print("data: ");
+    Serial.print(data.floatData);
+    Serial.print(" auth: ");
+    Serial.print(data.auth);
+#endif
+}
+
+void jsonMessenger::extract_auth_msg(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {
+    const char *extract_msg;
+    const char *extract_secret;
+    // first get the msg data
+    if (set_keyword) {
+        extract_msg = root["to"].as<const char *>();
+    } else {
+        extract_msg = root[jsonStateMap[map_number].cmd].as<const char *>();
+    }
+    jsonMessenger::safe_copy_string(data.msg, extract_msg, sizeof data.msg);
+    // then use similar method for auth msg
+    extract_secret = root["auth"].as<const char *>();                             // this will always use auth keyword
+    jsonMessenger::safe_copy_string(data.auth, extract_secret, sizeof data.auth); // new version using strcpy and wrapped in function
+                                                                                  // memcpy(jsonRX_data.auth, extract_secret, AUTH_MSG_LENGTH-1);  old version using
+                                                                                  // memcpy jsonRX_data.auth[AUTH_MSG_LENGTH-1] = '\0';
+#if DEBUG_JSON_MESSENGER == true
+    Serial.print("data: ");
+    Serial.print(data.msg);
+    Serial.print(" auth: ");
+    Serial.print(data.auth);
+#endif
+}
 
 const char *jsonMessenger::getDataType(dataTypes_t type) {
     // std::cout << typeNames[type] << "\0";
