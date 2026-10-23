@@ -3,7 +3,6 @@
 
 */
 
-
 #include "globals.h"
 
 // Enter a MAC address for your ethernet controller below.
@@ -11,24 +10,21 @@
 // The IP address will be dependent on your local network:
 
 #if ETHERNET_SHIELD == 'A'
-byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48 };  // FOR SHIELD A
+byte mac[] = {0xA8, 0X61, 0x0A, 0xAE, 0xE1, 0x48}; // FOR SHIELD A
 #elif ETHERNET_SHIELD == 'B'
-byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23 };  // FOR SHIELD B
+byte mac[] = {0xA8, 0X61, 0x0A, 0xAE, 0xF3, 0x23}; // FOR SHIELD B
 #elif ETHERNET_SHIELD == 'C'
-byte mac[] = { 0xA8, 0X61, 0x0A, 0xAF, 0x14, 0x67 };  // FOR SHIELD C
+byte mac[] = {0xA8, 0X61, 0x0A, 0xAF, 0x14, 0x67}; // FOR SHIELD C
 #elif ETHERNET_SHIELD == 'D'
-byte mac[] = { 0xA8, 0X61, 0x0A, 0xAE, 0x2A, 0x19 };  // FOR SHIELD D
+byte mac[] = {0xA8, 0X61, 0x0A, 0xAE, 0x2A, 0x19}; // FOR SHIELD D
 #else
 #error "VALID MAC ADDRESS NOT FOUND"
 #endif
 
-
-
-const jsonStateData_t emptyData = { stateDef_t::STATE_NULL, dataTypes_t::EMPTY, 0, 0, 0.0, false, "", "", false };
-jsonStateData_t nextState_data = emptyData;
-
 // jsonMessenger Object to handle incoming Serial JSON commands
-jsonMessenger jsonRX;  // create a jsonMessenger object to handle commands received over Serial connection
+jsonMessenger jsonRX; // create a jsonMessenger object to handle commands received over Serial connection
+
+//jsonStateData_t nextState_data;// = jsonRX.emptyJsonData;
 
 // stateMachine Object now handles all state machine transitions
 stateMachine sm;
@@ -39,47 +35,35 @@ jsonError error;
 // JSON data reporting
 jsonReporter report;
 
-
-
 // Power Relay globals
-char relay_names[][7] = { "W1", "W2", "comp", "lights" };
+char relay_names[][7] = {"W1", "W2", "comp", "lights"};
 
 // Sensor & Sampling Globals
 // NOTE: these were all 32bit values, reduced to save space
-uint32_t lastSample = 0;  // holds the time of the last sample
-uint32_t lastReport = 0;  // holds the time of the last JSON report
+uint32_t lastSample = 0; // holds the time of the last sample
+uint32_t lastReport = 0; // holds the time of the last JSON report
 
-uint32_t sampleTimestamp = 0;  // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use case a few mS will not matter)
+uint32_t sampleTimestamp = 0; // variable to hold the timestamp taken at the end of all sensor readings (use this instead of timestamps taken PRECISELY at the sample time - I think for this use case a
+                              // few mS will not matter)
 // keeping the more precise timestamps in code in case of future use case.
-
-
 
 // Temp Sensor Globals
 
 #define NUM_TEMP_SENSORS 5
-sensorObj temp_s[NUM_TEMP_SENSORS] = {
-  sensorObj(VOLTAGE_SENSOR, "degC", "TS1"),
-  sensorObj(VOLTAGE_SENSOR, "degC", "TS2"),
-  sensorObj(VOLTAGE_SENSOR, "degC", "TS3"),
-  sensorObj(VOLTAGE_SENSOR, "degC", "TS4"),
-  sensorObj(VOLTAGE_SENSOR, "degC", "TS5")
-};
+sensorObj temp_s[NUM_TEMP_SENSORS] = {sensorObj(VOLTAGE_SENSOR, "degC", "TS1"), sensorObj(VOLTAGE_SENSOR, "degC", "TS2"), sensorObj(VOLTAGE_SENSOR, "degC", "TS3"),
+                                      sensorObj(VOLTAGE_SENSOR, "degC", "TS4"), sensorObj(VOLTAGE_SENSOR, "degC", "TS5")};
 
 // Arrays for temp Sensor Vals
-float ts_vals[NUM_TEMP_SENSORS] = { 0.0, 0.0, 0.0, 0.0, 0.0 };  // create array for TS data
-//uint32_t ts_times[NUM_TEMP_SENSORS] = { 1000, 1000, 1000, 1000, 1000 };  // create array for TS timestamps  not enough space!
+float ts_vals[NUM_TEMP_SENSORS] = {0.0, 0.0, 0.0, 0.0, 0.0}; // create array for TS data
+// uint32_t ts_times[NUM_TEMP_SENSORS] = { 1000, 1000, 1000, 1000, 1000 };  // create array for TS timestamps  not enough space!
 
 // Pressure Sensor Globals
 #define NUM_PRESSURE_SENSORS 3
-sensorObj pressure_s[NUM_PRESSURE_SENSORS] = {
-  sensorObj(VOLTAGE_SENSOR, "bar", "PS1"),
-  sensorObj(VOLTAGE_SENSOR, "bar", "PS2"),
-  sensorObj(VOLTAGE_SENSOR, "bar", "PS3")
-};
+sensorObj pressure_s[NUM_PRESSURE_SENSORS] = {sensorObj(VOLTAGE_SENSOR, "bar", "PS1"), sensorObj(VOLTAGE_SENSOR, "bar", "PS2"), sensorObj(VOLTAGE_SENSOR, "bar", "PS3")};
 
 // Arrays for Pressure Sensor Vals
-float ps_vals[NUM_PRESSURE_SENSORS] = { 0.0, 0.0, 0.0 };  // create array for TS data
-//uint32_t ps_times[NUM_PRESSURE_SENSORS] = { 1000, 1000, 1000 };  // create array for TS timestamps
+float ps_vals[NUM_PRESSURE_SENSORS] = {0.0, 0.0, 0.0}; // create array for TS data
+// uint32_t ps_times[NUM_PRESSURE_SENSORS] = { 1000, 1000, 1000 };  // create array for TS timestamps
 
 // Define limits for pressure high side and low side switched (NOTE: This just affects when warning message is sent to UI)
 #define PS1_MIN 0
@@ -90,36 +74,34 @@ float ps_vals[NUM_PRESSURE_SENSORS] = { 0.0, 0.0, 0.0 };  // create array for TS
 // Misc Sensor Globals
 sensorObj flow_s(CURRENT_SENSOR, "flow", "flow");
 sensorObj power_s(CURRENT_SENSOR, "W", "power");
-//sensorObj t_ambi(CURRENT_SENSOR, "degC", "TS_ambi"); Not required as i2c sensor data is delivered directly by object
-//sensorObj p_ambi(CURRENT_SENSOR, "mBar", "PS_ambi");
+// sensorObj t_ambi(CURRENT_SENSOR, "degC", "TS_ambi"); Not required as i2c sensor data is delivered directly by object
+// sensorObj p_ambi(CURRENT_SENSOR, "mBar", "PS_ambi");
 
 // Arrays for Misc Sensor Vals
-float misc_vals[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };  // create array for misc data
-//uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
-char misc_names[][6] = { "flow", "power", "TSA", "PSA", "HSA" };
-char misc_units[][6] = { "l/h", "W", "degC", "hPa", "%" };
-
+float misc_vals[5] = {0.0, 0.0, 0.0, 0.0, 0.0}; // create array for misc data
+// uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
+char misc_names[][6] = {"flow", "power", "TSA", "PSA", "HSA"};
+char misc_units[][6] = {"l/h", "W", "degC", "hPa", "%"};
 
 //_status status = { true, " ", 0, " " };
 
 // names for status
-//char status_names[][8] = { "ok", "state", "code", "message" };
+// char status_names[][8] = { "ok", "state", "code", "message" };
 
 bool lights_active = false;
 uint32_t lights_active_time_mS;
 
-//bool experiment_active = false;
+// bool experiment_active = false;
 uint32_t last_cmd_rx_mS;
 
-
-//Define the ip address for the client (local modbus controller) (the device this firmware is running on)
+// Define the ip address for the client (local modbus controller) (the device this firmware is running on)
 IPAddress ip(192, 168, 1, 100);
 
 // Define the IP for the server (remote modbus device)
-IPAddress adam6052A_ip(192, 168, 1, 111);  // update with the IP Address of your Modbus server (the remote IO controller)
-IPAddress adam6052B_ip(192, 168, 1, 116);  // update with the IP Address of your Modbus server (the remote IO controller)
-IPAddress adam6217C_ip(192, 168, 1, 112);  // update with the IP Address of your Modbus server (the remote IO controller)
-IPAddress adam6217D_ip(192, 168, 1, 115);  // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6052A_ip(192, 168, 1, 111); // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6052B_ip(192, 168, 1, 116); // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6217C_ip(192, 168, 1, 112); // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6217D_ip(192, 168, 1, 115); // update with the IP Address of your Modbus server (the remote IO controller)
 
 // Create an Ethernet Client
 EthernetClient ethClient;

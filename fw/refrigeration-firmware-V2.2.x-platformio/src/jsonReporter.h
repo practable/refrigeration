@@ -5,8 +5,6 @@
 
 */
 
-
-
 #ifndef jsonReporter_h
 #define jsonReporter_h
 
@@ -16,39 +14,31 @@
 #include <wProgram.h>
 #endif
 
-
-
-#define JSON_TX_BUFFER_SIZE 100
-
+#define JSON_TX_BUFFER_SIZE 200
 
 //
-//#include "datastore.h"
+// #include "datastore.h"
 
 class jsonReporter {
 
+  public:
+    jsonReporter();
 
+    // rounds a number to 2 decimal places
+    // example: round(3.14159) -> 3.14
+    float round2(double value);
 
-public:
+    // rounds a number to X decimal places and ensures fixed width of signed and unsigned
+    void formatFloat(float value, char *buffer, size_t length, int decimalPlaces = 2);
 
-  jsonReporter();
+    void print_json(); // const instrumentData_t &data
 
+    void start_printing();
 
-  // rounds a number to 2 decimal places
-  // example: round(3.14159) -> 3.14
-  float round2(double value);
+    void stop_printing();
 
-  // rounds a number to X decimal places and ensures fixed width of signed and unsigned
-  void formatFloat(float value, char *buffer, size_t length, int decimalPlaces = 2);
-
-  void print_json();  //const instrumentData_t &data
-
-  void start_printing();
-
-  void stop_printing();
-
-private:
-
-  bool print_json_active = true;
+  private:
+    bool print_json_active = true;
 };
 
 #endif

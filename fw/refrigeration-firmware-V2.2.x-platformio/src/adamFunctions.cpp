@@ -43,6 +43,8 @@ bool adamFunctions::check_modbus_connection(adamName_t unit) {
 
 void adamFunctions::set_DO(adamName_t unit, int coilNum, bool coilState) { adamsCtrl[unit].set_coil(coilNum, coilState); }
 
+void adamFunctions::setAll_DO(adamName_t unit, int coilState) { adamsCtrl[unit].set_coils(coilState); }
+
 void adamFunctions::sample_adam6052A() {
     // adam6052_A.read_coils();
     adamsCtrl[ADAM6052_A].read_coils();

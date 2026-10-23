@@ -33,7 +33,7 @@ void jsonMessenger::printJSON(StaticJsonDocument<JSON_RX_SIZE> *jsonDoc) {
 
 void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
 
-    jsonRX_data = jsonStateData_t{STATE_NULL, EMPTY, 0, 0, 0.0, false, "", "", false}; // Default message that will be passed out if no data received or cannot be parsed
+    jsonRX_data = emptyJsonData; // jsonStateData_t{STATE_NULL,EMPTY 0, 0, 0.0, false, "", "", false}; // Default message that will be passed out if no data received or cannot be parsed
 
     if (Serial.available() > 0) {
         // Serial.println("Serial Available");
@@ -89,7 +89,8 @@ void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
 
             if (root.containsKey(jsonStateMap[i].cmd) || strcmp(keyString, jsonStateMap[i].cmd) == 0) { // Match is found, i holds the correct ENUM reference for the state
 
-                jsonRX_data.data_type = dataTypes_array[jsonStateMap[i].data_type]; // this should contain the correct enum for the datatype
+                //   jsonRX_data.data_type = dataTypes_array[jsonStateMap[i].data_type]; // this should contain the correct enum for the datatype
+                jsonRX_data.data_type = jsonStateMap[i].data_type;
 
 #if DEBUG_JSON_MESSENGER == true
                 Serial.print(F("{\"cmd\":\""));

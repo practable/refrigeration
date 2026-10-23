@@ -1,7 +1,6 @@
 
 // included headers to pull datatypes
 
-
 #include "jsonStateData.h" // self contained
 
 #ifndef datastore_h
@@ -65,7 +64,7 @@ typedef struct {
 
 typedef struct {
     stateDef_t prog_state;
-    escStatus_t fan_state;
+
 } status_t;
 
 typedef struct {

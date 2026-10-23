@@ -48,30 +48,62 @@ typedef enum {
 } stateDef_t;
 
 // 1b. Also define the names for the ENUMs as const char strings
-constexpr const char *stateNames[NUM_STATES] = {           // force newline
-                                                "NULL",    /// can I comment here
-                                                "INIT",    // or here?
-                                                "WAIT",    //
-                                                "STOP",    //
-                                                "RUNNING", //
-                                                "VALVE",   //
-                                                "COMP",    //
-                                                "LIGHTS",  //
-                                                "FANS",    //
-                                                "EVAP",    //
-                                                "COND",       "FANS_SPEED",
-                                                "EVAP_SPEED", //
-                                                "COND_SPEED", //
-                                                "REGAS",      //
-                                                "QUICKSTART",
-                                                "SMPLRT",    //
-                                                "PRINTRT",   //
-                                                "STREAM",    //
-                                                "STPSTREAM", //
-                                                "SETSECRET", //
-                                                "RESET",     //
-                                                "INFO",      //
-                                                "HELP"};     //
+const char state0[] PROGMEM = "NULL";
+const char state1[] PROGMEM = "INIT";
+const char state2[] PROGMEM = "WAIT";
+const char state3[] PROGMEM = "STOP";
+const char state4[] PROGMEM = "RUNNING";
+const char state5[] PROGMEM = "VALVE";
+const char state6[] PROGMEM = "COMP";
+const char state7[] PROGMEM = "LIGHTS";
+const char state8[] PROGMEM = "FANS";
+const char state9[] PROGMEM = "EVAP";
+const char state10[] PROGMEM = "COND";
+const char state11[] PROGMEM = "FANS_SPEED";
+const char state12[] PROGMEM = "EVAP_SPEED";
+const char state13[] PROGMEM = "COND_SPEED";
+const char state14[] PROGMEM = "REGAS";
+const char state15[] PROGMEM = "QUICKSTART";
+const char state16[] PROGMEM = "SMPLRT";
+const char state17[] PROGMEM = "PRINTRT";
+const char state18[] PROGMEM = "STREAM";
+const char state19[] PROGMEM = "STPSTREAM";
+const char state20[] PROGMEM = "SETSECRET";
+const char state21[] PROGMEM = "RESET";
+const char state22[] PROGMEM = "INFO";
+const char state23[] PROGMEM = "HELP";
+
+const char *const stateNames[NUM_STATES] PROGMEM = {state0,  state1,  state2,  state3,  state4,  state5,  state6,  state7,  state8,  state9,  state10, state11,
+                                                    state12, state13, state14, state15, state16, state17, state18, state19, state20, state21, state22, state23};
+
+/* ESP32 version
+// constexpr const char  stateNames[NUM_STATES] PROGMEM = {              // force newline
+                                                    "NULL",       /// can I comment here
+                                                    "INIT",       // or here?
+                                                    "WAIT",       //
+                                                    "STOP",       //
+                                                    "RUNNING",    //
+                                                    "VALVE",      //
+                                                    "COMP",       //
+                                                    "LIGHTS",     //
+                                                    "FANS",       //
+                                                    "EVAP",       //
+                                                    "COND",       //
+                                                    "FANS_SPEED", //
+                                                    "EVAP_SPEED", //
+                                                    "COND_SPEED", //
+                                                    "REGAS",      //
+                                                    "QUICKSTART",
+                                                    "SMPLRT",    //
+                                                    "PRINTRT",   //
+                                                    "STREAM",    //
+                                                    "STPSTREAM", //
+                                                    "SETSECRET", //
+                                                    "RESET",     //
+                                                    "INFO",      //
+                                                    "HELP"};     //
+
+                                                    */
 
 // 2. Define an enum to define variable type used, These will be linked to a state enum so when a keyword is received, we can look up what data type should be sent with it
 typedef enum { // enum to pass variable types between functions
@@ -88,7 +120,7 @@ typedef enum { // enum to pass variable types between functions
 } dataTypes_t;
 
 // 2b. Place these enums into an array to enable lookup by index (This shouldnt be nessissary but it fixed a bug at one point)
-const dataTypes_t dataTypes_array[10] = {EMPTY, INTEGER, UINT, FLOAT, CSTRING, BOOL, DUAL_INT, AUTH_INT, AUTH_FLOAT, AUTH_MSG};
+// const dataTypes_t dataTypes_array[10] = {EMPTY, INTEGER, UINT, FLOAT, CSTRING, BOOL, DUAL_INT, AUTH_INT, AUTH_FLOAT, AUTH_MSG};
 
 // these are just to silence compiler warnings, maybe there is a better way of doing this but I havnt figured it out yet
 #pragma GCC diagnostic push
@@ -103,7 +135,7 @@ static char typeNames[][8] = {"EMPTY", "INTEGER", "UINT", "FLOAT", "CSTRING", "B
 // This will enable to user to build a table showing each state, the command to enter the state and the datatype passed to the state
 
 typedef struct {
-    const char cmd[10];    //< Defines the command
+    const char *cmd;       // chatGPT told me to change this const char cmd[10];    //< Defines the command
     dataTypes_t data_type; //< Defines the ENUM for the data type
     stateDef_t state;
 } jsonStateMapData_t;
@@ -115,7 +147,7 @@ const jsonStateMapData_t jsonStateMap[] = {{"na", dataTypes_t::EMPTY, STATE_NULL
                                            {"stop", dataTypes_t::EMPTY, STATE_STOP},
                                            {"valve", dataTypes_t::DUAL_INT, STATE_SET_VALVE},
                                            {"comp", dataTypes_t::INTEGER, STATE_COMP},
-                                           {"lamp", dataTypes_t::BOOL, STATE_LIGHTS},
+                                           {"lamp", dataTypes_t::INTEGER, STATE_LIGHTS},
                                            {"fans", dataTypes_t::INTEGER, STATE_FANS},
                                            {"evap", dataTypes_t::INTEGER, STATE_EVAP_FAN},
                                            {"cond", dataTypes_t::INTEGER, STATE_COND_FAN},
@@ -139,7 +171,7 @@ constexpr size_t NUM_JSON_CMDS = sizeof(jsonStateMap) / sizeof(jsonStateMap[0]);
 // 4. Declare a structure that will hold all the data that is needed by the state machine AND any states within the state machine
 typedef struct {
     stateDef_t stateEnum;  // This likely supercedes the commandState enum, as we can just direcly plug this variable into smState, saving another list of if/elses
-    dataTypes_t data_type; // The type of data being passed along with structure (though state should know what data to expect anyway), this could be removed to save space
+    dataTypes_t data_type; // The type of data being passed along with structure (though not really used, removing it used more RAM!!)
     int16_t intData;       // empty generic data slots for each data type
     uint16_t uintData;
     float floatData;

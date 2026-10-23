@@ -27,6 +27,27 @@ RAM:   [=======   ]  68.8% (used 5632 bytes from 8192 bytes)
 Flash: [==        ]  15.2% (used 38628 bytes from 253952 bytes)
 
 
+RAM:   [=======   ]  70.7% (used 5792 bytes from 8192 bytes)
+Flash: [==        ]  16.0% (used 40656 bytes from 253952 bytes)
+
+RAM:   [=======   ]  66.2% (used 5424 bytes from 8192 bytes)
+Flash: [==        ]  15.9% (used 40326 bytes from 253952 bytes)
+- Changed jsonStateMapData_t.cmd to const char *cmd; to save memory
+
+
+RAM:   [=======   ]  66.0% (used 5404 bytes from 8192 bytes)
+Flash: [==        ]  15.9% (used 40394 bytes from 253952 bytes)
+- Removed global nextstate_data
+
+
+// Re-enabled ADAM6217C and ADAM6217D modules,
+RAM:   [=======   ]  67.3% (used 5514 bytes from 8192 bytes)
+Flash: [==        ]  16.6% (used 42122 bytes from 253952 bytes)
+
+// moved state names to flash/PROGMEM
+RAM:   [======    ]  64.8% (used 5312 bytes from 8192 bytes)
+Flash: [==        ]  16.7% (used 42290 bytes from 253952 bytes)
+
 
 */
 
@@ -50,6 +71,7 @@ void setup() {
 }
 
 void loop() {
+    jsonStateData_t nextState_data;
     jsonRX.jsonReadSerialLoop(
         nextState_data); // function needs to be called periodically to accept incoming serial messages, parse & return jsonStateData_t with new state /and data required for new state
 

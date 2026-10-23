@@ -38,7 +38,7 @@ void stateMachine::sm_state_null(jsonStateData_t &stateData) {
 void stateMachine::sm_state_init(jsonStateData_t &stateData) {
     if (lastState != smState) {
 #if DEBUG_STATES == true
-        Serial.println("state: INIT");
+        Serial.println(F("state: INIT"));
 #endif
         stateData.uintData++;
         lastState = smState;
@@ -69,8 +69,13 @@ void stateMachine::sm_state_stop(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: STOP"));
 #endif
-        // Serial.print("abs_diff: ");
-        // Serial.println(absDiff(0.0, stateData.floatData));
+        stateData.uintData++;                            // just to stop compiler warnings about unused variable
+        adams.set_DO(ADAM6052_B, ADAM6052B_COMP, false); // turn off compressor
+        delay(1000);
+        adams.set_DO(ADAM6052_B, ADAM6052B_COND, false); // turn off condensing fan
+        adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, false); // turn off evaporation fan
+        delay(2000);                                     // wait 2 seconds for compressor to stop & flow to slow down
+        adams.setAll_DO(ADAM6052_A, 0b00000000);         // close all valves
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -112,13 +117,11 @@ void stateMachine::sm_state_comp(jsonStateData_t &stateData) {
         Serial.println(F("state: COMP"));
 #endif
         // stateData.uintData++;
-
+        adams.set_DO(ADAM6052_B, ADAM6052B_COMP, stateData.intData); // control the compressor on/off
         lastState = smState;
     }
     smState = STATE_WAIT;
 }
-
-enum ADAM6052_B_DO { ADAM6052B_COMP = 0, ADAM6052B_COND = 1, ADAM6052B_EVAP = 2, ADAM6052B_LAMP = 3 };
 
 // set lights state
 void stateMachine::sm_state_lights(jsonStateData_t &stateData) {
@@ -127,8 +130,8 @@ void stateMachine::sm_state_lights(jsonStateData_t &stateData) {
         Serial.println(F("state: LIGHTS"));
 #endif
         // stateData.uintData++;
-        Serial.println(stateData.boolData);
-        adams.set_DO(ADAM6052_B, ADAM6052B_LAMP, stateData.boolData);
+        // Serial.println(stateData.intData);
+        adams.set_DO(ADAM6052_B, ADAM6052B_LAMP, stateData.intData);
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -140,7 +143,8 @@ void stateMachine::sm_state_fans(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: FANS"));
 #endif
-
+        adams.set_DO(ADAM6052_B, ADAM6052B_COND, stateData.intData); // Control condensing fan
+        adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, stateData.intData); // Control evaporation fan
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -152,7 +156,7 @@ void stateMachine::sm_state_evap(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: EVAP"));
 #endif
-
+        adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, stateData.intData); // Control evaporation fan
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -164,7 +168,7 @@ void stateMachine::sm_state_cond(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: COND"));
 #endif
-
+        adams.set_DO(ADAM6052_B, ADAM6052B_COND, stateData.intData); // Control condensing fan
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -336,9 +340,9 @@ void stateMachine::sm_state_reset(jsonStateData_t &stateData) {
 #endif
         //   error.json_error("WARNING", "Reset State Undefined");
         stateData.uintData++;
-        Serial.print("Secret: ");
+        Serial.print(F("Secret: "));
         Serial.print(stateData.auth);
-        Serial.print(" float: ");
+        Serial.print(F(" float: "));
         Serial.println(stateData.msg);
         lastState = smState;
     }

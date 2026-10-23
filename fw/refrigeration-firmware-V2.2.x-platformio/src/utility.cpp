@@ -26,6 +26,7 @@ void ethernet_begin() {
 
 void print_json_state_data(jsonStateData_t &data) {
     printf("CMD recieved: %i, %i, %i, %u, %f, %d, %s, %s, %d \n", data.stateEnum, data.data_type, data.intData, data.uintData, data.floatData, data.boolData, data.msg, data.auth, data.cmd_received);
+    // printf("CMD recieved: %i, %i, %u, %f, %d, %s, %s, %d \n", data.stateEnum, data.intData, data.uintData, data.floatData, data.boolData, data.msg, data.auth, data.cmd_received);
 }
 
 void print_program_info() {

@@ -106,6 +106,9 @@ void build_json() {
     Serial.println(json_buffer);
   }
 }
+
+
+
 #else
 #pragma JSON set to standard JSON output - For human readability try enabling Pretty Print !
 //char newline[3] = { " " };

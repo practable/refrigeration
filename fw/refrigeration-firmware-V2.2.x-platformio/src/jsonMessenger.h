@@ -54,6 +54,8 @@ class jsonMessenger {
     // constructor
     jsonMessenger();
 
+    const jsonStateData_t emptyJsonData = {stateDef_t::STATE_NULL, dataTypes_t::EMPTY, 0, 0, 0.0, false, "", "", false};
+
     void jsonBegin();
 
     void jsonReadSerialLoop(

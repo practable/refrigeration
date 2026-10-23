@@ -24,16 +24,15 @@
 
 #define ADAM6052A_ACTIVE true
 #define ADAM6052B_ACTIVE true
-#define ADAM6217C_ACTIVE false
-#define ADAM6217D_ACTIVE false
+#define ADAM6217C_ACTIVE true
+#define ADAM6217D_ACTIVE true
 
 extern byte mac[];
 
-extern const jsonStateData_t emptyData;
-extern jsonStateData_t nextState_data;
-
 // jsonMessenger Object to handle incoming Serial JSON commands
 extern jsonMessenger jsonRX; // create a jsonMessenger object to handle commands received over Serial connection
+
+extern jsonStateData_t nextState_data;
 
 // stateMachine Object now handles all state machine transitions
 extern stateMachine sm;
