@@ -14,7 +14,7 @@
 #include <wProgram.h>
 #endif
 
-#define JSON_TX_BUFFER_SIZE 200
+#define JSON_TX_BUFFER_SIZE 250
 
 //
 // #include "datastore.h"

@@ -44,7 +44,7 @@ class adamFunctions {
 
     void sample_adam6052A();
     void sample_adam6052B();
-    void sample_adam6217C();
+    void sample_adam6217C(float *ps_vals, float *ts_vals);
     void sample_adam6217D();
 
     // this should be private but its just making me duplicate functions so I will leave it public for now

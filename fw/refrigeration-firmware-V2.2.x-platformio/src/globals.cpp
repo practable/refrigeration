@@ -24,7 +24,7 @@ byte mac[] = {0xA8, 0X61, 0x0A, 0xAE, 0x2A, 0x19}; // FOR SHIELD D
 // jsonMessenger Object to handle incoming Serial JSON commands
 jsonMessenger jsonRX; // create a jsonMessenger object to handle commands received over Serial connection
 
-//jsonStateData_t nextState_data;// = jsonRX.emptyJsonData;
+// jsonStateData_t nextState_data;// = jsonRX.emptyJsonData;
 
 // stateMachine Object now handles all state machine transitions
 stateMachine sm;
@@ -36,7 +36,7 @@ jsonError error;
 jsonReporter report;
 
 // Power Relay globals
-char relay_names[][7] = {"W1", "W2", "comp", "lights"};
+char relay_names[][7] = {"cond", "evap", "comp", "lights"};
 
 // Sensor & Sampling Globals
 // NOTE: these were all 32bit values, reduced to save space

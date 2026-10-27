@@ -48,6 +48,14 @@ Flash: [==        ]  16.6% (used 42122 bytes from 253952 bytes)
 RAM:   [======    ]  64.8% (used 5312 bytes from 8192 bytes)
 Flash: [==        ]  16.7% (used 42290 bytes from 253952 bytes)
 
+// adding to json reporter to include ADAM-6052-B relay states
+RAM:   [=======   ]  65.3% (used 5346 bytes from 8192 bytes)
+Flash: [==        ]  16.7% (used 42450 bytes from 253952 bytes)
+
+// changing string from predefined variable to F() macro to save memory
+RAM:   [=======   ]  65.2% (used 5340 bytes from 8192 bytes)
+Flash: [==        ]  16.7% (used 42466 bytes from 253952 bytes)
+
 
 */
 
@@ -99,7 +107,7 @@ void loop() {
 
 #if ADAM6217C_ACTIVE == true
         adams.check_modbus_connection(ADAM6217_C);
-        adams.sample_adam6217C();
+        adams.sample_adam6217C(*ps_vals, *ts_vals);
 #endif
 #if ADAM6217D_ACTIVE == true
         adams.check_modbus_connection(ADAM6217_D);

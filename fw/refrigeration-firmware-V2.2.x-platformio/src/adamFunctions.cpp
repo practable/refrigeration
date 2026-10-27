@@ -67,7 +67,7 @@ void adamFunctions::sample_adam6052B() {
 #endif
 }
 
-void adamFunctions::sample_adam6217C() {
+void adamFunctions::sample_adam6217C(float *ps_vals, float *ts_vals) {
     adamsCtrl[ADAM6217_C].read_analog_inputs(); // read all temperature sensor inputs
                                                 // sampleTimestamp = millis();       // This takes a "generic" timestamp that should be accurate enough for most purposes
     for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {

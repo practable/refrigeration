@@ -58,7 +58,7 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     StaticJsonDocument<JSON_TX_BUFFER_SIZE> jsonTX;
 
     const char *payload_n = {"payload"};
-    const char *valves_n = {"valves"};
+    //  const char *valves_n = {"valves"};
     const char *sensors_n = {"sensors"};
     const char *pressure_n = {"pressure"};
     const char *temp_n = {"temp"};
@@ -79,7 +79,7 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     strcpy_P(buffer, (char *)pgm_read_ptr(&(stateNames[sm.get_state()]))); // Necessary casts and dereferencing, just copy.
     jsonTX[payload_n][F("state")].set(buffer);
 
-       // char buffer[13];
+    // char buffer[13];
     // const char *ptr = (const char *)pgm_read_word(&stateNames[smState]);
     //  strncpy_P(buffer, ptr, sizeof(buffer));
     //  buffer[sizeof(buffer) - 1] = "\0";
@@ -89,14 +89,19 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     char floatBuffer[12];
 
     // Output Data
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
         char buffer[4];
         sprintf(buffer, "V%d", i + 1);
-        jsonTX[payload_n][valves_n][buffer].set(
-            int(bool(adams.adamsCtrl[ADAM6052_A].g_coilState & 1 << i))); // fancy binary operation to bitmask the valvestate variable with a power of 2 to get true or false for each valve
+        jsonTX[payload_n][F("valves")][buffer].set(int(bool(adams.adamsCtrl[ADAM6052_A].g_coilState & 1 << i))); // fancy binary operation to bitmask the valvestate variable
     }
 
-    //   jsonTX[payload_n][F("fan")][F("speed")].set(data.outputs.fan_speed);
+    for (int i = 0; i < 4; i++) {
+        char buffer[7];
+        sprintf(buffer, "%s", relay_names[i]);
+        jsonTX[payload_n][F("relays")][buffer].set(int(bool(adams.adamsCtrl[ADAM6052_B].g_coilState & 1 << i))); // fancy binary operation to bitmask the valvestate variable
+    }
+
+    // jsonTX[payload_n][F("fan")][F("speed")].set(data.outputs.fan_speed);
     //  jsonTX[payload_n][F("fan")][F("target")].set(data.commands.fan_target);
     //   jsonTX[payload_n][F("fan")][F("state")].set(esc.esc_stateNames[data.status.fan_state]); // this conversion should not be done here
 
@@ -144,21 +149,30 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     JsonArray timeArray = jsonTX[payload_n][F("meta")].createNestedArray("time");
 
     // for loop to place data into arrays (is it possible to just pass whole string without looping up to 200 times!?)
-    // for (int i = 0; i < num_samples; i++) {
-    char float_buffer_one[8]; // issues caused by reusing buffer
-                              //    formatFloat(data.sensors.atmos_temp_C, float_buffer_one, sizeof(float_buffer_one), 2);
-    jsonArrayOne.add(float_buffer_one);
+    for (int i = 0; i < 3; i++) {
+        char float_buffer_one[8]; // issues caused by reusing buffer
+        formatFloat(ps_vals[i], float_buffer_one, sizeof(float_buffer_one), 2);
+        jsonArrayOne.add(float_buffer_one);
+    }
 
-    char float_buffer_two[8];
-    //  formatFloat(data.sensors.atmos_pressure_Pa, float_buffer_two, sizeof(float_buffer_two), 2);
-    jsonArrayTwo.add(float_buffer_two);
+    for (int i = 0; i < 5; i++) {
+        char float_buffer_two[8]; // issues caused by reusing buffer
+        formatFloat(ts_vals[i], float_buffer_two, sizeof(float_buffer_two), 2);
+        jsonArrayTwo.add(float_buffer_two);
+    }
+
+    for (int i = 0; i < 4; i++) {
+        char float_buffer_three[8]; // issues caused by reusing buffer
+        formatFloat(misc_vals[i], float_buffer_three, sizeof(float_buffer_three), 2);
+        jsonTX[payload_n][F("misc")][misc_names[i]].set(float_buffer_three);
+    }
 
     //   char float_buffer_three[8];
     //   formatFloat(data.sensors.atmos_humid_pc, float_buffer_three, sizeof(float_buffer_three), 2);
     //   jsonArrayThree.add(float_buffer_three);
 
-    // timeArray.add(data.sensors.timestamp_mS); // timestamp_array[i]
-    //  }
+    //  timeArray.add(data.sensors.timestamp_mS); // timestamp_array[i]
+    //   }
 
     // Meta Data & Debugging
     // jsonTX[F("meta")][F("sizeof")].set(sizeof(jsonTX));
