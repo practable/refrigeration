@@ -25,12 +25,12 @@ void adamFunctions::adams_begin() {
     adamsCtrl[ADAM6052_B].begin();
     adamsCtrl[ADAM6052_B].set_coils(0b00000000);
 #endif
-#if ADAM6217A_ACTIVE == true
+#if ADAM6217C_ACTIVE == true
     //  adam6217_C.begin();
     adamsCtrl[ADAM6217_C].begin();
 #endif
-#if ADAM6217B_ACTIVE == true
-    // adam6217_D.begin();
+#if ADAM6217D_ACTIVE == true
+    //   adam6217_D.begin();
     adamsCtrl[ADAM6217_D].begin();
 #endif
     delay(1000);
@@ -67,26 +67,32 @@ void adamFunctions::sample_adam6052B() {
 #endif
 }
 
-void adamFunctions::sample_adam6217C(float *ps_vals, float *ts_vals) {
+#define DEBUG_SAMPLING false
+
+void adamFunctions::sample_adam6217C(float (&ps_vals)[3], float (&ts_vals)[5]) {
     adamsCtrl[ADAM6217_C].read_analog_inputs(); // read all temperature sensor inputs
-                                                // sampleTimestamp = millis();       // This takes a "generic" timestamp that should be accurate enough for most purposes
+    sampleTimestamp = millis();                 // This takes a "generic" timestamp that should be accurate enough for most purposes
     for (int i = 0; i < NUM_PRESSURE_SENSORS; i++) {
         ps_vals[i] = pressure_s[i].calcProcessVar(adamsCtrl[ADAM6217_C].d_array.f_data[i]);
+
         // Check pressure vals here?
         // TODO status message for low/high pressure
 #if DEBUG_SAMPLING == true
+        Serial.print(F("f_Data: "));
+        Serial.print(adamsCtrl[ADAM6217_C].d_array.f_data[i]);
+        Serial.print(" ,");
         Serial.print(ps_vals[i]);
-        Serial.print(F(" Bar"));
+        Serial.print(F(",  Bar, "));
 #endif
     }
     for (int i = 0; i < NUM_TEMP_SENSORS; i++) {
         ts_vals[i] = temp_s[i].calcProcessVar(
-            adamsCtrl[ADAM6217_C].d_array.f_data[i + 3]); // index for temp sensors starts at 3// calculate the process variable and save to temperature sensor array
+            adamsCtrl[ADAM6217_C].d_array.f_data[i + 3]); // index for temp sensors starts at 3
                                                           //   ts_times[i] = adam6217A.d_array.timeStamp_mS[i];                     // save the timestamp to the 2D array - depreciated no space left
                                                           // temp_s[i].updateHistory(temp);                                    // this is only needed if doing maths in firmware(future use case?)
 #if DEBUG_SAMPLING == true
-        Serial.print(ts_vals[i]);
-        Serial.print(F(" degC"));
+        //    Serial.print(ts_vals[i]);
+        //    Serial.print(F(" degC, "));
 #endif
     }
 }

@@ -57,9 +57,14 @@ RAM:   [=======   ]  65.2% (used 5340 bytes from 8192 bytes)
 Flash: [==        ]  16.7% (used 42466 bytes from 253952 bytes)
 
 
+// working on sensors
+RAM:   [=======   ]  66.1% (used 5414 bytes from 8192 bytes)
+Flash: [==        ]  17.5% (used 44422 bytes from 253952 bytes)
+
 */
 
 #include "globals.h"
+#include "utility.h"
 
 #define I2C_ACTIVE false
 
@@ -74,7 +79,7 @@ void setup() {
 
     ethernet_begin();
     adams.adams_begin();
-    // sensors_begin();
+    sensors_begin();
     Serial.println(F(" "));
 }
 
@@ -107,7 +112,9 @@ void loop() {
 
 #if ADAM6217C_ACTIVE == true
         adams.check_modbus_connection(ADAM6217_C);
-        adams.sample_adam6217C(*ps_vals, *ts_vals);
+        adams.sample_adam6217C(ps_vals, ts_vals);
+        //    Serial.println(ps_vals[0]);
+        //    Serial.println(ts_vals[0]);
 #endif
 #if ADAM6217D_ACTIVE == true
         adams.check_modbus_connection(ADAM6217_D);

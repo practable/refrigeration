@@ -223,10 +223,11 @@ adamController::dataArray adamController::read_analog_inputs() {
     int numReadings = modbusTCP.available();                              // Is this line even needed? requestFrom returns number of readings
     uint16_t readBuffer[numReadings];
     // int inputStates = 0; Not used remove in later version I dont know what the intended function for this was
-    char buffer[514] = {0};
+    // char buffer[514] = {0};
     if (response > 0) {
         for (int i = 0; i < numReadings; i++) {
             readBuffer[i] = modbusTCP.read();
+            //  Serial.println(readBuffer[i]);     // PUT HERE TO DEBUG!!!!!!!!!!!!!
             d_array.i_data[i] = readBuffer[i]; // always save the DAQ reading to the i_data buffer
             d_array.timeStamp_mS[i] = millis();
             switch (analogType) {
@@ -236,6 +237,7 @@ adamController::dataArray adamController::read_analog_inputs() {
                 break;
             case VOLTAGE_OUTPUT:
                 d_array.f_data[i] = adamController::adc_to_voltage(readBuffer[i]); // do the conversion to voltage/current here
+                                                                                   //   Serial.println(d_array.f_data[i]);                                 // PUT HERE TO DEBUG!!!!!!!!!!!!!
                 break;
             case CURRENT_OUTPUT:
                 d_array.f_data[i] = adamController::adc_to_current(readBuffer[i]); // do the conversion to voltage/current here
@@ -246,9 +248,10 @@ adamController::dataArray adamController::read_analog_inputs() {
                 break;
             }
         }
-        sprintf(buffer, "{\"status\":\"%s: Read Analog Inputs (DAC): %u, %u, %u, %u, %u, %u\"}", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4], readBuffer[5]);
+        // sprintf(buffer, "{\"status\":\"%s: Read Analog Inputs (DAC): %u, %u, %u, %u, %u, %u\"}", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4],
+        // readBuffer[5]);
     } else {
-        sprintf(buffer, "{\"error\":\"%s: Unable to read input status\"}", moduleName);
+        //  sprintf(buffer, "{\"error\":\"%s: Unable to read input status\"}", moduleName);
         // inputStates = -1;
     }
 

@@ -161,7 +161,7 @@ void jsonReporter::print_json() { // const instrumentData_t &data
         jsonArrayTwo.add(float_buffer_two);
     }
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 2; i++) {
         char float_buffer_three[8]; // issues caused by reusing buffer
         formatFloat(misc_vals[i], float_buffer_three, sizeof(float_buffer_three), 2);
         jsonTX[payload_n][F("misc")][misc_names[i]].set(float_buffer_three);
