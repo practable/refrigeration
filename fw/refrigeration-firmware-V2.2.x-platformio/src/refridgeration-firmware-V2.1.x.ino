@@ -61,6 +61,10 @@ Flash: [==        ]  16.7% (used 42466 bytes from 253952 bytes)
 RAM:   [=======   ]  66.1% (used 5414 bytes from 8192 bytes)
 Flash: [==        ]  17.5% (used 44422 bytes from 253952 bytes)
 
+// current total
+RAM:   [======    ]  64.7% (used 5304 bytes from 8192 bytes)
+Flash: [==        ]  17.8% (used 45088 bytes from 253952 bytes)
+
 */
 
 #include "globals.h"
