@@ -35,6 +35,8 @@ jsonError error;
 // JSON data reporting
 jsonReporter report;
 
+Adafruit_BME280 bme; // I2C
+
 // Power Relay globals
 char relay_names[][7] = {"cond", "evap", "comp", "lights"};
 

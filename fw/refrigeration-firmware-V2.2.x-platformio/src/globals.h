@@ -26,6 +26,7 @@
 #define ADAM6052B_ACTIVE true
 #define ADAM6217C_ACTIVE true
 #define ADAM6217D_ACTIVE true
+#define I2C_ACTIVE true
 
 extern byte mac[];
 
@@ -42,6 +43,8 @@ extern jsonError error;
 
 // JSON data reporting
 extern jsonReporter report;
+
+extern Adafruit_BME280 bme; // I2C
 
 // BELOW HERE UNCHECKED FOR NOW 19/10/26
 

@@ -56,12 +56,30 @@ void sensors_begin() {
     // Instead use!
     unsigned status = 0;
     // status = bme.begin(0x76);
-    // Serial.print(F("{\"status\":\"BME280:"));
-    // Serial.print(status);
-    // Serial.println(F("\"}"));
-    if (status == 0) {
-        Serial.println(F("{\"error\":\" BME280 Error\"}"));
-    } else {
-        //   Serial.println(F("{\"status\":\" BME280 Detected\"}"));
+    Serial.print(F("{\"status\":\"BME280:"));
+    Serial.print(status);
+    Serial.println(F("\"}"));
+    // if (status == 0) {
+    Serial.println(F("{\"error\":\" BME280 Error\"}"));
+    // } else {
+    Serial.println(F("{\"status\":\" BME280 Detected\"}"));
+    //  }
+}
+
+void sample_bme280() {
+    misc_vals[2] = bme.readTemperature();       // °C
+    misc_vals[3] = bme.readPressure() / 100.0F; // hPa
+    misc_vals[4] = bme.readHumidity();          // %
+#if DEBUG_SAMPLING == true
+    for (int i = 2; i < 5; i++) { // changed loop from i < 4 to i < 2
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.print(misc_names[i]);
+        Serial.print(F(" : "));
+        Serial.print(misc_vals[i]);
+        Serial.print(F(" "));
+        Serial.println(misc_units[i]);
+        delay(2000);
     }
+#endif
 }

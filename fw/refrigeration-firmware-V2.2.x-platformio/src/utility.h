@@ -25,4 +25,6 @@ void print_program_info();
 
 void sensors_begin();
 
+void sample_bme280();
+
 #endif

@@ -65,6 +65,16 @@ Flash: [==        ]  17.5% (used 44422 bytes from 253952 bytes)
 RAM:   [======    ]  64.7% (used 5304 bytes from 8192 bytes)
 Flash: [==        ]  17.8% (used 45088 bytes from 253952 bytes)
 
+// Added BME back rhu rho
+RAM:   [=======   ]  68.1% (used 5579 bytes from 8192 bytes)
+Flash: [==        ]  21.3% (used 54040 bytes from 253952 bytes)
+- not running, need to saaave RAM!!
+
+
+// Got rid of some useless data from the struct for adamController. saved signfiicant moolar
+RAM:   [=======   ]  65.8% (used 5387 bytes from 8192 bytes)
+Flash: [==        ]  21.2% (used 53938 bytes from 253952 bytes)
+
 */
 
 #include "globals.h"
@@ -75,6 +85,8 @@ Flash: [==        ]  17.8% (used 45088 bytes from 253952 bytes)
 #define SAMPLING_DELAY 500
 #define JSON_REPORT_DELAY_mS 1000
 #define BUILD_JSON true
+
+#define I2C_ACTIVE true
 
 void setup() {
     Serial.begin(115200);

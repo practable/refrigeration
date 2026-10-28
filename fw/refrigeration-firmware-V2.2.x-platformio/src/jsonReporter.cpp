@@ -171,8 +171,7 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     //   formatFloat(data.sensors.atmos_humid_pc, float_buffer_three, sizeof(float_buffer_three), 2);
     //   jsonArrayThree.add(float_buffer_three);
 
-    //  timeArray.add(data.sensors.timestamp_mS); // timestamp_array[i]
-    //   }
+    timeArray.add(lastSample); // timestamp_array[i]
 
     // Meta Data & Debugging
     // jsonTX[F("meta")][F("sizeof")].set(sizeof(jsonTX));

@@ -228,12 +228,12 @@ adamController::dataArray adamController::read_analog_inputs() {
         for (int i = 0; i < numReadings; i++) {
             readBuffer[i] = modbusTCP.read();
             //  Serial.println(readBuffer[i]);     // PUT HERE TO DEBUG!!!!!!!!!!!!!
-            d_array.i_data[i] = readBuffer[i]; // always save the DAQ reading to the i_data buffer
-            d_array.timeStamp_mS[i] = millis();
+            //  d_array.i_data[i] = readBuffer[i]; // always save the DAQ reading to the i_data buffer
+            //   d_array.timeStamp_mS[i] = millis();
             switch (analogType) {
             case DAC_OUTPUT:
                 // no other conversion needed, just copy int data to float variable to avoid breaking things when changes are made and user forgets to change i_data to f_data
-                d_array.f_data[i] = float(d_array.i_data[i]);
+                //  d_array.f_data[i] = float(d_array.i_data[i]);
                 break;
             case VOLTAGE_OUTPUT:
                 d_array.f_data[i] = adamController::adc_to_voltage(readBuffer[i]); // do the conversion to voltage/current here
