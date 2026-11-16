@@ -62,8 +62,8 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     const char *sensors_n = {"sensors"};
     const char *pressure_n = {"pressure"};
     const char *temp_n = {"temp"};
-    const char *humidity_n = {"humidity"};
-    const char *misc_n = {"misc"};
+    // const char *humidity_n = {"humidity"};
+    //   const char *misc_n = {"misc"};
 
     // char float_buffer[8];  // buffer to hold fixed length floats
     // freeRAM = ram.getPrintStats("update_json");
@@ -86,7 +86,7 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     //  jsonTX[F("payload")][F("state")].set(buffer);
 
     // jsonTX[F("payload")][F("state")][F("val")].set(smState);  only needed for debugging state machine
-    char floatBuffer[12];
+    // char floatBuffer[12];
 
     // Output Data
     for (int i = 0; i < 7; i++) {
@@ -101,52 +101,13 @@ void jsonReporter::print_json() { // const instrumentData_t &data
         jsonTX[payload_n][F("relays")][buffer].set(int(bool(adams.adamsCtrl[ADAM6052_B].g_coilState & 1 << i))); // fancy binary operation to bitmask the valvestate variable
     }
 
-    // jsonTX[payload_n][F("fan")][F("speed")].set(data.outputs.fan_speed);
-    //  jsonTX[payload_n][F("fan")][F("target")].set(data.commands.fan_target);
-    //   jsonTX[payload_n][F("fan")][F("state")].set(esc.esc_stateNames[data.status.fan_state]); // this conversion should not be done here
-
-    // formatFloat(data.sensors.gen_freq_hz, floatBuffer, 8, 3);
-    //    jsonTX[payload_n][F("gen")][F("freq")].set(data.sensors.gen_freq_hz);
-    // formatFloat(data.sensors.gen_volts_V, floatBuffer, 8, 3);
-    //    jsonTX[payload_n][F("gen")][F("volts")].set(data.sensors.gen_volts_V);
-    // formatFloat(data.sensors.gen_acc_dHz_s, floatBuffer, 8, 3);
-    //    jsonTX[payload_n][F("gen")][F("acc")].set(data.sensors.gen_acc_dHz_s);
-
-    // formatFloat(data.sensors.dP_sense_V, floatBuffer, 8, 3);
-    // jsonTX[payload_n][F("air")][F("voltage")].set(data.sensors.dP_sense_V); // dP_sense_data.voltage);
-    // formatFloat(data.sensors.dP_pressure_Pa, floatBuffer, 8, 3);
-    //   jsonTX[payload_n][F("air")][F("dP_Pa")].set(data.sensors.dP_pressure_Pa);
-    // formatFloat(data.sensors.dP_dense_gk_m3, floatBuffer, 8, 3);
-    //   jsonTX[payload_n][F("air")][F("dense")].set(data.sensors.dP_dense_gk_m3);
-    // formatFloat(data.sensors.dP_airspeed_m_s, floatBuffer, 8, 3);
-    //   jsonTX[payload_n][F("air")][F("speed")].set(data.sensors.dP_airspeed_m_s);
-
-    // jsonTX[payload_n][F("air")][F("speed")].set(current_air_speed_one);
-
     // For Arrays
     // create all the JSONarrays
     JsonArray jsonArrayOne = jsonTX[payload_n][sensors_n].createNestedArray(pressure_n);
     JsonArray jsonArrayTwo = jsonTX[payload_n][sensors_n].createNestedArray(temp_n);
     // JsonArray jsonArrayThree = jsonTX[payload_n][sensors_n].createNestedArray(humidity_n);
 
-    //   jsonTX[payload_n][servo_n][F("yaw")].set(data.outputs.yaw_servo_pos);
-    //   jsonTX[payload_n][servo_n][F("yaw_trgt")].set(data.commands.yaw_servo_target);
-    //   jsonTX[payload_n][servo_n][F("pitch")].set(data.outputs.pitch_servo_pos);
-    //   jsonTX[payload_n][servo_n][F("pitch_trgt")].set(data.commands.pitch_servo_target);
-
-    //  jsonTX["state"][F("dmmy_ld")].set(data.outputs.dummy_load_state);
-    //   jsonTX["state"][F("smooth")].set(data.outputs.smoothing_cap_state);
-
-    // logData_t current_log = lifeLog.get_current();   // this line needs to be doing its thing elsewhere and putting its data into the datastore
-
-    //   formatFloat(data.lifetime.motor_hours, floatBuffer, 8, 3);
-    //   jsonTX[life_n][F("motor_h")].set(floatBuffer);                 //   current_log.motorSeconds + lifeCounters.motorSeconds
-    //   jsonTX[life_n][F("gen_rot")].set(data.lifetime.gen_rotations); //   current_log.generatorRotations + gen_rotations
-    //   jsonTX[life_n][F("yaws")].set(data.lifetime.yaws_cmd);         // current_log.yawsCommanded + lifeCounters.yawsCommanded
-    //   jsonTX[life_n][F("pitches")].set(data.lifetime.pitches_cmd);   // current_log.pitchCommanded + lifeCounters.pitchCommanded
-
     // jsonTX[F("payload")][("meta")][F("samples")].set(num_samples);
-    JsonArray timeArray = jsonTX[payload_n][F("meta")].createNestedArray("time");
 
     // for loop to place data into arrays (is it possible to just pass whole string without looping up to 200 times!?)
     for (int i = 0; i < 3; i++) {
@@ -164,13 +125,19 @@ void jsonReporter::print_json() { // const instrumentData_t &data
     for (int i = 0; i < 2; i++) {
         char float_buffer_three[8]; // issues caused by reusing buffer
         formatFloat(misc_vals[i], float_buffer_three, sizeof(float_buffer_three), 2);
-        jsonTX[payload_n][F("misc")][misc_names[i]].set(float_buffer_three);
+        jsonTX[payload_n][sensors_n][misc_names[i]].set(float_buffer_three);
+    }
+
+    for (int i = 2; i < 5; i++) {
+        char float_buffer_three[8]; // issues caused by reusing buffer
+        formatFloat(misc_vals[i], float_buffer_three, sizeof(float_buffer_three), 2);
+        jsonTX[payload_n][sensors_n][F("ambient")][misc_names[i]].set(float_buffer_three);
     }
 
     //   char float_buffer_three[8];
     //   formatFloat(data.sensors.atmos_humid_pc, float_buffer_three, sizeof(float_buffer_three), 2);
     //   jsonArrayThree.add(float_buffer_three);
-
+    JsonArray timeArray = jsonTX[payload_n][F("meta")].createNestedArray("time");
     timeArray.add(lastSample); // timestamp_array[i]
 
     // Meta Data & Debugging

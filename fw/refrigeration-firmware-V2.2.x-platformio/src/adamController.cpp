@@ -58,6 +58,22 @@ bool adamController::check_modbus_connect() {
     }
 }
 
+// type, address (any val) , nb (no bytes to be sent)
+
+void adamController::sendCMD(uint16_t commandType, uint16_t address, uint16_t bytes, uint16_t data) {
+    uint16_t response = 0;
+    response = modbusTCP.beginTransmission(commandType, address, bytes);
+    modbusTCP.write(data);
+    modbusTCP.endTransmission();
+    if (response == 1) {
+        Serial.print(moduleName);
+        Serial.print(F(": Command Sent: "));
+    } else {
+        Serial.print(moduleName);
+        Serial.print(F(": Error sending Command "));
+    }
+}
+
 int16_t adamController::set_coil(int coilNum, bool coilState) {
     uint8_t state;
     if (coilState) {
@@ -206,6 +222,22 @@ int16_t adamController::read_digital_inputs() {
     Serial.println(buffer);
 #endif
     return inputStates;
+}
+
+#todo check this AI written bullshit
+void read_holding_registers() {
+    int response = modbusTCP.requestFrom(HOLDING_REGISTERS, 0x00, 0x08);
+    int numReadings = modbusTCP.available(); // Is this line even needed? requestFrom returns number of readings
+    int readBuffer[numReadings];
+    char buffer[64];
+    if (response > 0) {
+        for (int i = 0; i < numReadings; i++) {
+            readBuffer[i] = modbusTCP.read();
+        }
+        sprintf(buffer, "{\"status\":\"%s: Read Holding Registers: %u, %u, %u, %u, %u, %u\"}", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4], readBuffer[5]);
+    } else {
+        sprintf(buffer, "{\"error\":\"%s: Unable to read input status\"}", moduleName);
+    }
 }
 
 void adamController::printBin(uint8_t binaryVal) {

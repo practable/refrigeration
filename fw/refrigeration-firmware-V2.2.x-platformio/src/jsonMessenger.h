@@ -70,6 +70,8 @@ class jsonMessenger {
 
     void printStateData(jsonStateData_t &data);
 
+    uint32_t get_time_since_last_cmd();
+
     //  void print_cmds();
 
 #if JSON_USE_QUEUE == true
@@ -91,6 +93,8 @@ class jsonMessenger {
     void extract_auth_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword);
     void extract_auth_float(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword);
     void extract_auth_msg(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword);
+
+    uint32_t last_command_rxed_mS = 0;
 
 #if JSON_USE_QUEUE == true
     jsonStateData_t jsonQueue[CMD_QUEUE_LENGTH];

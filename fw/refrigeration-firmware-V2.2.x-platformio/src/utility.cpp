@@ -25,7 +25,9 @@ void ethernet_begin() {
 }
 
 void print_json_state_data(jsonStateData_t &data) {
-    printf("CMD recieved: %i, %i, %i, %u, %f, %d, %s, %s, %d \n", data.stateEnum, data.data_type, data.intData, data.uintData, data.floatData, data.boolData, data.msg, data.auth, data.cmd_received);
+    char buffer[20];
+    report.formatFloat(data.floatData, buffer, 4, 2);
+    printf("CMD recieved: %i, %i, %i, %u, %s, %d, %s, %s, %d \n", data.stateEnum, data.data_type, data.intData, data.uintData, buffer, data.boolData, data.msg, data.auth, data.cmd_received);
     // printf("CMD recieved: %i, %i, %u, %f, %d, %s, %s, %d \n", data.stateEnum, data.intData, data.uintData, data.floatData, data.boolData, data.msg, data.auth, data.cmd_received);
 }
 
@@ -55,15 +57,15 @@ void sensors_begin() {
     //  p_ambi.setCalibration(600, 1500, 4, 20);       // (process low, process high, current low, current high) Linear sensor scaling
     // Instead use!
     unsigned status = 0;
-    // status = bme.begin(0x76);
+    status = bme.begin(0x77);
     Serial.print(F("{\"status\":\"BME280:"));
     Serial.print(status);
     Serial.println(F("\"}"));
-    // if (status == 0) {
-    Serial.println(F("{\"error\":\" BME280 Error\"}"));
-    // } else {
-    Serial.println(F("{\"status\":\" BME280 Detected\"}"));
-    //  }
+    if (status == 0) {
+        Serial.println(F("{\"error\":\" BME280 Error\"}"));
+    } else {
+        Serial.println(F("{\"status\":\" BME280 Detected\"}"));
+    }
 }
 
 void sample_bme280() {

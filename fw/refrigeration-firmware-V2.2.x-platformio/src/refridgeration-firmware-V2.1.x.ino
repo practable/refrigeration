@@ -23,70 +23,17 @@ Global variables use 6155 bytes (75%) of dynamic memory, leaving 2037 bytes for 
 
 V2.2.0
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [=======   ]  68.8% (used 5632 bytes from 8192 bytes)
-Flash: [==        ]  15.2% (used 38628 bytes from 253952 bytes)
-
-
-RAM:   [=======   ]  70.7% (used 5792 bytes from 8192 bytes)
-Flash: [==        ]  16.0% (used 40656 bytes from 253952 bytes)
-
-RAM:   [=======   ]  66.2% (used 5424 bytes from 8192 bytes)
-Flash: [==        ]  15.9% (used 40326 bytes from 253952 bytes)
-- Changed jsonStateMapData_t.cmd to const char *cmd; to save memory
-
-
-RAM:   [=======   ]  66.0% (used 5404 bytes from 8192 bytes)
-Flash: [==        ]  15.9% (used 40394 bytes from 253952 bytes)
-- Removed global nextstate_data
-
-
-// Re-enabled ADAM6217C and ADAM6217D modules,
-RAM:   [=======   ]  67.3% (used 5514 bytes from 8192 bytes)
-Flash: [==        ]  16.6% (used 42122 bytes from 253952 bytes)
-
-// moved state names to flash/PROGMEM
-RAM:   [======    ]  64.8% (used 5312 bytes from 8192 bytes)
-Flash: [==        ]  16.7% (used 42290 bytes from 253952 bytes)
-
-// adding to json reporter to include ADAM-6052-B relay states
-RAM:   [=======   ]  65.3% (used 5346 bytes from 8192 bytes)
-Flash: [==        ]  16.7% (used 42450 bytes from 253952 bytes)
-
-// changing string from predefined variable to F() macro to save memory
-RAM:   [=======   ]  65.2% (used 5340 bytes from 8192 bytes)
-Flash: [==        ]  16.7% (used 42466 bytes from 253952 bytes)
-
-
-// working on sensors
-RAM:   [=======   ]  66.1% (used 5414 bytes from 8192 bytes)
-Flash: [==        ]  17.5% (used 44422 bytes from 253952 bytes)
-
-// current total
-RAM:   [======    ]  64.7% (used 5304 bytes from 8192 bytes)
-Flash: [==        ]  17.8% (used 45088 bytes from 253952 bytes)
-
-// Added BME back rhu rho
-RAM:   [=======   ]  68.1% (used 5579 bytes from 8192 bytes)
-Flash: [==        ]  21.3% (used 54040 bytes from 253952 bytes)
-- not running, need to saaave RAM!!
-
-
-// Got rid of some useless data from the struct for adamController. saved signfiicant moolar
-RAM:   [=======   ]  65.8% (used 5387 bytes from 8192 bytes)
-Flash: [==        ]  21.2% (used 53938 bytes from 253952 bytes)
+RAM:   [=======   ]  69.3% (used 5673 bytes from 8192 bytes)
+Flash: [==        ]  21.6% (used 54738 bytes from 253952 bytes)
 
 */
 
 #include "globals.h"
 #include "utility.h"
 
-#define I2C_ACTIVE false
-
 #define SAMPLING_DELAY 500
 #define JSON_REPORT_DELAY_mS 1000
 #define BUILD_JSON true
-
-#define I2C_ACTIVE true
 
 void setup() {
     Serial.begin(115200);
@@ -106,7 +53,7 @@ void loop() {
 
     if (nextState_data.cmd_received) { // If command is receive
                                        // LEDS[0].callBlink(4, 20, 60);
-
+        last_cmd_rx_mS = millis();     // update the last command received time
         // This is the bit that parses the command recieved by user, and sets the state machine to go to the correct state
         if (nextState_data.stateEnum != STATE_NULL) {
             sm.change_state(nextState_data.stateEnum);
@@ -136,6 +83,10 @@ void loop() {
         adams.check_modbus_connection(ADAM6217_D);
         adams.sample_adam6217D();
 #endif
+#if ADAM6224E_ACTIVE == true
+        adams.check_modbus_connection(ADAM6224_E);
+        // adams.sample_adam6224E();
+#endif
 #if I2C_ACTIVE == true
         sample_bme280();
 #endif
@@ -146,5 +97,18 @@ void loop() {
     if (millis() - lastReport >= JSON_REPORT_DELAY_mS) {
         report.print_json();
         lastReport = millis();
+    }
+
+    if (lights_active) {
+        if (millis() - lights_active_time_mS >= LIGHTS_ACTIVE_TIME_mS) { // If lights timer runs out
+            // smState = STATE_LIGHTS_OFF;
+            sm.change_state(STATE_LIGHTS);
+        }
+    }
+    if (experiment_active) {
+        if (millis() - last_cmd_rx_mS >= GLOBAL_TIMEOUT_mS) {
+            experiment_active = false;
+            sm.change_state(STATE_STOP);
+        }
     }
 }

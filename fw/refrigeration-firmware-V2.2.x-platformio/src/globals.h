@@ -26,7 +26,11 @@
 #define ADAM6052B_ACTIVE true
 #define ADAM6217C_ACTIVE true
 #define ADAM6217D_ACTIVE true
+#define ADAM6224E_ACTIVE true
 #define I2C_ACTIVE true
+
+#define LIGHTS_ACTIVE_TIME_mS 3600000 // = 15 min
+#define GLOBAL_TIMEOUT_mS 3600000     // = 1h
 
 extern byte mac[];
 
@@ -112,6 +116,7 @@ extern IPAddress adam6052A_ip; // update with the IP Address of your Modbus serv
 extern IPAddress adam6052B_ip; // update with the IP Address of your Modbus server (the remote IO controller)
 extern IPAddress adam6217C_ip; // update with the IP Address of your Modbus server (the remote IO controller)
 extern IPAddress adam6217D_ip; // update with the IP Address of your Modbus server (the remote IO controller)
+extern IPAddress adam6224E_ip; // update with the IP Address of your Modbus server (the remote IO controller)
 
 // Create an Ethernet Client
 extern EthernetClient ethClient;
@@ -119,5 +124,7 @@ extern EthernetClient ethClient;
 #include "adamFunctions.h"
 
 extern adamFunctions adams;
+
+extern bool experiment_active;
 
 #endif

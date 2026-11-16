@@ -22,6 +22,7 @@ enum adamName_t {
     ADAM6052_B,
     ADAM6217_C,
     ADAM6217_D,
+    ADAM6224_E,
 };
 
 enum ADAM6052_B_DO_t {
@@ -46,10 +47,15 @@ class adamFunctions {
     void sample_adam6052B();
     void sample_adam6217C(float (&ps_vals)[3], float (&ts_vals)[5]);
     void sample_adam6217D();
+    void sample_adam6224E();
 
     // this should be private but its just making me duplicate functions so I will leave it public for now
-    adamController adamsCtrl[4] = {adamController(ethClient, adam6052A_ip, DAC_OUTPUT, "ADAM-6052-A"), adamController(ethClient, adam6052B_ip, DAC_OUTPUT, "ADAM-6052-B"),
-                                   adamController(ethClient, adam6217C_ip, VOLTAGE_OUTPUT, "ADAM-6217-C"), adamController(ethClient, adam6217D_ip, CURRENT_OUTPUT, "ADAM-6217-D")};
+    adamController adamsCtrl[5] = {// force newline
+                                   adamController(ethClient, adam6052A_ip, DAC_OUTPUT, "ADAM-6052-A"), adamController(ethClient, adam6052B_ip, DAC_OUTPUT, "ADAM-6052-B"),
+                                   adamController(ethClient, adam6217C_ip, VOLTAGE_OUTPUT, "ADAM-6217-C"), adamController(ethClient, adam6217D_ip, CURRENT_OUTPUT, "ADAM-6217-D"),
+                                   adamController(ethClient, adam6224E_ip, VOLTAGE_OUTPUT, "ADAM-6224-E")
+
+    };
 
   private:
     // Create an adamController object and pass the Ethernet Client and IP Address for the server

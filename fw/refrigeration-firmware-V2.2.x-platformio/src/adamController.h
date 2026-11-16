@@ -63,6 +63,8 @@ class adamController {
 
     bool check_modbus_connect();
 
+    void sendCMD(uint16_t commandType, uint16_t address, uint16_t bytes, uint16_t data);
+
     int16_t set_coil(int coilNum, bool coilState = false);
     int16_t set_coils(uint8_t coilStates = 0b00000000);
     int16_t read_coil(uint8_t outputNum);

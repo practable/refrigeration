@@ -82,7 +82,7 @@ sensorObj power_s(CURRENT_SENSOR, "W", "power");
 // Arrays for Misc Sensor Vals
 float misc_vals[5] = {0.0, 0.0, 0.0, 0.0, 0.0}; // create array for misc data
 // uint32_t misc_times[4] = { 1000, 1000, 1000, 1000 };  // create array for TS timestamps
-char misc_names[][6] = {"flow", "power", "TSA", "PSA", "HSA"};
+char misc_names[][6] = {"flow", "power", "temp", "press", "humid"};
 char misc_units[][6] = {"l/h", "W", "degC", "hPa", "%"};
 
 //_status status = { true, " ", 0, " " };
@@ -104,8 +104,11 @@ IPAddress adam6052A_ip(192, 168, 1, 111); // update with the IP Address of your 
 IPAddress adam6052B_ip(192, 168, 1, 116); // update with the IP Address of your Modbus server (the remote IO controller)
 IPAddress adam6217C_ip(192, 168, 1, 112); // update with the IP Address of your Modbus server (the remote IO controller)
 IPAddress adam6217D_ip(192, 168, 1, 115); // update with the IP Address of your Modbus server (the remote IO controller)
+IPAddress adam6224E_ip(192, 168, 1, 118); // update with the IP Address of your Modbus server (the remote IO controller)
 
 // Create an Ethernet Client
 EthernetClient ethClient;
 
 adamFunctions adams;
+
+bool experiment_active = false;

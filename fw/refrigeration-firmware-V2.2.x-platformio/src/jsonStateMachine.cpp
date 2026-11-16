@@ -76,6 +76,7 @@ void stateMachine::sm_state_stop(jsonStateData_t &stateData) {
         adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, false); // turn off evaporation fan
         delay(2000);                                     // wait 2 seconds for compressor to stop & flow to slow down
         adams.setAll_DO(ADAM6052_A, 0b00000000);         // close all valves
+        experiment_active = false;
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -101,6 +102,7 @@ void stateMachine::sm_state_valve(jsonStateData_t &stateData) {
 #endif
         if (stateData.uintData > 0 && stateData.uintData <= 7) {
             adams.set_DO(ADAM6052_A, (stateData.uintData - 1), stateData.intData);
+            experiment_active = true;
         } else {
             error.json_error("ERROR", "Valve Number Out of Bounds");
         }
@@ -118,6 +120,7 @@ void stateMachine::sm_state_comp(jsonStateData_t &stateData) {
 #endif
         // stateData.uintData++;
         adams.set_DO(ADAM6052_B, ADAM6052B_COMP, stateData.intData); // control the compressor on/off
+        experiment_active = true;
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -132,6 +135,12 @@ void stateMachine::sm_state_lights(jsonStateData_t &stateData) {
         // stateData.uintData++;
         // Serial.println(stateData.intData);
         adams.set_DO(ADAM6052_B, ADAM6052B_LAMP, stateData.intData);
+        if (stateData.intData >= 1) {
+            lights_active = true;
+            lights_active_time_mS = millis();
+        } else {
+            lights_active = false;
+        }
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -145,6 +154,7 @@ void stateMachine::sm_state_fans(jsonStateData_t &stateData) {
 #endif
         adams.set_DO(ADAM6052_B, ADAM6052B_COND, stateData.intData); // Control condensing fan
         adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, stateData.intData); // Control evaporation fan
+        experiment_active = true;
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -157,6 +167,7 @@ void stateMachine::sm_state_evap(jsonStateData_t &stateData) {
         Serial.println(F("state: EVAP"));
 #endif
         adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, stateData.intData); // Control evaporation fan
+        experiment_active = true;
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -169,6 +180,7 @@ void stateMachine::sm_state_cond(jsonStateData_t &stateData) {
         Serial.println(F("state: COND"));
 #endif
         adams.set_DO(ADAM6052_B, ADAM6052B_COND, stateData.intData); // Control condensing fan
+        experiment_active = true;
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -180,7 +192,7 @@ void stateMachine::sm_state_fanspeed(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: FANSPEED"));
 #endif
-
+        experiment_active = true;
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -192,7 +204,8 @@ void stateMachine::sm_state_evapspeed(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: EVAPSPEED"));
 #endif
-
+        experiment_active = true;
+        adams.adamsCtrl[ADAM6224_E].sendCMD(HOLDING_REGISTERS, 0x0000, 0x04, stateData.intData); // (type, address, bytes) send command to set speed of evaporation fan
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -204,7 +217,7 @@ void stateMachine::sm_state_condspeed(jsonStateData_t &stateData) {
 #if DEBUG_STATES == true
         Serial.println(F("state: CONDSPEED"));
 #endif
-
+        experiment_active = true;
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -229,6 +242,7 @@ void stateMachine::sm_state_quickstart(jsonStateData_t &stateData) {
         Serial.println(F("state: QUICKSTART"));
 #endif
         Serial.println(stateData.msg);
+        experiment_active = true;
         lastState = smState;
     }
     smState = STATE_WAIT;

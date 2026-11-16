@@ -33,6 +33,9 @@ void adamFunctions::adams_begin() {
     //   adam6217_D.begin();
     adamsCtrl[ADAM6217_D].begin();
 #endif
+#if ADAM6224E_ACTIVE == true
+    adamsCtrl[ADAM6224_E].begin();
+#endif
     delay(1000);
 }
 
@@ -115,3 +118,5 @@ void adamFunctions::sample_adam6217D() {
     }
 #endif
 }
+
+void adamFunctions::sample_adam6224E() {}

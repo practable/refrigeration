@@ -25,7 +25,7 @@ void jsonMessenger::printJSON(StaticJsonDocument<JSON_RX_SIZE> *jsonDoc) {
 #pragma JSON set to Pretty Print !-May experience problems with Machine Parsing
     serializeJsonPretty(*jsonDoc, Serial);
 #else
-#pragma JSON set to standard JSON output - For human readability try enabling Pretty Print !
+    // #pragma JSON set to standard JSON output - For human readability try enabling Pretty Print !
     serializeJson(*jsonDoc, Serial);
 #endif
     Serial.print(F("\n"));
@@ -33,7 +33,7 @@ void jsonMessenger::printJSON(StaticJsonDocument<JSON_RX_SIZE> *jsonDoc) {
 
 void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
 
-    jsonRX_data = emptyJsonData; // jsonStateData_t{STATE_NULL,EMPTY 0, 0, 0.0, false, "", "", false}; // Default message that will be passed out if no data received or cannot be parsed
+    jsonRX_data = emptyJsonData; // jsonStateData_t{STATE_NULL,EMPTY 0, 0, 0.0, false, "", "", false}; // Default message that will be passed out if no data
 
     if (Serial.available() > 0) {
         // Serial.println("Serial Available");
@@ -88,6 +88,8 @@ void jsonMessenger::jsonReadSerialLoop(jsonStateData_t &jsonRX_data) {
             //  Serial.println(jsonCommandKeys[i]);
 
             if (root.containsKey(jsonStateMap[i].cmd) || strcmp(keyString, jsonStateMap[i].cmd) == 0) { // Match is found, i holds the correct ENUM reference for the state
+
+                last_command_rxed_mS = millis();
 
                 //   jsonRX_data.data_type = dataTypes_array[jsonStateMap[i].data_type]; // this should contain the correct enum for the datatype
                 jsonRX_data.data_type = jsonStateMap[i].data_type;
@@ -253,7 +255,7 @@ void jsonMessenger::extract_dual_int(jsonStateData_t &data, JsonObject &root, ui
 }
 
 void jsonMessenger::extract_auth_int(jsonStateData_t &data, JsonObject &root, uint8_t map_number, bool set_keyword) {
-    const char *extract_secret;
+    //  const char *extract_secret;
     if (set_keyword) {
         data.intData = root["to"].as<int16_t>();
     } else {
@@ -350,6 +352,8 @@ void jsonMessenger::printStateData(jsonStateData_t &data) { // Use -> to assess 
     Serial.println(data.cmd_received);
     Serial.println();
 }
+
+uint32_t jsonMessenger::get_time_since_last_cmd() { return millis() - last_command_rxed_mS; }
 
 /*
 void jsonMessenger::print_cmds() {
