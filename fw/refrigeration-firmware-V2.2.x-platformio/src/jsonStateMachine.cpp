@@ -195,6 +195,9 @@ void stateMachine::sm_state_fanspeed(jsonStateData_t &stateData) {
         Serial.println(F("state: FANSPEED"));
 #endif
         experiment_active = true;
+        if (stateData.floatData < 1.0) { // no fan movement if speed is less than 0
+            stateData.floatData = 0.0;   // limit to min value
+        }
         uint16_t adcVal = adams.adamsCtrl[ADAM6224_E].voltage_to_adc(stateData.floatData);
         if (adcVal > 4095) {
             adcVal = 4095; // limit to max value for 12 bit DAC
@@ -222,6 +225,9 @@ void stateMachine::sm_state_evapspeed(jsonStateData_t &stateData) {
         Serial.println(F("state: EVAPSPEED"));
 #endif
         experiment_active = true;
+        if (stateData.floatData < 1.0) { // no fan movement if speed is less than 0
+            stateData.floatData = 0.0;   // limit to min value
+        }
         uint16_t adcVal = adams.adamsCtrl[ADAM6224_E].voltage_to_adc(stateData.floatData);
         if (adcVal > 4095) {
             adcVal = 4095; // limit to max value for 12 bit DAC
@@ -240,6 +246,9 @@ void stateMachine::sm_state_condspeed(jsonStateData_t &stateData) {
         Serial.println(F("state: CONDSPEED"));
 #endif
         experiment_active = true;
+        if (stateData.floatData < 1.0) { // no fan movement if speed is less than 0
+            stateData.floatData = 0.0;   // limit to min value
+        }
         uint16_t adcVal = adams.adamsCtrl[ADAM6224_E].voltage_to_adc(stateData.floatData);
         if (adcVal > 4095) {
             adcVal = 4095; // limit to max value for 12 bit DAC
