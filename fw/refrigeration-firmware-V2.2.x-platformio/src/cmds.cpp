@@ -2,18 +2,18 @@
 
 const char PROGMEM null_desc[] = "n/a";
 // Unique Cmnds
-const char PROGMEM desc_0[] = "Set Fan Speed: 0 - 180";
-const char PROGMEM desc_1[] = "Set Yaw Angle: 0 - 180 deg";
-const char PROGMEM desc_2[] = "Set Blade Pitch Angle: 0 - 180 deg";
-const char PROGMEM desc_3[] = "Stop Fan (estop)";
-const char PROGMEM desc_4[] = "Bump Fan Speed to Bump Speed";
-const char PROGMEM desc_5[] = "Set load: True / False";
-const char PROGMEM desc_6[] = "Set Smoothing Caps: True / False";
-// new cmnds
-const char PROGMEM desc_7[] = "Set/Reset Motor Runtime (S): INT & AUTH";
-const char PROGMEM desc_8[] = "Set/Reset Generator Rotations: INT & AUTH";
-const char PROGMEM desc_9[] = "Set/Reset Yaws Commanded: INT & AUTH";
-const char PROGMEM desc_10[] = "Set/Reset Pitch Commanded: INT & AUTH";
+const char PROGMEM desc_0[] = "Stop Compressor, Stop Fans, Close Valves";
+const char PROGMEM desc_1[] = "Set {valve}(int) to State: 0/1";
+const char PROGMEM desc_2[] = "Set Compressor State 0/1";
+const char PROGMEM desc_3[] = "Set Lights State 0/1";
+const char PROGMEM desc_4[] = "Set Fans State 0/1";
+const char PROGMEM desc_5[] = "Set Evaporation Fan State 0/1";
+const char PROGMEM desc_6[] = "Set Condensor Fan State 0/1";
+const char PROGMEM desc_7[] = "Set Fan Speed: 0 - 10v, Control Fan Relays";
+const char PROGMEM desc_8[] = "Set Evaporation Fan Speed: 0 - 10v";
+const char PROGMEM desc_9[] = "Set Condensor Fan Speed: 0 - 10v";
+const char PROGMEM desc_10[] = "Regas State -> Not Implemented";
+const char PROGMEM desc_11[] = "Quickstart -> Not Implemented";
 
 // Common Commands
 const char PROGMEM desc_A[] = "Set Samplerate in Hz (dflt: 1) DNU";
@@ -27,7 +27,8 @@ const char PROGMEM desc_H[] = "print commands list";
 
 extern const int16_t NUM_CMDS = 20;
 
-const char *const cmdDesc[] PROGMEM = {null_desc, desc_0, desc_1, desc_2, desc_3, desc_4, desc_5, desc_6, desc_7, desc_8, desc_9, desc_10, desc_A, desc_B, desc_C, desc_D, desc_E, desc_F, desc_G, desc_H};
+const char *const cmdDesc[] PROGMEM = {null_desc, desc_0,  desc_1, desc_2, desc_3, desc_4, desc_5, desc_6, desc_7, desc_8, desc_9,
+                                       desc_10,   desc_11, desc_A, desc_B, desc_C, desc_D, desc_E, desc_F, desc_G, desc_H};
 
 void print_cmds() {
     // Serial.println(F("{\"na     \" : \"n/a\", \"desc\" : \"n/a\"}"));
@@ -64,7 +65,7 @@ void print_cmd2(uint8_t cmnd_num) {
 }
 
 void print_cmds2() {
-    for (int i = 0; i < NUM_CMDS; i++) {
+    for (int i = 0; i <= NUM_CMDS; i++) {
         print_cmd2(i);
     }
 }

@@ -71,6 +71,8 @@ void stateMachine::sm_state_stop(jsonStateData_t &stateData) {
 #endif
         stateData.uintData++;                            // just to stop compiler warnings about unused variable
         adams.set_DO(ADAM6052_B, ADAM6052B_COMP, false); // turn off compressor
+        adams.set_AO(ADAM6224_E, COND_FAN, 0);           // set condensing fan speed to 0
+        adams.set_AO(ADAM6224_E, EVAP_FAN, 0);           // set evaporation fan speed to 0
         delay(1000);
         adams.set_DO(ADAM6052_B, ADAM6052B_COND, false); // turn off condensing fan
         adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, false); // turn off evaporation fan
@@ -186,13 +188,28 @@ void stateMachine::sm_state_cond(jsonStateData_t &stateData) {
     smState = STATE_WAIT;
 }
 
-// set both fan speeds to the same value
+// set both fan speeds to the same value & control relays
 void stateMachine::sm_state_fanspeed(jsonStateData_t &stateData) {
     if (lastState != smState) {
 #if DEBUG_STATES == true
         Serial.println(F("state: FANSPEED"));
 #endif
         experiment_active = true;
+        uint16_t adcVal = adams.adamsCtrl[ADAM6224_E].voltage_to_adc(stateData.floatData);
+        if (adcVal > 4095) {
+            adcVal = 4095; // limit to max value for 12 bit DAC
+        }
+        if (adcVal < 10) {
+            adcVal = 0; // limit to min value for 12 bit DAC
+            // turn off relays if speed is set to 0
+            adams.set_DO(ADAM6052_B, ADAM6052B_COND, false); // turn off condensing fan
+            adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, false); // turn off evaporation fan
+        } else {
+            adams.set_DO(ADAM6052_B, ADAM6052B_COND, true); // turn on condensing fan
+            adams.set_DO(ADAM6052_B, ADAM6052B_EVAP, true); // turn on evaporation fan
+        }
+        adams.set_AO(ADAM6224_E, COND_FAN, adcVal); // (type, address, bytes) send command to set speed of evaporation fan
+        adams.set_AO(ADAM6224_E, EVAP_FAN, adcVal); // (type, address, bytes) send command to set speed of evaporation fan
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -205,7 +222,12 @@ void stateMachine::sm_state_evapspeed(jsonStateData_t &stateData) {
         Serial.println(F("state: EVAPSPEED"));
 #endif
         experiment_active = true;
-        adams.adamsCtrl[ADAM6224_E].sendCMD(HOLDING_REGISTERS, 0x0000, 0x04, stateData.intData); // (type, address, bytes) send command to set speed of evaporation fan
+        uint16_t adcVal = adams.adamsCtrl[ADAM6224_E].voltage_to_adc(stateData.floatData);
+        if (adcVal > 4095) {
+            adcVal = 4095; // limit to max value for 12 bit DAC
+        }
+        // adams.adamsCtrl[ADAM6224_E].sendCMD(HOLDING_REGISTERS, EVAP_FAN, 0x01, adcVal); // (type, address, bytes) send command to set speed of evaporation fan
+        adams.set_AO(ADAM6224_E, EVAP_FAN, adcVal); // (type, address, bytes) send command to set speed of evaporation fan
         lastState = smState;
     }
     smState = STATE_WAIT;
@@ -218,6 +240,12 @@ void stateMachine::sm_state_condspeed(jsonStateData_t &stateData) {
         Serial.println(F("state: CONDSPEED"));
 #endif
         experiment_active = true;
+        uint16_t adcVal = adams.adamsCtrl[ADAM6224_E].voltage_to_adc(stateData.floatData);
+        if (adcVal > 4095) {
+            adcVal = 4095; // limit to max value for 12 bit DAC
+        }
+        // adams.adamsCtrl[ADAM6224_E].sendCMD(HOLDING_REGISTERS, COND_FAN, 0x01, adcVal); // (type, address, bytes) send command to set speed of evaporation fan
+        adams.set_AO(ADAM6224_E, COND_FAN, adcVal); // (type, address, bytes) send command to set speed of evaporation fan
         lastState = smState;
     }
     smState = STATE_WAIT;

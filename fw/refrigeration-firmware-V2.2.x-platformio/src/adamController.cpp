@@ -66,11 +66,11 @@ void adamController::sendCMD(uint16_t commandType, uint16_t address, uint16_t by
     modbusTCP.write(data);
     modbusTCP.endTransmission();
     if (response == 1) {
-        Serial.print(moduleName);
-        Serial.print(F(": Command Sent: "));
+        //  Serial.print(moduleName);
+        //   Serial.print(F(": Command Sent: "));
     } else {
-        Serial.print(moduleName);
-        Serial.print(F(": Error sending Command "));
+        //  Serial.print(moduleName);
+        //  Serial.print(F(": Error sending Command "));
     }
 }
 
@@ -224,20 +224,41 @@ int16_t adamController::read_digital_inputs() {
     return inputStates;
 }
 
-#todo check this AI written bullshit
-void read_holding_registers() {
-    int response = modbusTCP.requestFrom(HOLDING_REGISTERS, 0x00, 0x08);
+adamController::dataArray adamController::read_holding_registers() {
+    int response = modbusTCP.requestFrom(HOLDING_REGISTERS, 0x0000, 0x02);
     int numReadings = modbusTCP.available(); // Is this line even needed? requestFrom returns number of readings
-    int readBuffer[numReadings];
+                                             //  Serial.print("numReadings: ");
+                                             // Serial.println(numReadings);
+    uint16_t readBuffer[numReadings];
     char buffer[64];
     if (response > 0) {
         for (int i = 0; i < numReadings; i++) {
             readBuffer[i] = modbusTCP.read();
+            d_array.i_data[i] = readBuffer[i]; // always save the DAQ reading to the i_data
+            switch (analogType) {
+            case DAC_OUTPUT:
+                // no other conversion needed, just copy int data to float variable to avoid breaking things when changes are made and user forgets to change i_data to f_data
+                d_array.f_data[i] = float(d_array.i_data[i]);
+                break;
+            case VOLTAGE_OUTPUT:
+                //   d_array.f_data[i] = adamController::adc_to_voltage(readBuffer[i]); // do the conversion to voltage/current here
+                d_array.f_data[i] = adamController::adc_to_voltage_no_offset(readBuffer[i]); // if the voltage is set to 0-10v try this one //   Serial.println(d_array.f_data[i]); // PUT HERE TO
+                                                                                             // DEBUG!!!!!!!!!!!!!
+                break;
+            case CURRENT_OUTPUT:
+                d_array.f_data[i] = adamController::adc_to_current(readBuffer[i]); // do the conversion to voltage/current here
+                break;
+            default:
+                Serial.print(moduleName);
+                Serial.println(F("{\"error\":\"Error: Unknown analog data type requested\"}"));
+                break;
+            }
         }
-        sprintf(buffer, "{\"status\":\"%s: Read Holding Registers: %u, %u, %u, %u, %u, %u\"}", moduleName, readBuffer[0], readBuffer[1], readBuffer[2], readBuffer[3], readBuffer[4], readBuffer[5]);
+        sprintf(buffer, "{\"status\":\"%s: holding_registers: [%u, %u]\"}", moduleName, readBuffer[0], readBuffer[1]);
     } else {
-        sprintf(buffer, "{\"error\":\"%s: Unable to read input status\"}", moduleName);
+        sprintf(buffer, "{\"error\":\"%s: Unable to read registers\"}", moduleName);
     }
+    return d_array;
 }
 
 void adamController::printBin(uint8_t binaryVal) {
@@ -245,7 +266,7 @@ void adamController::printBin(uint8_t binaryVal) {
     char binString[9];
     itoa(binaryVal, binString, 2); // trying some magic to make sprinf work to print status in columns
     int zeroPadding = int(8 - strlen(binString));
-    sprintf(buffer, "{\"status\":\"%s: Read Digital Inputs: %s%s\"}", moduleName, leadingZeros[zeroPadding], binString);
+    sprintf(buffer, "{\"status\":\"%s: digital_inputs: %s%s\"}", moduleName, leadingZeros[zeroPadding], binString);
     Serial.println(buffer);
 }
 
@@ -300,8 +321,19 @@ float adamController::adc_to_voltage(uint16_t _adcvalue) {
     return voltage;
 }
 
+float adamController::adc_to_voltage_no_offset(uint16_t _adcvalue) {
+    float voltage; // = float(_adcvalue) - 32768.0;
+    voltage = _adcvalue / 409.6;
+    return voltage;
+}
+
 float adamController::adc_to_current(uint16_t _adcvalue) {
     float current = float(_adcvalue); // - 32768.0;
     current = current / 3276.799;
     return current;
+}
+
+uint16_t adamController::voltage_to_adc(float _voltage) {
+    uint16_t adcVal = uint16_t((_voltage * 409.6) + 0.5); // 4096 is the max value of a 12 bit ADC
+    return adcVal;
 }

@@ -43,6 +43,8 @@ class adamFunctions {
     void set_DO(adamName_t unit, int coilNum, bool coilState);
     void setAll_DO(adamName_t unit, int coilState);
 
+    void set_AO(adamName_t unit, int registerNum, uint16_t value);
+
     void sample_adam6052A();
     void sample_adam6052B();
     void sample_adam6217C(float (&ps_vals)[3], float (&ts_vals)[5]);

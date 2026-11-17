@@ -35,6 +35,8 @@ void adamFunctions::adams_begin() {
 #endif
 #if ADAM6224E_ACTIVE == true
     adamsCtrl[ADAM6224_E].begin();
+    adamsCtrl[ADAM6224_E].sendCMD(HOLDING_REGISTERS, COND_FAN, 0x04, 0);
+    adamsCtrl[ADAM6224_E].sendCMD(HOLDING_REGISTERS, EVAP_FAN, 0x04, 0);
 #endif
     delay(1000);
 }
@@ -45,6 +47,8 @@ bool adamFunctions::check_modbus_connection(adamName_t unit) {
 }
 
 void adamFunctions::set_DO(adamName_t unit, int coilNum, bool coilState) { adamsCtrl[unit].set_coil(coilNum, coilState); }
+
+void adamFunctions::set_AO(adamName_t unit, int registerNum, uint16_t value) { adamsCtrl[unit].sendCMD(HOLDING_REGISTERS, registerNum, 0x01, value); }
 
 void adamFunctions::setAll_DO(adamName_t unit, int coilState) { adamsCtrl[unit].set_coils(coilState); }
 
@@ -119,4 +123,15 @@ void adamFunctions::sample_adam6217D() {
 #endif
 }
 
-void adamFunctions::sample_adam6224E() {}
+void adamFunctions::sample_adam6224E() {
+    adamsCtrl[ADAM6224_E].read_holding_registers();
+    //  fanSpeeds[COND_FAN] = adamsCtrl[ADAM6224_E].adc_to_voltage(adamsCtrl[ADAM6224_E].d_array.f_data[0]);
+    //  fanSpeeds[EVAP_FAN] = adamsCtrl[ADAM6224_E].adc_to_voltage(adamsCtrl[ADAM6224_E].d_array.f_data[1]);
+    fanSpeeds[COND_FAN] = adamsCtrl[ADAM6224_E].d_array.f_data[0]; //  fanSpeeds[COND_FAN]
+    fanSpeeds[EVAP_FAN] = adamsCtrl[ADAM6224_E].d_array.f_data[1]; //  fanSpeeds[EVAP_FAN]
+
+    // Serial.print("Condensor: ");
+    //  Serial.print(fanSpeeds[COND_FAN]);
+    //  Serial.print(" EVAP: ");
+    //  Serial.println(fanSpeeds[EVAP_FAN]);
+}

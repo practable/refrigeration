@@ -85,7 +85,7 @@ void loop() {
 #endif
 #if ADAM6224E_ACTIVE == true
         adams.check_modbus_connection(ADAM6224_E);
-        // adams.sample_adam6224E();
+        adams.sample_adam6224E();
 #endif
 #if I2C_ACTIVE == true
         sample_bme280();

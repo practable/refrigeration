@@ -151,9 +151,9 @@ const jsonStateMapData_t jsonStateMap[] = {{"na", dataTypes_t::EMPTY, STATE_NULL
                                            {"fans", dataTypes_t::INTEGER, STATE_FANS},
                                            {"evap", dataTypes_t::INTEGER, STATE_EVAP_FAN},
                                            {"cond", dataTypes_t::INTEGER, STATE_COND_FAN},
-                                           {"fanspeed", dataTypes_t::INTEGER, STATE_FANS_SPEED},
-                                           {"evapspeed", dataTypes_t::INTEGER, STATE_EVAP_SPEED},
-                                           {"condspeed", dataTypes_t::INTEGER, STATE_COND_SPEED},
+                                           {"fanspeed", dataTypes_t::FLOAT, STATE_FANS_SPEED},
+                                           {"evapspeed", dataTypes_t::FLOAT, STATE_EVAP_SPEED},
+                                           {"condspeed", dataTypes_t::FLOAT, STATE_COND_SPEED},
                                            {"regas", dataTypes_t::EMPTY, STATE_REGAS},
                                            {"quickst", dataTypes_t::CSTRING, STATE_QUICKSTART},
                                            // Common States

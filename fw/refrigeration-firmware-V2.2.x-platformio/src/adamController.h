@@ -52,9 +52,9 @@ class adamController {
     const int a_in[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
     struct dataArray {
-        //  uint16_t i_data[8];       // Always holds the direct ADC value read from data aquisition module
-        float f_data[8]; // holds the calculated voltage or current value, or a copy of the ADC as a float
-                         //  uint32_t timeStamp_mS[8]; // holds the time data was sampled in mS from time of power up
+        uint16_t i_data[8]; // Always holds the direct ADC value read from data aquisition module
+        float f_data[8];    // holds the calculated voltage or current value, or a copy of the ADC as a float
+                            //  uint32_t timeStamp_mS[8]; // holds the time data was sampled in mS from time of power up
     } d_array;
 
     // Methods
@@ -75,9 +75,12 @@ class adamController {
 
     int16_t read_analog_input(uint8_t inputNum);
     dataArray read_analog_inputs();
+    dataArray read_holding_registers();
 
     float adc_to_voltage(uint16_t _adcvalue);
+    float adc_to_voltage_no_offset(uint16_t _adcvalue);
     float adc_to_current(uint16_t _acdvalue);
+    uint16_t voltage_to_adc(float _voltage);
 
     void printBin(uint8_t binaryVal);
 

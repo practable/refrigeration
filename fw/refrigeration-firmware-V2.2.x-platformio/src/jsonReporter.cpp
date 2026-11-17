@@ -101,6 +101,9 @@ void jsonReporter::print_json() { // const instrumentData_t &data
         jsonTX[payload_n][F("relays")][buffer].set(int(bool(adams.adamsCtrl[ADAM6052_B].g_coilState & 1 << i))); // fancy binary operation to bitmask the valvestate variable
     }
 
+    jsonTX[payload_n][F("ctrls")][F("cond_speed")] = fanSpeeds[COND_FAN];
+    jsonTX[payload_n][F("ctrls")][F("evap_speed")] = fanSpeeds[EVAP_FAN];
+
     // For Arrays
     // create all the JSONarrays
     JsonArray jsonArrayOne = jsonTX[payload_n][sensors_n].createNestedArray(pressure_n);

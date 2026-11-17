@@ -55,6 +55,10 @@ extern Adafruit_BME280 bme; // I2C
 // Power Relay globals
 extern char relay_names[][7];
 
+extern float fanSpeeds[2]; // array to hold the speed of the two fans (cond, evap) in voltage (0 - 10v)
+
+enum fanIDs { COND_FAN, EVAP_FAN };
+
 // Sensor & Sampling Globals
 // NOTE: these were all 32bit values, reduced to save space
 extern uint32_t lastSample; // holds the time of the last sample
